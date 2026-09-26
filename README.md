@@ -138,11 +138,94 @@ An economic input does the same. Repricing the judge with `parallelism=8` drops 
 40-minute suite to 5 minutes and makes it admissible inside a 10-minute budget it
 previously missed — without touching a single qualification row.
 
+## Are the inputs measurable?
+
+The planner reduces an evaluator to two numbers. Everything above assumes that
+reduction is fair. `characterize-evaluator` exists to test it, and on the shipped
+fixtures it does not survive.
+
+**Qualification is now keyed by what it was measured against.** The key is
+`evaluator version × failure-mode version × population × behaviour distribution`. The
+`distribution_id` is a *declaration* by the system's owner, not something inferred from
+a build hash — so a rebuild that changes nothing behavioural keeps every row, and
+declaring a move orphans them all at once. A price change still invalidates nothing;
+an evaluator version bump still invalidates everything. A miss is diagnosed as
+`qualification_stale` rather than a bare absence, so the rationale can name the
+distribution the evidence actually came from.
+
+**Rates are no longer storable.** A qualification row carries counts —
+`positive_cases`, `true_positives`, `negative_cases`, `false_positives` — and the rate
+is derived. A scenario cannot assert a sensitivity its sample size does not support,
+because there is nowhere to write one down. Each rate reports a **Wilson score
+interval**, chosen over the normal approximation because the latter is zero-width at
+p=0 and would let a 30-for-30 oracle claim certainty.
+
+**Conservatism is a policy, not a default.** `AssuranceProfile.estimator` selects
+`point` or `conservative` (lower bound on sensitivity, upper bound on FPR). It defaults
+to `point`, so nothing was silently repriced. Its bite varies:
+
+| scenario | point | conservative |
+|---|---|---|
+| A / nightly | n=7, $8.75/day | n=12, $15.00/day |
+| B / verify (oracle, 15 for 15) | n=1, $0 | **no admissible plan at all** |
+| C / production_guard (n=400) | n=3, $740.48/day | n=3, $740.48/day |
+
+Row B is the uncomfortable one: a deterministic oracle measured 15 times is not exempt
+from its own sample size, and under conservative planning the scenario has no answer.
+That is either the correct conclusion or evidence the policy is too blunt; the repo
+does not claim to know which.
+
+**The two-number summary loses the thing that matters.** Three adversarial fixtures
+live in `data/`. A and B were tuned to nearly the same pooled sensitivity from
+structurally opposite evaluators:
+
+| | A `judge_runs_noisy` | B `judge_runs_systematic` |
+|---|---|---|
+| pooled sensitivity | 0.672 | 0.682 |
+| **planner's answer** | **n=7, k=3** | **n=7, k=3** |
+| mean same-case agreement | 0.732 | **0.896** |
+| dispersion φ | 1.67 | 6.82 |
+| effective runs (of 192) | 115 | **28** |
+| cases repetition cannot fix | 0 | 7 |
+| empirical P(miss) at n=7 | 0.142, falling | 0.289, **flat** |
+
+The planner cannot tell them apart. B agrees with itself *more* than A does, because
+being reliably wrong is a form of reliability — which is why the report prints
+"consistently and confidently wrong" as a separate list from the disagreement ranking.
+B fires the independence warning and exits non-zero; A does not.
+
+**But φ is necessary, not sufficient.** Fixture A passes the clustering check and
+*still* fails the replication analysis: no n in 1..12 meets the 0.05 target on per-case
+rates, while the model claims n=7 suffices. The cause is not clustering. Averaging
+P(miss) over heterogeneous per-case rates is not P(miss) at the mean rate, so **case
+heterogeneity, not within-case correlation, is the dominant error** — and the
+empirical-versus-model curve, not the dispersion statistic, is the diagnostic that
+catches it. A constructed homogeneous fixture in the test suite comes out clean on
+both, which is the only reason the tooling can be said to discriminate rather than
+always cry wolf.
+
+Fixture C is the third failure: sensitivity 0.900 on twenty cases, one run each. It
+has the best point estimate of the three and an interval of [0.596, 0.982], which is
+to say it has told you nothing.
+
+### Policy, measurement, planner
+
+```
+Policy       maximum acceptable residual error   asserted by someone accountable
+Measurement  what the evaluator appears capable of, with its uncertainty
+Planner      the cheapest admissible plan given exactly those two
+```
+
+`--max-error` on `characterize-evaluator` is a policy input and the report labels it
+as one. It is never inferred from the data being characterised. Scenario A's `0.35`
+and `0.05` were chosen after seeing which values produced n=1 and n=7 — the file says
+so, and a test asserts that it keeps saying so.
+
 ## Reading the code
 
 | file | contents |
 |---|---|
-| `statistics.py` | the binomial decision procedure. The only module with real content. |
+| `statistics.py` | the binomial decision procedure and the Wilson interval |
 | `domain.py` | typed domain objects, grouped by mutability class |
 | `registry.py` | the world; two registries that are never merged |
 | `candidates.py` | enumeration. Crosses source × population × fraction × n × cadence × mode |
@@ -151,11 +234,18 @@ previously missed — without touching a single qualification row.
 | `ranking.py` | least cost. Deliberately dumb |
 | `planner.py` | enumerate → reject → rank |
 | `rationale.py` | why the winner won and why the losers lost |
+| `characterization.py` | the falsifier. Imported by nothing in the planner's decision path |
 
 `docs/architecture.md` was written before the implementation and its wrong predictions
 are marked `[REVISED]` rather than corrected. `docs/red_team_review.md` is the
 post-implementation attempt to falsify the whole thing; start with its first table.
+`docs/measurement_review.md` is the second pass, asking whether the quantities the
+planner optimises are measurable well enough to deserve optimisation.
+
+`scripts/make_fixtures.py` generates `data/`. It lives outside `src/` because the
+planner package is asserted to contain no randomness, and because the committed YAML —
+not the generator — is the artefact under review.
 
 ```bash
-python -m pytest        # 88 tests
+python -m pytest        # 119 tests
 ```
