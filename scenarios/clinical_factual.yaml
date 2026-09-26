@@ -1,0 +1,153 @@
+# Scenario C -- high-consequence factual mismatch (hypothetical).
+#
+# Everything that makes this scenario different from A and B is in `assurance_profiles`.
+# The planner contains no clinical knowledge: "laterality" appears only in an opaque
+# description string it never reads.
+
+scenario: clinical_factual
+
+failure_mode:
+  id: HCF-LATERALITY
+  version: v3
+  case_id: CASE-laterality-mismatch
+  description: >-
+    Assistant states a laterality (left/right) that contradicts the authoritative
+    record for the same encounter.
+
+known_regression_cases:
+  - CASE-laterality-mismatch
+
+populations:
+  # Production interactions that assert a high-consequence fact.  Unbounded: you can
+  # choose a rate, never exhaust it.
+  - id: flagged_interactions
+    denominator: production interactions asserting a high-consequence fact, per day
+    kind: live_stream
+    units_per_window: 400
+
+  # The offline regression corpus for the same failure mode.
+  - id: laterality_corpus
+    denominator: laterality regression cases
+    kind: enumerable_corpus
+    case_ids:
+      - CASE-laterality-mismatch
+
+sources:
+  # Reconciles the asserted laterality against the record of truth.  Not a judgement.
+  - id: record_reconciliation
+    version: v1
+    kind: deterministic
+    open_ended: false
+    consults_authoritative_source: true
+
+  # A strong, expensive judge.  Qualified.  Forms an opinion; consults nothing.
+  - id: frontier_judge
+    version: v2
+    kind: stochastic_judge
+    open_ended: true
+    consults_authoritative_source: false
+
+  # Clinician review.  Also consults the record.
+  - id: clinician_review
+    version: v1
+    kind: human
+    open_ended: true
+    consults_authoritative_source: true
+
+economics:
+  - source: record_reconciliation@v1
+    cost_per_invocation_usd: 0.0004
+    latency_seconds_per_invocation: 0.09
+
+  - source: frontier_judge@v2
+    cost_per_invocation_usd: 0.42
+    latency_seconds_per_invocation: 2.4
+
+  - source: clinician_review@v1
+    cost_per_invocation_usd: 1.85
+    latency_seconds_per_invocation: 55.0
+    human_minutes_per_invocation: 1.2
+    human_capacity_per_window: 600
+
+qualification:
+  - source: record_reconciliation@v1
+    failure_mode: HCF-LATERALITY@v3
+    population: flagged_interactions
+    sensitivity: 0.995
+    false_positive_rate: 0.002
+    observation_count: 5200
+    prove_red_runs: 4
+    prove_green_runs: 4
+    evidence_date: 2026-09-15
+    known_limitations:
+      - cannot adjudicate cases where the authoritative record is itself absent
+
+  - source: record_reconciliation@v1
+    failure_mode: HCF-LATERALITY@v3
+    population: laterality_corpus
+    sensitivity: 0.995
+    false_positive_rate: 0.002
+    observation_count: 5200
+    prove_red_runs: 4
+    prove_green_runs: 4
+    evidence_date: 2026-09-15
+
+  - source: frontier_judge@v2
+    failure_mode: HCF-LATERALITY@v3
+    population: flagged_interactions
+    sensitivity: 0.93
+    false_positive_rate: 0.03
+    observation_count: 900
+    prove_red_runs: 8
+    prove_green_runs: 8
+    evidence_date: 2026-09-10
+
+  - source: clinician_review@v1
+    failure_mode: HCF-LATERALITY@v3
+    population: flagged_interactions
+    sensitivity: 0.98
+    false_positive_rate: 0.004
+    observation_count: 300
+    prove_red_runs: 6
+    prove_green_runs: 6
+    evidence_date: 2026-08-30
+
+assurance_profiles:
+  # The organisational risk decision, stated as constraints rather than narrative.
+  high_consequence:
+    profile_ref: CLIN-HIGH-CONSEQUENCE-2026
+    maximum_error_requirement: 0.001
+    sampling_allowed: false
+    human_confirmation_required: true
+    authoritative_source_required: true
+    synchronous_requirement: true
+    uncertainty_disposition: escalate
+    minimum_observation_count: 200
+
+  # Identical mechanisms and economics, ordinary risk appetite.  Used by the
+  # transition tests to show what the policy -- and only the policy -- is doing.
+  routine:
+    profile_ref: CLIN-ROUTINE-2026
+    maximum_error_requirement: 0.05
+    sampling_allowed: true
+    human_confirmation_required: false
+    authoritative_source_required: false
+    synchronous_requirement: false
+    uncertainty_disposition: accept
+
+contexts:
+  - name: production_guard
+    intent: release
+    feedback_budget_seconds: 28800
+    change_scope: deployed_assistant
+    changes_per_window: 4
+    checkpoints_per_window: 1
+    assurance_profile: high_consequence
+
+  - name: production_guard_routine_policy
+    intent: release
+    feedback_budget_seconds: 28800
+    change_scope: deployed_assistant
+    changes_per_window: 4
+    checkpoints_per_window: 1
+    assurance_profile: routine

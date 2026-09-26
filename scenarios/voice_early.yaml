@@ -1,0 +1,187 @@
+# Scenario A -- early voice-agent development.
+#
+# One world, four contexts.  The 2-minute / 40-minute / 5-hour hierarchy must emerge
+# from (cases x replications x 120s), not from anything written down here.  Nothing in
+# this file names a replication count, a cadence or a scope.
+
+scenario: voice_early
+
+failure_mode:
+  id: VFD-TURNTAKING
+  version: v4
+  case_id: CASE-checklist-step-3-barge-in
+  description: >-
+    Agent mishandles a barge-in during checklist step 3 and drops the caller's
+    correction.
+
+known_regression_cases:
+  - CASE-checklist-step-3-barge-in
+  - CASE-happy-path-intake
+  - CASE-number-readback
+  - CASE-transfer-to-human
+  - CASE-voicemail-detect
+  - CASE-noisy-line
+  - CASE-caller-hangup-mid-turn
+  - CASE-dtmf-fallback
+  - CASE-spelling-clarification
+  - CASE-address-capture
+  - CASE-insurance-lookup
+  - CASE-appointment-offer
+  - CASE-reschedule
+  - CASE-cancel
+  - CASE-language-switch
+  - CASE-long-pause
+  - CASE-overlapping-speech
+  - CASE-callback-request
+  - CASE-consent-capture
+  - CASE-closing-summary
+
+populations:
+  # The single scenario the current change touches.
+  - id: affected_scenario
+    denominator: affected regression scenarios
+    kind: enumerable_corpus
+    case_ids:
+      - CASE-checklist-step-3-barge-in
+
+  # All 20 scenarios.  20 x 120s = 40 minutes for one replication.
+  - id: scenario_corpus
+    denominator: regression scenarios
+    kind: enumerable_corpus
+    case_ids:
+      - CASE-checklist-step-3-barge-in
+      - CASE-happy-path-intake
+      - CASE-number-readback
+      - CASE-transfer-to-human
+      - CASE-voicemail-detect
+      - CASE-noisy-line
+      - CASE-caller-hangup-mid-turn
+      - CASE-dtmf-fallback
+      - CASE-spelling-clarification
+      - CASE-address-capture
+      - CASE-insurance-lookup
+      - CASE-appointment-offer
+      - CASE-reschedule
+      - CASE-cancel
+      - CASE-language-switch
+      - CASE-long-pause
+      - CASE-overlapping-speech
+      - CASE-callback-request
+      - CASE-consent-capture
+      - CASE-closing-summary
+
+sources:
+  # A scripted simulation that asserts a fixed criterion.  Cannot find what it was
+  # not told to look for, which is what makes it useless for discovery.
+  - id: behavioral_simulation
+    version: v3
+    kind: deterministic
+    open_ended: false
+
+  # General-rubric judge over the transcript.  Noisy, but can surface a defect the
+  # team has not characterised yet.
+  - id: transcript_judge
+    version: v7
+    kind: stochastic_judge
+    open_ended: true
+
+economics:
+  - source: behavioral_simulation@v3
+    cost_per_invocation_usd: 0.0
+    latency_seconds_per_invocation: 120.0
+
+  # 20 scenarios x 7 replications x $0.0625 = $8.75, against the team's reported ~$10.
+  - source: transcript_judge@v7
+    cost_per_invocation_usd: 0.0625
+    latency_seconds_per_invocation: 120.0
+
+qualification:
+  # Deterministic assertion: no measured error in either direction, and the RED/GREEN
+  # pair from the last verification cycle.
+  - source: behavioral_simulation@v3
+    failure_mode: VFD-TURNTAKING@v4
+    population: affected_scenario
+    sensitivity: 1.0
+    false_positive_rate: 0.0
+    observation_count: 60
+    prove_red_runs: 1
+    prove_green_runs: 1
+    evidence_date: 2026-09-18
+
+  # Deliberately NO row for behavioral_simulation@v3 x scenario_corpus.  Someone wrote
+  # a targeted assertion for the scenario they were debugging; nobody has a
+  # machine-verifiable oracle for turn-taking quality across the whole corpus.  That
+  # absence -- not a rule about judges -- is why the broad runs must use the judge.
+
+  # Judge, measured end-to-end over (nondeterministic agent x nondeterministic judge).
+  # This pair is what forces multiple replications.
+  - source: transcript_judge@v7
+    failure_mode: VFD-TURNTAKING@v4
+    population: affected_scenario
+    sensitivity: 0.70
+    false_positive_rate: 0.10
+    observation_count: 240
+    prove_red_runs: 3
+    prove_green_runs: 3
+    evidence_date: 2026-09-12
+    known_limitations:
+      - sensitivity measured on a single accent cohort
+
+  - source: transcript_judge@v7
+    failure_mode: VFD-TURNTAKING@v4
+    population: scenario_corpus
+    sensitivity: 0.70
+    false_positive_rate: 0.10
+    observation_count: 240
+    prove_red_runs: 3
+    prove_green_runs: 3
+    evidence_date: 2026-09-12
+
+assurance_profiles:
+  # A cheap screen.  One run of a 0.70-sensitivity judge misses a real regression
+  # about 30% of the time; the team accepts that at a checkpoint because the nightly
+  # gate is behind it.  This is a risk decision, supplied to the planner.
+  screen:
+    profile_ref: VOICE-SCREEN-2026Q3
+    maximum_error_requirement: 0.35
+
+  # The gate.  Same mechanisms, same economics, ten-times-tighter error requirement.
+  # The replication count the planner derives is the only thing that moves.
+  gate:
+    profile_ref: VOICE-GATE-2026Q3
+    maximum_error_requirement: 0.05
+
+contexts:
+  - name: inner_loop
+    intent: verify_fix
+    feedback_budget_seconds: 300
+    change_scope: single_state_handler
+    changes_per_window: 20
+    checkpoints_per_window: 3
+    assurance_profile: gate
+
+  - name: checkpoint
+    intent: assess_blast_radius
+    feedback_budget_seconds: 3600
+    change_scope: single_state_handler
+    changes_per_window: 20
+    checkpoints_per_window: 3
+    assurance_profile: screen
+
+  - name: nightly
+    intent: release
+    feedback_budget_seconds: 28800
+    change_scope: accumulated_day
+    changes_per_window: 20
+    checkpoints_per_window: 3
+    assurance_profile: gate
+
+  # The behavioural surface is still evolving and the team wants to know what else is
+  # broken.  The free deterministic assertion cannot answer this at any price.
+  - name: discovery
+    intent: discover
+    feedback_budget_seconds: 300
+    change_scope: new_capability
+    changes_per_window: 20
+    checkpoints_per_window: 3
+    assurance_profile: screen

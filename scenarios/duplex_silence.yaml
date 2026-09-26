@@ -1,0 +1,192 @@
+# Scenario B -- known full-duplex silence defect.
+#
+# The product is built on LLMs, and a qualified LLM judge is available and does have
+# prove-red evidence.  It must lose the primary verification role anyway, on cost and
+# latency, decided by ranking.  Nothing in the planner knows this scenario exists.
+
+scenario: duplex_silence
+
+failure_mode:
+  id: VFD-SILENCE
+  version: v017
+  case_id: CASE-intake-checklist-state-7
+  description: >-
+    Full-duplex agent stops responding while traversing intake-checklist state 7; the
+    checklist never completes and state progression halts.
+
+known_regression_cases:
+  - CASE-intake-checklist-state-7
+  - CASE-intake-checklist-state-1
+  - CASE-intake-checklist-state-2
+  - CASE-intake-checklist-state-3
+  - CASE-intake-checklist-state-4
+  - CASE-intake-checklist-state-5
+  - CASE-intake-checklist-state-6
+  - CASE-barge-in-during-readback
+  - CASE-simultaneous-speech-recovery
+  - CASE-half-duplex-fallback
+  - CASE-silence-timeout
+  - CASE-agent-initiated-turn
+  - CASE-caller-interrupt-confirm
+  - CASE-checklist-restart
+  - CASE-checklist-skip
+  - CASE-handoff-mid-checklist
+  - CASE-audio-dropout
+  - CASE-slow-caller
+  - CASE-fast-caller
+  - CASE-background-speech
+
+populations:
+  - id: focused_repro
+    denominator: affected regression scenarios
+    kind: enumerable_corpus
+    case_ids:
+      - CASE-intake-checklist-state-7
+
+  - id: duplex_regression_corpus
+    denominator: full-duplex regression scenarios
+    kind: enumerable_corpus
+    case_ids:
+      - CASE-intake-checklist-state-7
+      - CASE-intake-checklist-state-1
+      - CASE-intake-checklist-state-2
+      - CASE-intake-checklist-state-3
+      - CASE-intake-checklist-state-4
+      - CASE-intake-checklist-state-5
+      - CASE-intake-checklist-state-6
+      - CASE-barge-in-during-readback
+      - CASE-simultaneous-speech-recovery
+      - CASE-half-duplex-fallback
+      - CASE-silence-timeout
+      - CASE-agent-initiated-turn
+      - CASE-caller-interrupt-confirm
+      - CASE-checklist-restart
+      - CASE-checklist-skip
+      - CASE-handoff-mid-checklist
+      - CASE-audio-dropout
+      - CASE-slow-caller
+      - CASE-fast-caller
+      - CASE-background-speech
+
+sources:
+  # "Checklist completed AND state advanced AND agent emitted audio" is decidable by
+  # machine.  This is what makes the failure mode machine-verifiable.
+  - id: state_machine_assertion
+    version: v2
+    kind: deterministic
+    open_ended: false
+
+  # Available, qualified, has prove-red evidence.  Must still lose.
+  - id: transcript_judge
+    version: v7
+    kind: stochastic_judge
+    open_ended: true
+
+  # A frontier judge: better sensitivity, much more expensive and slower.
+  - id: frontier_judge
+    version: v2
+    kind: stochastic_judge
+    open_ended: true
+
+economics:
+  - source: state_machine_assertion@v2
+    cost_per_invocation_usd: 0.0
+    latency_seconds_per_invocation: 120.0
+
+  - source: transcript_judge@v7
+    cost_per_invocation_usd: 0.0625
+    latency_seconds_per_invocation: 130.0
+
+  - source: frontier_judge@v2
+    cost_per_invocation_usd: 0.42
+    latency_seconds_per_invocation: 180.0
+
+qualification:
+  # Deterministic oracle.  One RED against the broken build, one GREEN after the fix.
+  - source: state_machine_assertion@v2
+    failure_mode: VFD-SILENCE@v017
+    population: focused_repro
+    sensitivity: 1.0
+    false_positive_rate: 0.0
+    observation_count: 30
+    prove_red_runs: 1
+    prove_green_runs: 1
+    evidence_date: 2026-09-22
+
+  - source: state_machine_assertion@v2
+    failure_mode: VFD-SILENCE@v017
+    population: duplex_regression_corpus
+    sensitivity: 1.0
+    false_positive_rate: 0.0
+    observation_count: 30
+    prove_red_runs: 1
+    prove_green_runs: 1
+    evidence_date: 2026-09-22
+    known_limitations:
+      - detects silence and stalled state only; says nothing about response quality
+
+  # The judge is genuinely qualified here and has plenty of prove-red observations.
+  # It is not rejected for being a judge.
+  - source: transcript_judge@v7
+    failure_mode: VFD-SILENCE@v017
+    population: focused_repro
+    sensitivity: 0.82
+    false_positive_rate: 0.06
+    observation_count: 180
+    prove_red_runs: 12
+    prove_green_runs: 12
+    evidence_date: 2026-09-20
+
+  - source: transcript_judge@v7
+    failure_mode: VFD-SILENCE@v017
+    population: duplex_regression_corpus
+    sensitivity: 0.82
+    false_positive_rate: 0.06
+    observation_count: 180
+    prove_red_runs: 12
+    prove_green_runs: 12
+    evidence_date: 2026-09-20
+
+  - source: frontier_judge@v2
+    failure_mode: VFD-SILENCE@v017
+    population: focused_repro
+    sensitivity: 0.94
+    false_positive_rate: 0.02
+    observation_count: 120
+    prove_red_runs: 12
+    prove_green_runs: 12
+    evidence_date: 2026-09-21
+
+  - source: frontier_judge@v2
+    failure_mode: VFD-SILENCE@v017
+    population: duplex_regression_corpus
+    sensitivity: 0.94
+    false_positive_rate: 0.02
+    observation_count: 120
+    prove_red_runs: 12
+    prove_green_runs: 12
+    evidence_date: 2026-09-21
+
+assurance_profiles:
+  duplex_gate:
+    profile_ref: DUPLEX-GATE-2026Q3
+    maximum_error_requirement: 0.05
+
+contexts:
+  # The debugging loop.  Runs on every iteration.
+  - name: verify
+    intent: verify_fix
+    feedback_budget_seconds: 600
+    change_scope: duplex_state_machine
+    changes_per_window: 15
+    checkpoints_per_window: 2
+    assurance_profile: duplex_gate
+
+  # Bought once, after a plausible fix exists -- not on every debugging iteration.
+  - name: blast_radius
+    intent: assess_blast_radius
+    feedback_budget_seconds: 4800
+    change_scope: duplex_state_machine
+    changes_per_window: 15
+    checkpoints_per_window: 2
+    assurance_profile: duplex_gate
