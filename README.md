@@ -239,8 +239,10 @@ so, and a test asserts that it keeps saying so.
 `docs/architecture.md` was written before the implementation and its wrong predictions
 are marked `[REVISED]` rather than corrected. `docs/red_team_review.md` is the
 post-implementation attempt to falsify the whole thing; start with its first table.
-`docs/measurement_review.md` is the second pass, asking whether the quantities the
-planner optimises are measurable well enough to deserve optimisation.
+`docs/measurement_review.md` and `docs/measurement_red_team.md` are the second pass,
+before and after, asking whether the quantities the planner optimises are measurable
+well enough to deserve optimisation. The short answer is in the second document's first
+paragraph and it is not a favourable one.
 
 `scripts/make_fixtures.py` generates `data/`. It lives outside `src/` because the
 planner package is asserted to contain no randomness, and because the committed YAML —
