@@ -14,6 +14,13 @@ failure_mode:
     Agent mishandles a barge-in during checklist step 3 and drops the caller's
     correction.
 
+# The build being planned against, and the behaviour distribution its owner declares
+# it to be in.  Qualification rows name the distribution they were measured against;
+# changing this id to something no row names orphans all of them at once.
+system_under_test:
+  system_version: voice-agent-2026.09.18
+  distribution_id: voice-agent-turntaking-r4
+
 known_regression_cases:
   - CASE-checklist-step-3-barge-in
   - CASE-happy-path-intake
@@ -101,6 +108,7 @@ qualification:
   - source: behavioral_simulation@v3
     failure_mode: VFD-TURNTAKING@v4
     population: affected_scenario
+    measured_against: voice-agent-turntaking-r4
     sensitivity: 1.0
     false_positive_rate: 0.0
     observation_count: 60
@@ -118,6 +126,7 @@ qualification:
   - source: transcript_judge@v7
     failure_mode: VFD-TURNTAKING@v4
     population: affected_scenario
+    measured_against: voice-agent-turntaking-r4
     sensitivity: 0.70
     false_positive_rate: 0.10
     observation_count: 240
@@ -130,6 +139,7 @@ qualification:
   - source: transcript_judge@v7
     failure_mode: VFD-TURNTAKING@v4
     population: scenario_corpus
+    measured_against: voice-agent-turntaking-r4
     sensitivity: 0.70
     false_positive_rate: 0.10
     observation_count: 240

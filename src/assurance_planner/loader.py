@@ -30,6 +30,7 @@ from .domain import (
     QualificationKey,
     SourceKind,
     SourceVersionRef,
+    SystemUnderTest,
     UncertaintyDisposition,
 )
 from .registry import World
@@ -112,8 +113,13 @@ def load(path: str | Path) -> Scenario:
         description=fm["description"],
     )
 
+    sut = raw["system_under_test"]
     world = World(
-        known_regression_cases=frozenset(raw.get("known_regression_cases", []))
+        system_under_test=SystemUnderTest(
+            system_version=sut["system_version"],
+            distribution_id=sut["distribution_id"],
+        ),
+        known_regression_cases=frozenset(raw.get("known_regression_cases", [])),
     )
     world.failure_modes[failure_mode.ref] = failure_mode
 
@@ -166,6 +172,10 @@ def load(path: str | Path) -> Scenario:
                     source_version=_parse_source_ref(entry["source"]),
                     failure_mode=_parse_failure_mode_ref(entry["failure_mode"]),
                     population_id=entry["population"],
+                    #: Required.  A measurement that does not say which system it was
+                    #: taken against is the defect this key exists to prevent, so
+                    #: there is deliberately no default to the current one.
+                    distribution_id=entry["measured_against"],
                 ),
                 sensitivity=float(entry["sensitivity"]),
                 false_positive_rate=float(entry["false_positive_rate"]),

@@ -148,6 +148,21 @@ def check_source_usable(
 
     evidence = world.qualification_for(source, failure_mode, population)
     if evidence is None:
+        stale = world.stale_qualification_for(source, failure_mode, population)
+        if stale:
+            measured = ", ".join(sorted({e.key.distribution_id for e in stale}))
+            return (
+                None,
+                economics,
+                Violation(
+                    "qualification_stale",
+                    f"qualification for {source} x {failure_mode.ref} x population "
+                    f"'{population.population_id}' was measured against behaviour "
+                    f"distribution(s) [{measured}]; the system under test is "
+                    f"{world.system_under_test}",
+                    2,
+                ),
+            )
         return (
             None,
             economics,

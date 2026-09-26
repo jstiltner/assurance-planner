@@ -167,30 +167,67 @@ class EvaluationPopulation:
 
 
 # --------------------------------------------------------------------------------
+# The system being evaluated
+# --------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class SystemUnderTest:
+    """A concrete build, and the behaviour distribution its owner declares it to be in.
+
+    Sensitivity is a property of the *pair* (evaluator, system under test), not of the
+    evaluator alone.  So qualification has to be keyed by something that identifies the
+    system -- but keying on the build would orphan every measurement on every deploy,
+    which is wrong for the overwhelming majority of deploys that do not move the
+    behaviour distribution at all.
+
+    Materiality is therefore **declared, not inferred**, exactly like assurance level.
+    Two builds that share a ``distribution_id`` are an assertion by a human that they
+    are interchangeable for the purpose of evaluator qualification.  That declaration
+    is what buys continuity: a non-material change reuses every existing qualification
+    row, and a material one is spelled by choosing a new ``distribution_id``, which
+    orphans them all at once.
+
+    The planner cannot check that assertion and does not try.  It is an input with the
+    same epistemic status as ``maximum_error_requirement``.
+    """
+
+    system_version: str
+    distribution_id: str
+
+    def __str__(self) -> str:
+        return f"{self.system_version} ({self.distribution_id})"
+
+
+# --------------------------------------------------------------------------------
 # Qualification evidence  (versioned between cycles; measurements are dynamic)
 # --------------------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
 class QualificationKey:
-    """The triple.  Evaluator quality is never global.
+    """Evaluator quality is never global: it is specific to all four of these.
 
     This key is also what freezes a verification claim.  A RED observed under
     ``oracle@v2`` is filed against ``oracle@v2``; a GREEN claimed under ``oracle@v3``
     looks up a key that does not exist and the source becomes inadmissible.  v0 needs
     no separate claim object to express that -- the lookup miss *is* the mechanism.
+
+    ``distribution_id`` extends the same mechanism to the system being evaluated; see
+    ``SystemUnderTest`` for why it is a declared distribution and not a build number.
     """
 
     source_version: SourceVersionRef
     failure_mode: FailureModeRef
     population_id: str
+    distribution_id: str
 
 
 @dataclass(frozen=True, slots=True)
 class QualificationEvidence:
     key: QualificationKey
-    #: Measured end-to-end over (system under test x evaluator).  v0 cannot separate
-    #: the two; see architecture note section 1.6.
+    #: Measured end-to-end over (system under test x evaluator).  The key names which
+    #: system; v0 still cannot attribute a miss to one side or the other.
     sensitivity: float
     false_positive_rate: float
     observation_count: int

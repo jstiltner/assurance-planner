@@ -26,6 +26,7 @@ _CONSTRAINT_STAGE = {
     "execution_profile_known": 1,
     "source_available": 1,
     "qualification_exists": 2,
+    "qualification_stale": 2,
     "qualification_sufficient": 3,
     "error_bound_met": 4,
     "goal_source_capability": 5,
@@ -55,6 +56,7 @@ def render(
 ) -> str:
     lines: list[str] = []
     lines.append(f"Failure mode   {failure_mode.ref}  ({failure_mode.description})")
+    lines.append(f"System         {world.system_under_test}")
     lines.append(
         f"Intent         {context.intent}   "
         f"feedback budget {_hms(context.feedback_budget_seconds)}"
@@ -171,7 +173,8 @@ def _render_step(step: PlanStep, failure_mode: FailureMode, world: World) -> lis
             f"    evidence:     sensitivity {evidence.sensitivity:g} / "
             f"FPR {evidence.false_positive_rate:g} from "
             f"{evidence.observation_count} observation(s), measured "
-            f"{evidence.evidence_date.isoformat()}"
+            f"{evidence.evidence_date.isoformat()} against "
+            f"{evidence.key.distribution_id}"
         )
         for limitation in evidence.known_limitations:
             lines.append(f"    caveat:       {limitation}")

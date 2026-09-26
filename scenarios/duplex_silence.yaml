@@ -14,6 +14,10 @@ failure_mode:
     Full-duplex agent stops responding while traversing intake-checklist state 7; the
     checklist never completes and state progression halts.
 
+system_under_test:
+  system_version: duplex-agent-2026.09.22
+  distribution_id: full-duplex-stack-r17
+
 known_regression_cases:
   - CASE-intake-checklist-state-7
   - CASE-intake-checklist-state-1
@@ -106,6 +110,7 @@ qualification:
   - source: state_machine_assertion@v2
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
+    measured_against: full-duplex-stack-r17
     sensitivity: 1.0
     false_positive_rate: 0.0
     observation_count: 30
@@ -116,6 +121,7 @@ qualification:
   - source: state_machine_assertion@v2
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
+    measured_against: full-duplex-stack-r17
     sensitivity: 1.0
     false_positive_rate: 0.0
     observation_count: 30
@@ -130,6 +136,7 @@ qualification:
   - source: transcript_judge@v7
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
+    measured_against: full-duplex-stack-r17
     sensitivity: 0.82
     false_positive_rate: 0.06
     observation_count: 180
@@ -140,6 +147,7 @@ qualification:
   - source: transcript_judge@v7
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
+    measured_against: full-duplex-stack-r17
     sensitivity: 0.82
     false_positive_rate: 0.06
     observation_count: 180
@@ -150,6 +158,7 @@ qualification:
   - source: frontier_judge@v2
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
+    measured_against: full-duplex-stack-r17
     sensitivity: 0.94
     false_positive_rate: 0.02
     observation_count: 120
@@ -160,6 +169,7 @@ qualification:
   - source: frontier_judge@v2
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
+    measured_against: full-duplex-stack-r17
     sensitivity: 0.94
     false_positive_rate: 0.02
     observation_count: 120

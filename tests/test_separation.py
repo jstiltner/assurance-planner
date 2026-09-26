@@ -59,6 +59,7 @@ def test_q2_the_two_registries_are_independent_dicts(clinical_factual):
             SourceVersionRef("frontier_judge", "v2"),
             clinical_factual.failure_mode.ref,
             "flagged_interactions",
+            world.system_under_test.distribution_id,
         ),
         sensitivity=0.5,
     )
@@ -266,6 +267,7 @@ def test_q8_a_red_under_one_version_cannot_license_a_green_under_another(
         SourceVersionRef("state_machine_assertion", "v2"),
         duplex_silence.failure_mode.ref,
         "focused_repro",
+        world.system_under_test.distribution_id,
     )
     assert world.qualification[key].prove_red_runs >= 1
     rekeyed = replace(key, source_version=SourceVersionRef("state_machine_assertion", "v3"))

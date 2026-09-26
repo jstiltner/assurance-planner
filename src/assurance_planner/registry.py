@@ -19,11 +19,16 @@ from .domain import (
     QualificationEvidence,
     QualificationKey,
     SourceVersionRef,
+    SystemUnderTest,
 )
 
 
 @dataclass
 class World:
+    #: No default.  A world in which nothing is declared about the system being
+    #: evaluated is not a world in which any qualification measurement means anything.
+    system_under_test: SystemUnderTest
+
     failure_modes: dict[FailureModeRef, FailureMode] = field(default_factory=dict)
     sources: dict[SourceVersionRef, EvidenceSourceVersion] = field(default_factory=dict)
     populations: dict[str, EvaluationPopulation] = field(default_factory=dict)
@@ -60,17 +65,40 @@ class World:
         failure_mode: FailureMode,
         population: EvaluationPopulation,
     ) -> QualificationEvidence | None:
-        """Exact match on the triple.  No inheritance, no defaults, no fallback.
+        """Exact match on the key.  No inheritance, no defaults, no fallback.
 
-        A miss is the mechanism by which a version bump, a failure-mode redefinition
-        or an untested population makes a source inadmissible.
+        A miss is the mechanism by which a version bump, a failure-mode redefinition,
+        an untested population or a moved behaviour distribution makes a source
+        inadmissible.
         """
         return self.qualification.get(
             QualificationKey(
                 source_version=source.ref,
                 failure_mode=failure_mode.ref,
                 population_id=population.population_id,
+                distribution_id=self.system_under_test.distribution_id,
             )
+        )
+
+    def stale_qualification_for(
+        self,
+        source: EvidenceSourceVersion,
+        failure_mode: FailureMode,
+        population: EvaluationPopulation,
+    ) -> tuple[QualificationEvidence, ...]:
+        """Rows that would match but for the behaviour distribution.
+
+        Only for diagnosis.  These are never usable -- the point is to be able to say
+        "measured against a system that is no longer running" instead of the far less
+        actionable "no qualification evidence".
+        """
+        return tuple(
+            evidence
+            for key, evidence in self.qualification.items()
+            if key.source_version == source.ref
+            and key.failure_mode == failure_mode.ref
+            and key.population_id == population.population_id
+            and key.distribution_id != self.system_under_test.distribution_id
         )
 
     def economics_for(self, source: EvidenceSourceVersion) -> ExecutionProfile | None:

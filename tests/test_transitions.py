@@ -56,6 +56,7 @@ def _qual_key(scenario, source: str, population: str) -> QualificationKey:
         source_version=SourceVersionRef(source_id, version),
         failure_mode=scenario.failure_mode.ref,
         population_id=population,
+        distribution_id=scenario.world.system_under_test.distribution_id,
     )
 
 
