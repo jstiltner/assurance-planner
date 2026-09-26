@@ -405,7 +405,16 @@ def render_characterization(analysis: Characterization, worst_cases: int = 5) ->
         if planner_n
         else "  current planner prediction: no n meets the target"
     )
-    if empirical_n is None:
+    if not analysis.has_repeated_cases:
+        lines.append(
+            "  empirical conclusion:       unanswerable -- every case was evaluated "
+            "once, so each per-case rate is 0 or 1"
+        )
+        lines.append(
+            "                              and the empirical column above measures "
+            "the label error, not the repetition benefit"
+        )
+    elif empirical_n is None:
         lines.append(
             "  empirical conclusion:       no n meets the target on the per-case "
             "rates; repetition does not close the gap"
@@ -426,6 +435,10 @@ def render_characterization(analysis: Characterization, worst_cases: int = 5) ->
         counts[verdict.verdict] = counts.get(verdict.verdict, 0) + 1
     lines.append("")
     lines.append("  What repetition buys, per case:")
+    if not analysis.has_repeated_cases:
+        lines.append(
+            "    (single-run study: these are label agreements, not repetition verdicts)"
+        )
     for label in ("resolved_by_one", "helped_by_repetition", "repetition_cannot_fix"):
         lines.append(f"    {label:24} {counts.get(label, 0)}")
     unfixable = analysis.unfixable_cases

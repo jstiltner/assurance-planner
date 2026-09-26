@@ -17,7 +17,12 @@ about is stochastic; the reasoning is not.
 ```bash
 pip install -e .
 assurance-plan scenarios/voice_early.yaml --context nightly
+assurance-plan characterize-evaluator data/judge_runs_systematic.yaml
 ```
+
+The second command is the planner's own falsifier. See
+[Are the inputs measurable?](#are-the-inputs-measurable) — the short answer is that on
+one of the three shipped fixtures they are not, and the planner cannot tell.
 
 ## What it decides
 
@@ -46,12 +51,17 @@ keys at any depth, and a test tampers with a real scenario to prove it.
   come out right, the abstraction has failed and that should be reported, not patched.
 - **Not an executor.** It emits a plan. It does not run evaluations, call models, or
   orchestrate a prove-red cycle.
-- **Not a governance DSL.** `AssuranceProfile` has six structured fields and an opaque
+- **Not a governance DSL.** `AssuranceProfile` has eight structured fields and an opaque
   `profile_ref`. A field only exists if changing it can change which plans are
   admissible — there is a test that flips every one of them and asserts the outcome
   moves, and a second test asserting `profile_ref` changes nothing at all.
 - **Not validated.** The qualification numbers in the fixtures are plausible, not
-  measured. See `docs/red_team_review.md`.
+  measured, and Scenario A's error requirements were reverse-engineered from the
+  replication counts they were meant to produce — stated in the file itself, and
+  asserted in a test so it stays stated. See `docs/red_team_review.md`.
+- **Not a measurement system.** It consumes sensitivity and false-positive rate. It
+  does not produce them, and `characterize-evaluator` exists to argue that consuming
+  only those two numbers is the planner's largest remaining assumption.
 
 ## The three scenarios
 

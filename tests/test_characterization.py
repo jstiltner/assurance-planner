@@ -270,6 +270,26 @@ def test_a_good_point_estimate_on_twenty_cases_says_almost_nothing(small_sample)
     assert not analysis.independence_is_implausible
 
 
+def test_a_single_run_study_cannot_answer_the_replication_question(
+    small_sample, noisy
+):
+    """"Repetition buys nothing" and "we cannot see what repetition buys" differ.
+
+    With one run per case every per-case rate is 0 or 1, so the empirical curve is flat
+    at the label error rate and the per-case verdicts are label agreements wearing the
+    wrong name.  The report must say so rather than print the finding it prints for the
+    systematically-wrong judge, which looks identical and means the opposite.
+    """
+    from assurance_planner.rationale import render_characterization
+
+    assert not characterize(small_sample, MAX_ERROR).has_repeated_cases
+    assert characterize(noisy, MAX_ERROR).has_repeated_cases
+
+    report = render_characterization(characterize(small_sample, MAX_ERROR))
+    assert "unanswerable" in report
+    assert "repetition does not close the gap" not in report
+
+
 def test_single_run_cases_report_no_disagreement_rather_than_agreement(small_sample):
     for case in small_sample.cases:
         assert case.runs == 1

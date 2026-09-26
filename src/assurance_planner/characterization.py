@@ -384,6 +384,17 @@ class Characterization:
         )
 
     @property
+    def has_repeated_cases(self) -> bool:
+        """Was any case evaluated more than once?
+
+        If not, every per-case flag rate is 0 or 1 and the per-case analysis below
+        degenerates: it will report that repetition buys nothing, when the truth is
+        that this study cannot see what repetition buys.  The two are not the same
+        finding and must not print the same sentence.
+        """
+        return any(c.runs >= 2 for c in self.run.cases)
+
+    @property
     def unfixable_cases(self) -> tuple[CaseVerdict, ...]:
         return tuple(v for v in self.verdicts if v.verdict == "repetition_cannot_fix")
 
