@@ -111,9 +111,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
     measured_against: full-duplex-stack-r17
-    sensitivity: 1.0
-    false_positive_rate: 0.0
-    observation_count: 30
+    positive_cases: 15
+    true_positives: 15
+    negative_cases: 15
+    false_positives: 0
     prove_red_runs: 1
     prove_green_runs: 1
     evidence_date: 2026-09-22
@@ -122,9 +123,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
     measured_against: full-duplex-stack-r17
-    sensitivity: 1.0
-    false_positive_rate: 0.0
-    observation_count: 30
+    positive_cases: 15
+    true_positives: 15
+    negative_cases: 15
+    false_positives: 0
     prove_red_runs: 1
     prove_green_runs: 1
     evidence_date: 2026-09-22
@@ -137,9 +139,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
     measured_against: full-duplex-stack-r17
-    sensitivity: 0.82
-    false_positive_rate: 0.06
-    observation_count: 180
+    positive_cases: 50
+    true_positives: 41
+    negative_cases: 100
+    false_positives: 6
     prove_red_runs: 12
     prove_green_runs: 12
     evidence_date: 2026-09-20
@@ -148,9 +151,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
     measured_against: full-duplex-stack-r17
-    sensitivity: 0.82
-    false_positive_rate: 0.06
-    observation_count: 180
+    positive_cases: 50
+    true_positives: 41
+    negative_cases: 100
+    false_positives: 6
     prove_red_runs: 12
     prove_green_runs: 12
     evidence_date: 2026-09-20
@@ -159,9 +163,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: focused_repro
     measured_against: full-duplex-stack-r17
-    sensitivity: 0.94
-    false_positive_rate: 0.02
-    observation_count: 120
+    positive_cases: 50
+    true_positives: 47
+    negative_cases: 50
+    false_positives: 1
     prove_red_runs: 12
     prove_green_runs: 12
     evidence_date: 2026-09-21
@@ -170,9 +175,10 @@ qualification:
     failure_mode: VFD-SILENCE@v017
     population: duplex_regression_corpus
     measured_against: full-duplex-stack-r17
-    sensitivity: 0.94
-    false_positive_rate: 0.02
-    observation_count: 120
+    positive_cases: 50
+    true_positives: 47
+    negative_cases: 50
+    false_positives: 1
     prove_red_runs: 12
     prove_green_runs: 12
     evidence_date: 2026-09-21

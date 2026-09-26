@@ -109,9 +109,10 @@ qualification:
     failure_mode: VFD-TURNTAKING@v4
     population: affected_scenario
     measured_against: voice-agent-turntaking-r4
-    sensitivity: 1.0
-    false_positive_rate: 0.0
-    observation_count: 60
+    positive_cases: 30
+    true_positives: 30
+    negative_cases: 30
+    false_positives: 0
     prove_red_runs: 1
     prove_green_runs: 1
     evidence_date: 2026-09-18
@@ -127,9 +128,10 @@ qualification:
     failure_mode: VFD-TURNTAKING@v4
     population: affected_scenario
     measured_against: voice-agent-turntaking-r4
-    sensitivity: 0.70
-    false_positive_rate: 0.10
-    observation_count: 240
+    positive_cases: 120
+    true_positives: 84
+    negative_cases: 120
+    false_positives: 12
     prove_red_runs: 3
     prove_green_runs: 3
     evidence_date: 2026-09-12
@@ -140,9 +142,10 @@ qualification:
     failure_mode: VFD-TURNTAKING@v4
     population: scenario_corpus
     measured_against: voice-agent-turntaking-r4
-    sensitivity: 0.70
-    false_positive_rate: 0.10
-    observation_count: 240
+    positive_cases: 120
+    true_positives: 84
+    negative_cases: 120
+    false_positives: 12
     prove_red_runs: 3
     prove_green_runs: 3
     evidence_date: 2026-09-12

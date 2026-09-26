@@ -20,6 +20,7 @@ from .domain import (
     AssuranceProfile,
     DevelopmentContext,
     EvaluationPopulation,
+    Estimator,
     EvidenceSourceVersion,
     ExecutionProfile,
     FailureMode,
@@ -177,9 +178,13 @@ def load(path: str | Path) -> Scenario:
                     #: there is deliberately no default to the current one.
                     distribution_id=entry["measured_against"],
                 ),
-                sensitivity=float(entry["sensitivity"]),
-                false_positive_rate=float(entry["false_positive_rate"]),
-                observation_count=int(entry["observation_count"]),
+                #: Counts, not rates.  A scenario cannot assert a sensitivity that
+                #: its stated sample size does not support, because there is nowhere
+                #: to write one down.
+                positive_cases=int(entry["positive_cases"]),
+                true_positives=int(entry["true_positives"]),
+                negative_cases=int(entry["negative_cases"]),
+                false_positives=int(entry["false_positives"]),
                 prove_red_runs=int(entry.get("prove_red_runs", 0)),
                 prove_green_runs=int(entry.get("prove_green_runs", 0)),
                 evidence_date=(
@@ -208,6 +213,7 @@ def load(path: str | Path) -> Scenario:
                 entry.get("uncertainty_disposition", "accept")
             ),
             minimum_observation_count=int(entry.get("minimum_observation_count", 1)),
+            estimator=Estimator(entry.get("estimator", "point")),
         )
 
     requests = tuple(

@@ -79,9 +79,10 @@ def replication_options(
     evidence = world.qualification_for(source, failure_mode, population)
     options = set(_LADDER)
     if evidence is not None:
+        sensitivity, false_positive_rate = evidence.planning_rates(profile.estimator)
         minimal = minimal_procedure(
-            evidence.sensitivity,
-            evidence.false_positive_rate,
+            sensitivity,
+            false_positive_rate,
             profile.maximum_error_requirement,
         )
         if minimal is not None and minimal.replications <= MAX_REPLICATIONS:

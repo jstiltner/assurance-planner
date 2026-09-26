@@ -78,9 +78,10 @@ qualification:
     failure_mode: HCF-LATERALITY@v3
     population: flagged_interactions
     measured_against: clinical-assistant-r9
-    sensitivity: 0.995
-    false_positive_rate: 0.002
-    observation_count: 5200
+    positive_cases: 400
+    true_positives: 398
+    negative_cases: 5000
+    false_positives: 10
     prove_red_runs: 4
     prove_green_runs: 4
     evidence_date: 2026-09-15
@@ -91,9 +92,10 @@ qualification:
     failure_mode: HCF-LATERALITY@v3
     population: laterality_corpus
     measured_against: clinical-assistant-r9
-    sensitivity: 0.995
-    false_positive_rate: 0.002
-    observation_count: 5200
+    positive_cases: 400
+    true_positives: 398
+    negative_cases: 5000
+    false_positives: 10
     prove_red_runs: 4
     prove_green_runs: 4
     evidence_date: 2026-09-15
@@ -102,9 +104,10 @@ qualification:
     failure_mode: HCF-LATERALITY@v3
     population: flagged_interactions
     measured_against: clinical-assistant-r9
-    sensitivity: 0.93
-    false_positive_rate: 0.03
-    observation_count: 900
+    positive_cases: 300
+    true_positives: 279
+    negative_cases: 600
+    false_positives: 18
     prove_red_runs: 8
     prove_green_runs: 8
     evidence_date: 2026-09-10
@@ -113,9 +116,10 @@ qualification:
     failure_mode: HCF-LATERALITY@v3
     population: flagged_interactions
     measured_against: clinical-assistant-r9
-    sensitivity: 0.98
-    false_positive_rate: 0.004
-    observation_count: 300
+    positive_cases: 100
+    true_positives: 98
+    negative_cases: 250
+    false_positives: 1
     prove_red_runs: 6
     prove_green_runs: 6
     evidence_date: 2026-08-30

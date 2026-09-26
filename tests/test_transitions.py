@@ -41,9 +41,10 @@ def _machine_verifiable_oracle_for_corpus(scenario) -> QualificationEvidence:
     """Someone writes an assertion covering the whole corpus and qualifies it."""
     return QualificationEvidence(
         key=_qual_key(scenario, "behavioral_simulation@v3", "scenario_corpus"),
-        sensitivity=1.0,
-        false_positive_rate=0.0,
-        observation_count=60,
+        positive_cases=30,
+        true_positives=30,
+        negative_cases=30,
+        false_positives=0,
         prove_red_runs=1,
         prove_green_runs=1,
         evidence_date=date(2026, 9, 25),
@@ -74,8 +75,11 @@ def test_1_less_noisy_judge_needs_fewer_replications(voice_early):
     for population in ("affected_scenario", "scenario_corpus"):
         world = world.requalify(
             _qual_key(voice_early, "transcript_judge@v7", population),
-            sensitivity=0.90,
-            false_positive_rate=0.03,
+            #: 0.90 sensitivity, 0.03 false-positive rate -- expressed as the study
+            #: that would produce them, because rates are no longer storable.
+            true_positives=108,
+            negative_cases=100,
+            false_positives=3,
         )
 
     after = _plan(voice_early, "nightly", world=world).selected.primary

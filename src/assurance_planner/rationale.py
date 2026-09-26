@@ -67,7 +67,8 @@ def render(
         f"sampling={'yes' if profile.sampling_allowed else 'no'}   "
         f"human_confirmation={'yes' if profile.human_confirmation_required else 'no'}   "
         f"authoritative={'yes' if profile.authoritative_source_required else 'no'}   "
-        f"sync={'yes' if profile.synchronous_requirement else 'no'}"
+        f"sync={'yes' if profile.synchronous_requirement else 'no'}   "
+        f"estimator={profile.estimator}"
     )
     lines.append("")
 
@@ -170,11 +171,25 @@ def _render_step(step: PlanStep, failure_mode: FailureMode, world: World) -> lis
     evidence = world.qualification_for(step.source, failure_mode, step.population)
     if evidence is not None:
         lines.append(
-            f"    evidence:     sensitivity {evidence.sensitivity:g} / "
-            f"FPR {evidence.false_positive_rate:g} from "
-            f"{evidence.observation_count} observation(s), measured "
-            f"{evidence.evidence_date.isoformat()} against "
-            f"{evidence.key.distribution_id}"
+            f"    evidence:     measured {evidence.evidence_date.isoformat()} "
+            f"against {evidence.key.distribution_id}"
+        )
+        #: Point estimate and interval on the same line, always.  A bare 0.70 invites
+        #: a reader to treat it as a parameter; "0.700 [0.613, 0.775] from 120 cases"
+        #: does not.
+        s_lo, s_hi = evidence.sensitivity_interval
+        f_lo, f_hi = evidence.false_positive_rate_interval
+        lines.append(
+            f"    sensitivity:  {evidence.sensitivity:.3f} "
+            f"[{s_lo:.3f}, {s_hi:.3f}] 95% "
+            f"({evidence.true_positives} of {evidence.positive_cases} "
+            f"reference-positive cases)"
+        )
+        lines.append(
+            f"    false alarms: {evidence.false_positive_rate:.3f} "
+            f"[{f_lo:.3f}, {f_hi:.3f}] 95% "
+            f"({evidence.false_positives} of {evidence.negative_cases} "
+            f"reference-negative cases)"
         )
         for limitation in evidence.known_limitations:
             lines.append(f"    caveat:       {limitation}")

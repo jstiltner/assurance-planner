@@ -7,13 +7,43 @@ Section 1 covers stale-evidence identity; later sections cover estimate uncertai
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import date
 
 import pytest
 
 from assurance_planner import plan
-from assurance_planner.domain import SystemUnderTest
+from assurance_planner.domain import (
+    Estimator,
+    FailureModeRef,
+    QualificationEvidence,
+    QualificationKey,
+    SourceVersionRef,
+    SystemUnderTest,
+)
+from assurance_planner.statistics import minimal_procedure, wilson_interval
 
 from conftest import run
+
+
+def _evidence(
+    positive_cases: int,
+    true_positives: int,
+    negative_cases: int,
+    false_positives: int,
+) -> QualificationEvidence:
+    """A qualification study with nothing in it but its counts."""
+    return QualificationEvidence(
+        key=QualificationKey(
+            SourceVersionRef("s", "v1"), FailureModeRef("FM", "v1"), "pop", "dist"
+        ),
+        positive_cases=positive_cases,
+        true_positives=true_positives,
+        negative_cases=negative_cases,
+        false_positives=false_positives,
+        prove_red_runs=99,
+        prove_green_runs=99,
+        evidence_date=date(2026, 1, 1),
+    )
 
 
 def _with_distribution(scenario, distribution_id: str, system_version: str = "next"):

@@ -17,6 +17,7 @@ import yaml
 from assurance_planner import load, plan
 from assurance_planner.domain import (
     AssuranceProfile,
+    Estimator,
     EvidenceSourceVersion,
     ExecutionProfile,
     PlanStep,
@@ -61,7 +62,7 @@ def test_q2_the_two_registries_are_independent_dicts(clinical_factual):
             "flagged_interactions",
             world.system_under_test.distribution_id,
         ),
-        sensitivity=0.5,
+        true_positives=200,
     )
     assert repriced.qualification == world.qualification
     assert requalified.economics == world.economics
@@ -316,6 +317,7 @@ def test_q10_every_assurance_profile_field_changes_the_outcome_somewhere(
         ("uncertainty_disposition", UncertaintyDisposition.ESCALATE),
         ("maximum_error_requirement", 0.001),
         ("minimum_observation_count", 1000),
+        ("estimator", Estimator.CONSERVATIVE),
     ]:
         changed = plan_ids(replace(base, **{field: value}))
         assert changed != baseline, f"AssuranceProfile.{field} changes nothing"

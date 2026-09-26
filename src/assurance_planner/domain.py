@@ -12,6 +12,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from enum import StrEnum
 
+from .statistics import wilson_interval
+
 
 # --------------------------------------------------------------------------------
 # Enumerations
@@ -55,6 +57,22 @@ class ExecutionMode(StrEnum):
 class UncertaintyDisposition(StrEnum):
     ACCEPT = "accept"
     ESCALATE = "escalate"
+
+
+class Estimator(StrEnum):
+    """Which end of a measurement's confidence interval the planner is to believe.
+
+    Policy, not measurement, and deliberately not universal.  Exploring a new failure
+    mode with point estimates is reasonable; gating a release on the optimistic end of
+    a ten-case study is not.  Which of those a given context is doing is exactly the
+    kind of judgement the planner takes as input and never makes.
+    """
+
+    #: The study's observed rates.  What every plan before this change used.
+    POINT = "point"
+    #: Sensitivity's lower bound and the false-positive rate's upper bound.  Small
+    #: studies get correspondingly expensive plans, which is the intended pressure.
+    CONSERVATIVE = "conservative"
 
 
 class StepRole(StrEnum):
@@ -225,16 +243,71 @@ class QualificationKey:
 
 @dataclass(frozen=True, slots=True)
 class QualificationEvidence:
+    """A qualification *study*, stored as the counts it produced.
+
+    Rates are derived, never stored.  Before this, a row could assert
+    ``sensitivity: 0.70`` next to any ``observation_count`` it liked, and the two
+    could disagree with each other or with reality without anything noticing.  Counts
+    make the sample size and the point estimate the same fact, so a study of ten cases
+    cannot present itself with the authority of a study of a thousand.
+
+    Measured end-to-end over (system under test x evaluator).  The key names which
+    system; v0 still cannot attribute a miss to one side or the other.
+    """
+
     key: QualificationKey
-    #: Measured end-to-end over (system under test x evaluator).  The key names which
-    #: system; v0 still cannot attribute a miss to one side or the other.
-    sensitivity: float
-    false_positive_rate: float
-    observation_count: int
+    #: Reference-positive cases in the study, and how many the source flagged.
+    positive_cases: int
+    true_positives: int
+    #: Reference-negative cases in the study, and how many the source flagged anyway.
+    negative_cases: int
+    false_positives: int
     prove_red_runs: int
     prove_green_runs: int
     evidence_date: date
     known_limitations: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.true_positives <= self.positive_cases:
+            raise ValueError(f"{self.key}: true_positives outside positive_cases")
+        if not 0 <= self.false_positives <= self.negative_cases:
+            raise ValueError(f"{self.key}: false_positives outside negative_cases")
+
+    @property
+    def sensitivity(self) -> float:
+        if self.positive_cases == 0:
+            return 0.0
+        return self.true_positives / self.positive_cases
+
+    @property
+    def false_positive_rate(self) -> float:
+        if self.negative_cases == 0:
+            return 1.0
+        return self.false_positives / self.negative_cases
+
+    @property
+    def observation_count(self) -> int:
+        return self.positive_cases + self.negative_cases
+
+    @property
+    def sensitivity_interval(self) -> tuple[float, float]:
+        return wilson_interval(self.true_positives, self.positive_cases)
+
+    @property
+    def false_positive_rate_interval(self) -> tuple[float, float]:
+        return wilson_interval(self.false_positives, self.negative_cases)
+
+    def planning_rates(self, estimator: "Estimator") -> tuple[float, float]:
+        """The (sensitivity, false-positive rate) pair the planner should use.
+
+        The only place the estimator policy is applied.  Conservative planning takes
+        the pessimistic end of each interval independently, which is deliberately not
+        a joint confidence region -- it is a floor on how good the evaluator is
+        allowed to be assumed to be, not a probability statement about the pair.
+        """
+        if estimator is Estimator.POINT:
+            return (self.sensitivity, self.false_positive_rate)
+        return (self.sensitivity_interval[0], self.false_positive_rate_interval[1])
 
 
 # --------------------------------------------------------------------------------
@@ -273,6 +346,10 @@ class AssuranceProfile:
     uncertainty_disposition: UncertaintyDisposition = UncertaintyDisposition.ACCEPT
     #: Minimum qualification study size before evidence counts at all.
     minimum_observation_count: int = 1
+    #: Whether to plan on what the evaluator measured, or on the worst the measurement
+    #: is consistent with.  Defaults to the pre-existing behaviour so that adding the
+    #: field does not silently reprice every plan in the repository.
+    estimator: Estimator = Estimator.POINT
 
 
 @dataclass(frozen=True, slots=True)

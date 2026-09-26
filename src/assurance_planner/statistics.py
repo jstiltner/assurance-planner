@@ -12,12 +12,43 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from math import comb
+from math import comb, sqrt
 
 # Hard ceiling on enumerated replications.  Not a tuning parameter: it exists so an
 # impossible error target terminates instead of looping.  A source that needs more
 # than this many runs is reported as unable to meet the requirement.
 MAX_REPLICATIONS = 64
+
+#: Normal quantile for a two-sided 95% interval.  A v0 constant, not a ninth policy
+#: knob: nothing in any scenario so far turns on the difference between 90% and 99%,
+#: and adding the dial before anything needs it would be the kind of unexercised
+#: abstraction the last pass spent its time deleting.
+Z_95 = 1.959963984540054
+
+
+def wilson_interval(
+    successes: int, trials: int, z: float = Z_95
+) -> tuple[float, float]:
+    """Wilson score interval for a binomial proportion.
+
+    Frequentist, closed-form, and correct at the boundaries -- which is the whole
+    reason for preferring it here.  The obvious alternative, the normal approximation
+    ``p +- z*sqrt(p(1-p)/n)``, returns the degenerate interval ``[1.0, 1.0]`` for a
+    deterministic oracle measured 30 times out of 30, which would let the planner
+    claim certainty it has not bought.  Wilson returns ``[0.885, 1.0]`` for the same
+    data, which is the honest statement.
+
+    ``trials == 0`` returns the whole unit interval: no observations, no information.
+    """
+    if trials <= 0:
+        return (0.0, 1.0)
+    p = successes / trials
+    denominator = 1.0 + z * z / trials
+    centre = (p + z * z / (2.0 * trials)) / denominator
+    half_width = (
+        z * sqrt(p * (1.0 - p) / trials + z * z / (4.0 * trials * trials))
+    ) / denominator
+    return (max(0.0, centre - half_width), min(1.0, centre + half_width))
 
 
 def _binomial_pmf(n: int, p: float, i: int) -> float:

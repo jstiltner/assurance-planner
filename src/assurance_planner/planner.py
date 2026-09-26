@@ -83,10 +83,11 @@ def _evaluate(
         return violation
     assert evidence is not None and execution is not None
 
+    sensitivity, false_positive_rate = evidence.planning_rates(profile.estimator)
     procedure = procedure_for(
         candidate.replications,
-        evidence.sensitivity,
-        evidence.false_positive_rate,
+        sensitivity,
+        false_positive_rate,
         profile.maximum_error_requirement,
     )
     violation = check_error_bound(
