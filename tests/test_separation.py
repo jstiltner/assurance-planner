@@ -402,3 +402,19 @@ def test_planner_uses_no_randomness_or_wall_clock():
         assert "import random" not in text
         assert "datetime.now" not in text
         assert "time.time" not in text
+
+
+# --- policy is an input, not a finding --------------------------------------------
+
+
+def test_scenario_a_discloses_where_its_error_requirement_came_from():
+    """Scenario A's 0.35 and 0.05 were reverse-engineered from the desired n.
+
+    Keeping the disclosure in the file is the only thing standing between "worked
+    example" and "evidence that a 0.70-sensitivity judge needs seven runs", which is
+    a claim this repository has no standing to make.  Asserted rather than trusted,
+    because a comment is exactly the kind of thing that gets tidied away.
+    """
+    text = (SCENARIO_DIR / "voice_early.yaml").read_text(encoding="utf-8")
+    assert "PROVENANCE" in text
+    assert "NOT elicited" in text

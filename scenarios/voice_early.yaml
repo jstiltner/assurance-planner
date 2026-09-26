@@ -97,7 +97,9 @@ economics:
     cost_per_invocation_usd: 0.0
     latency_seconds_per_invocation: 120.0
 
-  # 20 scenarios x 7 replications x $0.0625 = $8.75, against the team's reported ~$10.
+  # 20 scenarios x 7 replications x $0.0625 = $8.75.  The per-invocation price is the
+  # input; the $8.75 is an output, quoted here only so a reader can check the
+  # arithmetic.  It is not a budget the planner is trying to hit.
   - source: transcript_judge@v7
     cost_per_invocation_usd: 0.0625
     latency_seconds_per_invocation: 120.0
@@ -137,6 +139,11 @@ qualification:
     evidence_date: 2026-09-12
     known_limitations:
       - sensitivity measured on a single accent cohort
+      - >-
+        pooled over cases with no per-case record retained, so nothing here can
+        distinguish a judge that fluctuates around the right label from one that is
+        reliably wrong on a subset. See docs/measurement_review.md; characterize-evaluator
+        is the tool that would settle it.
 
   - source: transcript_judge@v7
     failure_mode: VFD-TURNTAKING@v4
@@ -151,15 +158,27 @@ qualification:
     evidence_date: 2026-09-12
 
 assurance_profiles:
-  # A cheap screen.  One run of a 0.70-sensitivity judge misses a real regression
-  # about 30% of the time; the team accepts that at a checkpoint because the nightly
-  # gate is behind it.  This is a risk decision, supplied to the planner.
+  # PROVENANCE, stated because hiding it would make this scenario evidence for a claim
+  # it cannot support.  These two numbers were NOT elicited from anyone with authority
+  # over the risk.  They were chosen, after the fact, because 0.35 and 0.05 are the
+  # values that make a 0.70-sensitivity judge come out at n=1 and n=7 -- the shape the
+  # scenario was written to illustrate.  The derivation n = f(sensitivity, fpr, error)
+  # is sound; this file is a demonstration of it, not a measurement of anyone's risk
+  # appetite.  A real profile_ref points at a decision someone signed.
+  #
+  # The separation the planner depends on:
+  #
+  #   Policy       maximum_error_requirement -- asserted here, never inferred
+  #   Measurement  sensitivity and fpr       -- counts below, with their sample size
+  #   Planner      the cheapest admissible plan given exactly those two
+  #
+  # Treat a change to either number as a change of scenario, not a tuning knob.
   screen:
     profile_ref: VOICE-SCREEN-2026Q3
     maximum_error_requirement: 0.35
 
-  # The gate.  Same mechanisms, same economics, ten-times-tighter error requirement.
-  # The replication count the planner derives is the only thing that moves.
+  # Same mechanisms, same economics, seven-times-tighter error requirement.  The
+  # replication count the planner derives is the only thing that moves.
   gate:
     profile_ref: VOICE-GATE-2026Q3
     maximum_error_requirement: 0.05
