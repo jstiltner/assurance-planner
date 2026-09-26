@@ -1,0 +1,171 @@
+evaluator: rubric_uptake_judge@v2
+failure_mode: VFD-CORRECTION-UPTAKE@v1
+failure_description: Caller corrects a value the agent has already read back, mid-turn, and
+  the agent continues on the uncorrected value without acknowledging the correction.
+population: correction-uptake-suite
+measured_against: voice-agent-turntaking-r4
+note: 'Synthetic. Tuned to roughly the same pooled sensitivity as correction_uptake_judge@v4
+  while being a structurally different evaluator: most cases are near-deterministic and a
+  minority are near-deterministically wrong. If sensitivity alone drives planning, these two
+  are indistinguishable.'
+cases:
+- case_id: CASE-pos-000
+  failure_present: true
+  outcomes: '11011011'
+- case_id: CASE-pos-001
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-002
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-003
+  failure_present: true
+  outcomes: '11111101'
+- case_id: CASE-pos-004
+  failure_present: true
+  outcomes: '10111111'
+- case_id: CASE-pos-005
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-006
+  failure_present: true
+  outcomes: '11110111'
+- case_id: CASE-pos-007
+  failure_present: true
+  outcomes: '11110111'
+- case_id: CASE-pos-008
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-009
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-010
+  failure_present: true
+  outcomes: '11011111'
+- case_id: CASE-pos-011
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-012
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-013
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-014
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-015
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-016
+  failure_present: true
+  outcomes: '11111111'
+- case_id: CASE-pos-017
+  failure_present: true
+  outcomes: '00000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-018
+  failure_present: true
+  outcomes: '00000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-019
+  failure_present: true
+  outcomes: '00000001'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-020
+  failure_present: true
+  outcomes: '00000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-021
+  failure_present: true
+  outcomes: '00000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-022
+  failure_present: true
+  outcomes: '00000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-pos-023
+  failure_present: true
+  outcomes: '01000000'
+  note: rubric reads the correction as an unrelated new assertion
+- case_id: CASE-neg-000
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-001
+  failure_present: false
+  outcomes: '00010001'
+- case_id: CASE-neg-002
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-003
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-004
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-005
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-006
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-007
+  failure_present: false
+  outcomes: '00001000'
+- case_id: CASE-neg-008
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-009
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-010
+  failure_present: false
+  outcomes: '00000001'
+- case_id: CASE-neg-011
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-012
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-013
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-014
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-015
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-016
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-017
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-018
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-019
+  failure_present: false
+  outcomes: '00100000'
+- case_id: CASE-neg-020
+  failure_present: false
+  outcomes: '00000010'
+- case_id: CASE-neg-021
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-022
+  failure_present: false
+  outcomes: '00000000'
+- case_id: CASE-neg-023
+  failure_present: false
+  outcomes: '11110110'
+  note: agent restates the value verbatim; rubric treats that as a miss
+- case_id: CASE-neg-024
+  failure_present: false
+  outcomes: '11010010'
+  note: agent restates the value verbatim; rubric treats that as a miss
+- case_id: CASE-neg-025
+  failure_present: false
+  outcomes: '10010101'
+  note: agent restates the value verbatim; rubric treats that as a miss

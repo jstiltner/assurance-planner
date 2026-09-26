@@ -34,6 +34,7 @@ from .domain import (
     SystemUnderTest,
     UncertaintyDisposition,
 )
+from .characterization import CaseRun, CharacterizationRun
 from .registry import World
 
 #: Fields a scenario file may never contain.  Enforced, not documented.
@@ -235,4 +236,42 @@ def load(path: str | Path) -> Scenario:
         failure_mode=failure_mode,
         world=world,
         requests=requests,
+    )
+
+
+def load_characterization(path: str | Path) -> CharacterizationRun:
+    """Load per-case evaluator outcomes.
+
+    ``outcomes`` is a string of ``1``/``0`` rather than a YAML list because a case with
+    eight repetitions is the common shape and a list of eight booleans per case makes
+    a fifty-case file unreadable.  The encoding is the only concession to brevity: the
+    per-case records themselves are never collapsed.
+    """
+    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+
+    cases: list[CaseRun] = []
+    for entry in raw["cases"]:
+        outcomes = str(entry["outcomes"])
+        if set(outcomes) - {"0", "1"} or not outcomes:
+            raise ValueError(
+                f"case '{entry['case_id']}': outcomes must be a non-empty string of "
+                f"0 and 1, got {outcomes!r}"
+            )
+        cases.append(
+            CaseRun(
+                case_id=entry["case_id"],
+                reference_label=bool(entry["failure_present"]),
+                outcomes=tuple(c == "1" for c in outcomes),
+                scores=tuple(float(s) for s in entry.get("scores", [])),
+                note=entry.get("note", ""),
+            )
+        )
+
+    return CharacterizationRun(
+        evaluator_version=_parse_source_ref(raw["evaluator"]),
+        failure_mode=_parse_failure_mode_ref(raw["failure_mode"]),
+        population_id=raw["population"],
+        distribution_id=raw["measured_against"],
+        cases=tuple(cases),
+        note=raw.get("note", ""),
     )

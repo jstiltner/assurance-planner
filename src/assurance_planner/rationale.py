@@ -8,6 +8,7 @@ one a human was most likely to have expected to win.
 
 from __future__ import annotations
 
+from .characterization import Characterization, RateEstimate
 from .constraints import _hms
 from .domain import (
     AssuranceProfile,
@@ -268,3 +269,178 @@ def _render_rejections(result: PlanningResult, limit: int) -> list[str]:
 
 def _truncate(text: str, limit: int = 300) -> str:
     return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
+# --------------------------------------------------------------------------------
+# Evaluator characterization
+# --------------------------------------------------------------------------------
+
+
+def _interval(bounds: tuple[float, float]) -> str:
+    return f"[{bounds[0]:.3f}, {bounds[1]:.3f}]"
+
+
+def _render_rate(estimate: RateEstimate) -> list[str]:
+    lines = [
+        f"{estimate.label.capitalize()}:",
+        f"  point estimate:      {estimate.point:.3f}  "
+        f"({estimate.flags} flags in {estimate.runs} runs over "
+        f"{estimate.cases} cases)",
+        f"  interval (i.i.d.):   {_interval(estimate.naive_interval)}  "
+        f"width {estimate.naive_width:.3f}",
+    ]
+    dispersion = estimate.dispersion
+    if dispersion is None:
+        lines.append(
+            "  interval (clustered): undefined -- too few cases or repetitions to "
+            "estimate clustering"
+        )
+        return lines
+    lines.append(
+        f"  interval (clustered): {_interval(estimate.corrected_interval)}  "
+        f"width {estimate.corrected_width:.3f}"
+    )
+    lines.append(
+        f"  effective runs:      {dispersion.effective_runs:.0f} of {estimate.runs} "
+        f"(dispersion phi={dispersion.phi:.2f}, ICC={dispersion.icc:.2f})"
+    )
+    return lines
+
+
+def render_characterization(analysis: Characterization, worst_cases: int = 5) -> str:
+    run = analysis.run
+    lines = [
+        f"Evaluator:        {run.evaluator_version}",
+        f"Failure mode:     {run.failure_mode}",
+        f"Population:       {run.population_id}",
+        f"SUT distribution: {run.distribution_id}",
+        f"Error target:     {analysis.max_error:g}  (policy input, not measured)",
+        "",
+        "Reference cases:",
+        f"  positive: {len(run.positives)}",
+        f"  negative: {len(run.negatives)}",
+        "",
+    ]
+    lines.extend(_render_rate(analysis.sensitivity))
+    lines.append("")
+    lines.extend(_render_rate(analysis.false_positive_rate))
+    lines.append("")
+
+    lines.append("Repeatability:")
+    lines.append(
+        f"  mean same-case agreement: {analysis.mean_agreement:.3f}  "
+        f"(probability two repetitions of one case match)"
+    )
+    disagreeing = sorted(
+        (c for c in run.cases if c.runs >= 2),
+        key=lambda c: (-c.disagreement_rate, c.case_id),
+    )[:worst_cases]
+    for case in disagreeing:
+        if case.disagreement_rate == 0.0:
+            break
+        lines.append(
+            f"    {case.case_id:18} disagreement {case.disagreement_rate:.2f}  "
+            f"flagged {case.flags}/{case.runs}"
+        )
+    #: A case the evaluator is consistently wrong about has zero disagreement and is
+    #: therefore absent from the list above.  Naming it separately is the point.
+    confident_errors = sorted(
+        (
+            c
+            for c in run.cases
+            if c.runs >= 2 and c.disagreement_rate == 0.0
+            and c.correct_rate == 0.0
+        ),
+        key=lambda c: c.case_id,
+    )
+    if confident_errors:
+        lines.append(
+            f"  consistently and confidently wrong: {len(confident_errors)} case(s)"
+        )
+        for case in confident_errors[:worst_cases]:
+            lines.append(f"    {case.case_id:18} {case.flags}/{case.runs} flags")
+    lines.append("")
+
+    lines.append("Independence:")
+    if analysis.independence_is_implausible:
+        worst = max(
+            (
+                estimate
+                for estimate in (analysis.sensitivity, analysis.false_positive_rate)
+                if estimate.dispersion is not None
+            ),
+            key=lambda e: e.dispersion.phi,
+        )
+        lines.append(
+            f"  WARNING: outcomes cluster strongly by case "
+            f"(phi={worst.dispersion.phi:.2f} on {worst.label})"
+        )
+        lines.append(
+            f"  {worst.runs} repetitions carry about "
+            f"{worst.dispersion.effective_runs:.0f} runs' worth of information; "
+            f"the binomial replication count overstates the evidence bought"
+        )
+    else:
+        lines.append(
+            "  no strong case clustering detected; the i.i.d. binomial model is not "
+            "contradicted by this data"
+        )
+    lines.append("")
+
+    lines.append("Replication analysis:")
+    lines.append(
+        "   n   k   model P(miss)   empirical P(miss)   model P(FA)   empirical P(FA)"
+    )
+    for point in analysis.curve:
+        lines.append(
+            f"  {point.replications:2d}  {point.threshold_k:2d}   "
+            f"{point.model_miss:13.4f}   {point.empirical_miss:17.4f}   "
+            f"{point.model_false_alarm:11.4f}   {point.empirical_false_alarm:15.4f}"
+        )
+    planner_n = analysis.planner_replications()
+    empirical_n = analysis.empirical_replications()
+    lines.append("")
+    lines.append(
+        f"  current planner prediction: n={planner_n}"
+        if planner_n
+        else "  current planner prediction: no n meets the target"
+    )
+    if empirical_n is None:
+        lines.append(
+            "  empirical conclusion:       no n meets the target on the per-case "
+            "rates; repetition does not close the gap"
+        )
+    elif planner_n is not None and empirical_n > planner_n:
+        lines.append(
+            f"  empirical conclusion:       n={empirical_n} -- the model is "
+            f"optimistic by {empirical_n - planner_n} replication(s)"
+        )
+    else:
+        lines.append(
+            f"  empirical conclusion:       n={empirical_n} -- the model is not "
+            f"optimistic on this data"
+        )
+
+    counts: dict[str, int] = {}
+    for verdict in analysis.verdicts:
+        counts[verdict.verdict] = counts.get(verdict.verdict, 0) + 1
+    lines.append("")
+    lines.append("  What repetition buys, per case:")
+    for label in ("resolved_by_one", "helped_by_repetition", "repetition_cannot_fix"):
+        lines.append(f"    {label:24} {counts.get(label, 0)}")
+    unfixable = analysis.unfixable_cases
+    if unfixable:
+        lines.append(
+            f"    -> {len(unfixable)} case(s) are decided wrong at every replication "
+            f"count; more runs converge on the wrong answer"
+        )
+        for verdict in unfixable[:worst_cases]:
+            note = f"  ({verdict.case.note})" if verdict.case.note else ""
+            lines.append(
+                f"       {verdict.case.case_id:18} "
+                f"flagged {verdict.case.flags}/{verdict.case.runs}{note}"
+            )
+    if run.note:
+        lines.append("")
+        lines.append(f"Data note: {run.note}")
+    return "\n".join(lines)

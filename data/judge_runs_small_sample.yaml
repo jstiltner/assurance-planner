@@ -1,0 +1,71 @@
+evaluator: correction_uptake_judge@v6
+failure_mode: VFD-CORRECTION-UPTAKE@v1
+failure_description: Caller corrects a value the agent has already read back, mid-turn, and
+  the agent continues on the uncorrected value without acknowledging the correction.
+population: correction-uptake-suite
+measured_against: voice-agent-turntaking-r4
+note: 'Synthetic. A pilot: twenty cases, one run each. Sensitivity 0.90 and a false-positive
+  rate of 0.10 look better than either evaluator above, and the intervals are wide enough
+  that the comparison means nothing. Also exercises the path where within-case variance is
+  undefined.'
+cases:
+- case_id: CASE-pos-000
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-001
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-002
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-003
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-004
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-005
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-006
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-007
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-008
+  failure_present: true
+  outcomes: '1'
+- case_id: CASE-pos-009
+  failure_present: true
+  outcomes: '0'
+- case_id: CASE-neg-000
+  failure_present: false
+  outcomes: '1'
+- case_id: CASE-neg-001
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-002
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-003
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-004
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-005
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-006
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-007
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-008
+  failure_present: false
+  outcomes: '0'
+- case_id: CASE-neg-009
+  failure_present: false
+  outcomes: '0'
