@@ -46,6 +46,16 @@ admissibility requirements.** This is the single most important design decision 
 change invalidates it. Used only to report amortized vs. per-run cost; it does not
 affect admissibility in v0.
 
+**[REVISED after implementation]** Two changes. `change_scope` is gone: it was a string
+that reached only a rationale header, and by the rule this note applies to
+`AssuranceProfile` — only keep a field if changing it can change the outcome — it had no
+business existing. `amortization_runs` shipped as the pair
+`(changes_per_window, checkpoints_per_window)`, and it turned out to be *load-bearing*
+rather than reporting-only: per-window cost is `cost × runs_per_window(cadence)`, which
+is what makes cadence an economic decision instead of a free parameter. Without it a
+per-change suite and a nightly suite cost the same and the planner has no grounds to
+prefer either.
+
 ### 1.3 `AssuranceProfile`
 Policy-by-reference plus the minimum structured constraints:
 
@@ -196,11 +206,31 @@ making intent purely an admissibility input** (§4). Ranking is then literally
 least-cost. This is the difference between an abstraction and a scoring hack, so it is
 worth the rigidity.
 
+**[REVISED after implementation]** "Least cost" needed one more term than anticipated,
+and it is worth being explicit about why it is not a tuned weight. Money alone leaves
+cadence undetermined for a **zero-cost** source: a free deterministic oracle costs $0
+whether it runs fifteen times a day or twice, so the ranker was breaking the tie on
+plan id. The rank key therefore carries `blocking_feedback_seconds_per_window` as its
+second term — the developer time the plan consumes per day. This is not a coefficient;
+it is a second resource being spent, ordered lexicographically after money rather than
+blended with it, so no exchange rate between dollars and developer-minutes is ever
+invented. Full key: money/day, then developer wait/day, then added interaction latency,
+then human minutes/day, then invocations, then plan id.
+
 ### 3.3 Run percentage on a finite corpus
 "100% of affected regression scenarios" is a percentage of an enumerable set, where a
 subset — not a sampling rate — is the real decision. v0 keeps the fraction uniform for
 both kinds but tags the population kind, so `sampling_allowed=false` correctly rejects
 `fraction < 1.0` in both cases while the denominator stays honest.
+
+**[REVISED after implementation]** Not enough. Enumerating `fraction < 1.0` over a
+finite corpus produced plans with no model of *which* cases were dropped or what
+coverage was lost by dropping them — a percentage that was arithmetically honest and
+epistemically empty. The enumerator now offers fractions below 1.0 **only for
+`LIVE_STREAM` populations**, which cannot be exhausted and for which a rate is the real
+decision. The cost: "run percentage is a decision variable" is demonstrated on one
+population kind rather than two. The alternative was inventing a subset-selection
+policy the prototype has no basis for. See red-team review, weakness 4.
 
 ### 3.4 Scenario A never states the error target that the 8 runs satisfy
 The 8 was an empirical heuristic. To *derive* a replication count the planner needs an
@@ -214,6 +244,12 @@ The RED→freeze→fix→GREEN cycle spans time and two implementations. A singl
 call cannot execute it. **v0 models prove-red in two places**: as *evidence already
 held* (an admissibility precondition for `verify_fix`) and as a `FrozenVerificationClaim`
 value object that records what was frozen. The planner does not orchestrate the cycle.
+
+**[REVISED after implementation]** `FrozenVerificationClaim` has been deleted. Nothing
+constructed one and nothing read one; the freeze it described was already enforced by
+`QualificationKey`, whose exact-match lookup is what stops a RED filed against
+`oracle@v2` from licensing a GREEN under `oracle@v3`. Prove-red now lives in one place,
+not two. See red-team review, Q8 and Q10.
 
 ### 3.6 "Human confirmation required" — of what?
 Every decision, or only adverse ones? v0: **every decision in scope**, which is the
@@ -284,11 +320,14 @@ has specified, so in discovery the expensive judge is not merely admissible, it 
 
 ## 7. Mutability model
 
-**Frozen within one verification claim** — `FrozenVerificationClaim` is a frozen,
-hashable dataclass over `(failure_mode_id, failure_mode_version, case_id,
-source_id, source_version, criterion, input_ref)`. Its `claim_key` changes if any
-component changes, which is how a RED observed under evaluator v3 fails to license a
-GREEN claimed under v4.
+**Frozen within one verification claim** — **[REVISED after implementation]** this was
+going to be a `FrozenVerificationClaim` value object. It turned out to duplicate a
+mechanism that already existed, so the claim freeze is now expressed as behaviour rather
+than as a type: prove-red evidence is filed against an exact `QualificationKey`
+`(SourceVersionRef, FailureModeRef, population_id)`. A RED observed under `oracle@v2`
+is keyed to `oracle@v2`; a GREEN claimed under `oracle@v3` looks up a key that does not
+exist, the source is rejected on `qualification_exists`, and the claim cannot be made.
+The lookup miss *is* the freeze.
 
 **Versioned between development cycles** — `FailureMode.version`,
 `EvidenceSourceVersion.version`, the population's `case_ids`, qualification rows,
@@ -327,6 +366,17 @@ hard-coded the scenario has failed.
 A fourth context — `discover` on a 5-minute budget — should return **no admissible
 plan**, because discovery needs an open-ended source over a broad population and that
 cannot be bought in five minutes. An honest "you cannot do this" is a result, not a bug.
+
+**[REVISED after implementation — this prediction was wrong.]** Discovery returns a
+plan: the judge over the full 20-case corpus, nightly, asynchronous, $1.25. The
+prediction assumed the feedback budget binds. It does not, because the budget bounds
+*blocking* wall clock and `discover` does not gate a change, so the work is admissible
+asynchronously and is checked against the cadence window instead. The scenario is
+better for it: `discovery` is now the one context where the planner buys the
+**expensive** judge over the **free** deterministic simulator, because only an
+open-ended source can surface a failure its criterion did not anticipate. That is a
+sharper counterexample to "the planner just picks the cheapest deterministic check"
+than a no-plan result would have been.
 
 ### B — full-duplex silence defect (VFD-SILENCE-017)
 `verify_fix`, machine-verifiable oracle available and qualified with prove-red.
@@ -385,3 +435,22 @@ failed.
    independence assumption (§5.2) that is probably false for a stateful voice agent
    where consecutive runs share prompt/state pathologies. A correlated-failure model
    could change `n` by a large factor.
+
+**[REVISED after implementation — how these five landed.]**
+
+1. *Partly hit.* Measured across all eight shipped contexts, ranking has a real choice
+   in seven; `voice_early / inner_loop` has exactly one admissible plan, which is the
+   condition this section said must be reported. Reported, with the caveat that the
+   constraints which eliminated the alternatives are themselves derived, not stipulated.
+   See red-team review, §Q1 and weakness 1.
+2. *Unresolved and now the top recommendation.* Nothing in the implementation made this
+   better or worse; it remains the assumption the whole model rests on.
+3. *Held.* No scenario needed a degraded plan, and the two no-plan results the suite
+   produces (`policy_human_confirmation` with no qualified human;
+   `policy_escalation_target` with no qualified escalation path) both read as correct
+   answers rather than as failures to be helpful.
+4. *Falsified, by discovery.* `voice_early / discovery` buys the **expensive** judge
+   over the **free** deterministic simulator, because `discover` requires an open-ended
+   source and the simulator is not one. "Prefer the cheapest qualified deterministic
+   check" gets that context wrong. It was close for the rest.
+5. *Held, and it is weakness 2 in the red-team review.* Untouched by implementation.
