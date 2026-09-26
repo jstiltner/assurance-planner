@@ -206,7 +206,6 @@ def load(path: str | Path) -> Scenario:
             context=DevelopmentContext(
                 intent=Intent(entry["intent"]),
                 feedback_budget_seconds=float(entry["feedback_budget_seconds"]),
-                change_scope=entry.get("change_scope", "unspecified"),
                 changes_per_window=int(entry.get("changes_per_window", 1)),
                 checkpoints_per_window=int(entry.get("checkpoints_per_window", 1)),
             ),

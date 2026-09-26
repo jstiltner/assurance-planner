@@ -155,7 +155,6 @@ contexts:
   - name: inner_loop
     intent: verify_fix
     feedback_budget_seconds: 300
-    change_scope: single_state_handler
     changes_per_window: 20
     checkpoints_per_window: 3
     assurance_profile: gate
@@ -163,7 +162,6 @@ contexts:
   - name: checkpoint
     intent: assess_blast_radius
     feedback_budget_seconds: 3600
-    change_scope: single_state_handler
     changes_per_window: 20
     checkpoints_per_window: 3
     assurance_profile: screen
@@ -171,7 +169,6 @@ contexts:
   - name: nightly
     intent: release
     feedback_budget_seconds: 28800
-    change_scope: accumulated_day
     changes_per_window: 20
     checkpoints_per_window: 3
     assurance_profile: gate
@@ -181,7 +178,6 @@ contexts:
   - name: discovery
     intent: discover
     feedback_budget_seconds: 300
-    change_scope: new_capability
     changes_per_window: 20
     checkpoints_per_window: 3
     assurance_profile: screen

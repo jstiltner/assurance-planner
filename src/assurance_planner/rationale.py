@@ -20,6 +20,7 @@ from .domain import (
     StepRole,
 )
 from .ranking import RANK_KEY_DESCRIPTION, explain_loss
+from .registry import World
 
 _CONSTRAINT_STAGE = {
     "execution_profile_known": 1,
@@ -48,6 +49,7 @@ def render(
     context: DevelopmentContext,
     failure_mode: FailureMode,
     profile: AssuranceProfile,
+    world: World,
     max_rejections: int = 6,
     max_runners_up: int = 3,
 ) -> str:
@@ -55,8 +57,7 @@ def render(
     lines.append(f"Failure mode   {failure_mode.ref}  ({failure_mode.description})")
     lines.append(
         f"Intent         {context.intent}   "
-        f"feedback budget {_hms(context.feedback_budget_seconds)}   "
-        f"change scope {context.change_scope}"
+        f"feedback budget {_hms(context.feedback_budget_seconds)}"
     )
     lines.append(
         f"Assurance      {profile.profile_ref}   "
@@ -78,17 +79,19 @@ def render(
 
     lines.append("Selected plan")
     lines.append("")
-    lines.extend(_render_plan(result.selected))
+    lines.extend(_render_plan(result.selected, failure_mode, world))
     lines.append("")
     lines.extend(_render_runners_up(result, max_runners_up))
     lines.extend(_render_rejections(result, max_rejections))
     return "\n".join(lines)
 
 
-def _render_plan(plan: EvidencePlan) -> list[str]:
+def _render_plan(
+    plan: EvidencePlan, failure_mode: FailureMode, world: World
+) -> list[str]:
     lines: list[str] = []
     for step in plan.steps:
-        lines.extend(_render_step(step))
+        lines.extend(_render_step(step, failure_mode, world))
         lines.append("")
     e = plan.economics
     lines.append("  Whole plan")
@@ -124,7 +127,7 @@ def _render_plan(plan: EvidencePlan) -> list[str]:
     return lines
 
 
-def _render_step(step: PlanStep) -> list[str]:
+def _render_step(step: PlanStep, failure_mode: FailureMode, world: World) -> list[str]:
     label = {
         StepRole.PRIMARY: "Primary evidence",
         StepRole.ESCALATION: "Escalation",
@@ -159,6 +162,19 @@ def _render_step(step: PlanStep) -> list[str]:
         else "live stream"
     )
     lines.append(f"    population:   {step.population.population_id} ({kind})")
+    #: Provenance of the measurement the decision procedure above was derived from.
+    #: A reader who cannot see how old the evidence is, or what its authors said it
+    #: does not cover, cannot audit the plan.
+    evidence = world.qualification_for(step.source, failure_mode, step.population)
+    if evidence is not None:
+        lines.append(
+            f"    evidence:     sensitivity {evidence.sensitivity:g} / "
+            f"FPR {evidence.false_positive_rate:g} from "
+            f"{evidence.observation_count} observation(s), measured "
+            f"{evidence.evidence_date.isoformat()}"
+        )
+        for limitation in evidence.known_limitations:
+            lines.append(f"    caveat:       {limitation}")
     return lines
 
 

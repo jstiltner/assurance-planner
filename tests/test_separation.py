@@ -19,7 +19,6 @@ from assurance_planner.domain import (
     AssuranceProfile,
     EvidenceSourceVersion,
     ExecutionProfile,
-    FrozenVerificationClaim,
     PlanStep,
     QualificationEvidence,
     QualificationKey,
@@ -253,22 +252,24 @@ def test_q8_bumping_the_failure_mode_version_orphans_its_evidence(duplex_silence
     assert any(r.constraint == "qualification_exists" for r in result.rejections)
 
 
-def test_q8_a_frozen_claim_key_changes_with_the_evaluator_version():
-    claim = FrozenVerificationClaim(
-        failure_mode=__import__(
-            "assurance_planner.domain", fromlist=["FailureModeRef"]
-        ).FailureModeRef("VFD-X", "v1"),
-        case_id="CASE-1",
-        source_version=SourceVersionRef("oracle", "v2"),
-        criterion="checklist completes and state advances",
-        input_ref="fixture-7",
+def test_q8_a_red_under_one_version_cannot_license_a_green_under_another(
+    duplex_silence,
+):
+    """The claim freeze, stated as behaviour rather than as a separate claim object.
+
+    The prove-red evidence is filed against an exact ``QualificationKey``.  Bumping
+    the evaluator version does not carry it forward, so the RED observed under v2
+    cannot be used to support a verification claim made under v3.
+    """
+    world = duplex_silence.world
+    key = QualificationKey(
+        SourceVersionRef("state_machine_assertion", "v2"),
+        duplex_silence.failure_mode.ref,
+        "focused_repro",
     )
-    rekeyed = replace(claim, source_version=SourceVersionRef("oracle", "v3"))
-    assert claim.claim_key != rekeyed.claim_key
-    assert hash(claim) != hash(rekeyed)
-    # Frozen within the claim: it cannot be mutated in place.
-    with pytest.raises(AttributeError):
-        claim.criterion = "something else"  # type: ignore[misc]
+    assert world.qualification[key].prove_red_runs >= 1
+    rekeyed = replace(key, source_version=SourceVersionRef("state_machine_assertion", "v3"))
+    assert rekeyed not in world.qualification
 
 
 # --- Q10: are there abstractions no scenario exercises? --------------------------
@@ -333,6 +334,39 @@ def test_q10_profile_ref_is_deliberately_inert(clinical_factual):
     )
     assert original.selected.plan_id == after.selected.plan_id
     assert original.selected.economics == after.selected.economics
+
+
+def test_q10_parallelism_is_load_bearing_not_decorative(voice_early):
+    """`ExecutionProfile.parallelism` sits in the wall-clock formula.
+
+    No shipped scenario varies it, which is exactly how a field becomes decorative
+    without anyone noticing.  It has to be able to flip admissibility.
+    """
+    request = voice_early.request("checkpoint")
+    #: A budget the serial 20x120s suite misses and the 8-way parallel one makes.
+    tight = replace(request.context, feedback_budget_seconds=600.0)
+    judge = SourceVersionRef("transcript_judge", "v7")
+
+    serial = plan(tight, voice_early.failure_mode, request.profile, voice_early.world)
+    assert serial.selected is None
+    assert any(r.constraint == "budget_feedback" for r in serial.rejections)
+
+    world = voice_early.world.reprice(judge, parallelism=8)
+    parallel = plan(tight, voice_early.failure_mode, request.profile, world)
+    assert parallel.selected is not None
+    assert parallel.selected.economics.blocking_feedback_seconds == 300.0
+    #: And it moved nothing in the other registry.
+    assert world.qualification == voice_early.world.qualification
+
+
+def test_q10_availability_is_load_bearing(voice_early):
+    request = voice_early.request("inner_loop")
+    world = voice_early.world.reprice(
+        SourceVersionRef("behavioral_simulation", "v3"), available=False
+    )
+    result = plan(request.context, voice_early.failure_mode, request.profile, world)
+    assert result.selected is None
+    assert any(r.constraint == "source_available" for r in result.rejections)
 
 
 def test_q10_every_source_kind_is_used_by_some_scenario():

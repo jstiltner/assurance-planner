@@ -177,7 +177,6 @@ contexts:
   - name: verify
     intent: verify_fix
     feedback_budget_seconds: 600
-    change_scope: duplex_state_machine
     changes_per_window: 15
     checkpoints_per_window: 2
     assurance_profile: duplex_gate
@@ -186,7 +185,6 @@ contexts:
   - name: blast_radius
     intent: assess_blast_radius
     feedback_budget_seconds: 4800
-    change_scope: duplex_state_machine
     changes_per_window: 15
     checkpoints_per_window: 2
     assurance_profile: duplex_gate

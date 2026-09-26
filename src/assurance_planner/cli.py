@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
                 request.context,
                 scenario.failure_mode,
                 request.profile,
+                scenario.world,
                 max_rejections=args.max_rejections,
             )
         )

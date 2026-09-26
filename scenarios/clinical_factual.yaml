@@ -139,7 +139,6 @@ contexts:
   - name: production_guard
     intent: release
     feedback_budget_seconds: 28800
-    change_scope: deployed_assistant
     changes_per_window: 4
     checkpoints_per_window: 1
     assurance_profile: high_consequence
@@ -147,7 +146,6 @@ contexts:
   - name: production_guard_routine_policy
     intent: release
     feedback_budget_seconds: 28800
-    change_scope: deployed_assistant
     changes_per_window: 4
     checkpoints_per_window: 1
     assurance_profile: routine

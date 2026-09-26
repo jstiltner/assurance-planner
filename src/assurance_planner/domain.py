@@ -135,34 +135,6 @@ class EvidenceSourceVersion:
         return str(self.ref)
 
 
-@dataclass(frozen=True, slots=True)
-class FrozenVerificationClaim:
-    """What is held constant inside one prove-red / prove-green cycle.
-
-    Frozen and hashable: ``claim_key`` changes if the evaluator version, criterion,
-    case or input changes, so a RED observed under one evaluator version cannot
-    license a GREEN claimed under another.
-    """
-
-    failure_mode: FailureModeRef
-    case_id: str
-    source_version: SourceVersionRef
-    criterion: str
-    input_ref: str
-
-    @property
-    def claim_key(self) -> str:
-        return "|".join(
-            [
-                str(self.failure_mode),
-                self.case_id,
-                str(self.source_version),
-                self.criterion,
-                self.input_ref,
-            ]
-        )
-
-
 # --------------------------------------------------------------------------------
 # Populations
 # --------------------------------------------------------------------------------
@@ -201,7 +173,13 @@ class EvaluationPopulation:
 
 @dataclass(frozen=True, slots=True)
 class QualificationKey:
-    """The triple.  Evaluator quality is never global."""
+    """The triple.  Evaluator quality is never global.
+
+    This key is also what freezes a verification claim.  A RED observed under
+    ``oracle@v2`` is filed against ``oracle@v2``; a GREEN claimed under ``oracle@v3``
+    looks up a key that does not exist and the source becomes inadmissible.  v0 needs
+    no separate claim object to express that -- the lookup miss *is* the mechanism.
+    """
 
     source_version: SourceVersionRef
     failure_mode: FailureModeRef
@@ -267,7 +245,6 @@ class DevelopmentContext:
     intent: Intent
     #: Blocking wall clock a developer will tolerate, in seconds.
     feedback_budget_seconds: float
-    change_scope: str = "unspecified"
     #: Amortisation horizon.  How many changes and checkpoints occur per window
     #: (a window is one day).  These make cadence an economic decision rather than a
     #: free parameter: the same plan costs `runs_per_window` times as much per day at
