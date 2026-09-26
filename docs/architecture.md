@@ -129,6 +129,47 @@ separately without a different experiment; pretending to separate them would be 
 knob. Consequence: "the judge got less noisy" and "the SUT got less flaky" are the same
 input to v0. Documented limitation, see §5.
 
+**[REVISED after the measurement pass — the triple was incomplete, and the
+representation was wrong.]**
+
+The paragraph above is the argument that the key was underspecified, and it was sitting
+here the whole time. If the measured rates are joint over (SUT × evaluator), then a key
+naming only the evaluator cannot say what the measurement was taken against, and
+evidence gathered before a behavioural change silently remains valid after it. The key
+is now a **quadruple**:
+
+```
+(source_version, failure_mode_version, population_id, distribution_id)
+```
+
+`distribution_id` is a *declared* behaviour-distribution identity carried by
+`SystemUnderTest`, not the build version. This is the load-bearing choice and it was
+not obvious: keying on `system_version` would orphan every qualification row on every
+deploy, which makes the model useless and therefore makes people route around it.
+Keying on a declaration means materiality is a human assertion with the same epistemic
+status as `maximum_error_requirement` — a rebuild that changes nothing behavioural
+keeps its `distribution_id` and every row survives; declaring a move invalidates them
+all at once and the planner says so. No lineage, no inheritance, no partial matching. A
+lookup that fails *only* on `distribution_id` is reported as `qualification_stale`
+rather than as absence, because "we never measured this" and "we measured this against
+a system that no longer exists" are different problems for the reader.
+
+The rate fields are also gone. A row now stores **counts**:
+
+```
+positive_cases / true_positives      sensitivity is derived
+negative_cases / false_positives     false-positive rate is derived
+```
+
+`observation_count` is derived too. The point of removing the rate fields is that there
+is no longer anywhere to write a sensitivity down that the stated sample size does not
+support — `0.80 from n=500` and `0.80 from n=10` were indistinguishable to v0 and are
+now structurally different objects. Each rate exposes a **Wilson score interval**
+(normal approximation rejected: it is zero-width at p=0, which would let a 30-for-30
+oracle claim certainty). `AssuranceProfile.estimator` chooses whether the planner reads
+the point estimate or the conservative bound; it defaults to `point`, so adding it
+repriced nothing.
+
 ### 1.7 `ExecutionProfile`
 Keyed by `(source_id, version)` in a **separate registry**:
 
@@ -189,6 +230,37 @@ Decision bands:
 For `n=1, k=1` the escalation band is **empty**. This is why `uncertainty_disposition
 = escalate` does not bolt a human onto a deterministic verification path: there is no
 inconclusive region to route. That result is derived, not special-cased.
+
+### 2.1 **[REVISED after the measurement pass — the model is not merely uncertain, it is the wrong shape]**
+
+`P(Binomial(n, s) < k)` assumes the `n` runs are independent draws at a rate `s` that
+is a property of the failure mode. It is not. `s` is a property of a *case*, and the
+cases vary. Two consequences, in order of how badly they hurt:
+
+**Case heterogeneity.** The quantity the planner wants is the average over cases of
+each case's own miss probability. What it computes is the miss probability at the
+average rate. These are not equal and the gap is not small: on `data/judge_runs_noisy`
+— the deliberately well-behaved control — the model reports `P(miss)=0.042` at `n=7`
+while the per-case average is `0.142`, and no `n` up to 12 reaches the 0.05 target the
+model says `n=7` already met. This is a Jensen-type error, and it is present even when
+every case is individually stochastic and centred on the right answer.
+
+**A subset the evaluator is simply wrong about.** On `data/judge_runs_systematic`,
+seven of twenty-four positive cases flag at ≈0.03. Repetition converges on the wrong
+answer for those, so the empirical miss rate flatlines at ≈0.29 for every `n` from 1 to
+12 while the model curve falls to 0.003. A single replication count per failure mode is
+answering a question ("how many draws from this coin?") that the data does not pose.
+
+The planner was **not changed** in response. Adding a heterogeneity correction to the
+decision procedure is a real design change and this pass was scoped to find out whether
+it is warranted, not to make it. What was added is the ability to tell:
+`characterize-evaluator` reports a Pearson dispersion statistic φ, the effective run
+count it implies, and both curves side by side. The honest summary of the diagnostics
+themselves is that **φ is necessary but not sufficient** — fixture A passes the
+clustering check (φ=1.67) and still fails the replication analysis, because
+heterogeneity between cases and correlation within a case are different defects and
+only the second one is what φ measures. The model-versus-empirical curve is the
+diagnostic that actually bites.
 
 ---
 
@@ -324,20 +396,24 @@ has specified, so in discovery the expensive judge is not merely admissible, it 
 going to be a `FrozenVerificationClaim` value object. It turned out to duplicate a
 mechanism that already existed, so the claim freeze is now expressed as behaviour rather
 than as a type: prove-red evidence is filed against an exact `QualificationKey`
-`(SourceVersionRef, FailureModeRef, population_id)`. A RED observed under `oracle@v2`
+`(SourceVersionRef, FailureModeRef, population_id, distribution_id)`. A RED observed
+under `oracle@v2`
 is keyed to `oracle@v2`; a GREEN claimed under `oracle@v3` looks up a key that does not
 exist, the source is rejected on `qualification_exists`, and the claim cannot be made.
 The lookup miss *is* the freeze.
 
 **Versioned between development cycles** — `FailureMode.version`,
 `EvidenceSourceVersion.version`, the population's `case_ids`, qualification rows,
-`AssuranceProfile.profile_ref`. Changing any of these changes a registry *key*, so
-stale evidence disappears by lookup miss rather than by a validity check somebody
-might forget to write.
+`AssuranceProfile.profile_ref`, and **[REVISED]** `SystemUnderTest.distribution_id`.
+Changing any of these changes a registry *key*, so stale evidence disappears by lookup
+miss rather than by a validity check somebody might forget to write.
 
-**Dynamically changing** — everything in `ExecutionProfile`, plus the measured
-`sensitivity` / `false_positive_rate` / `observation_count`. Mutable without touching
-any frozen or versioned identity.
+**Dynamically changing** — everything in `ExecutionProfile`, plus
+`SystemUnderTest.system_version` and the measured counts on a qualification row.
+Mutable without touching any frozen or versioned identity. **[REVISED]**
+`system_version` is deliberately in *this* list and `distribution_id` in the one above:
+that split is the whole stale-evidence design. Deploying a build does not invalidate
+anything; declaring that the build behaves differently does.
 
 **Planner-controlled** — source mix, population, `sample_fraction`, `replications`,
 `decision_threshold_k`, `escalation_band`, `cadence`, `execution_mode`, human
@@ -454,3 +530,22 @@ failed.
    source and the simulator is not one. "Prefer the cheapest qualified deterministic
    check" gets that context wrong. It was close for the rest.
 5. *Held, and it is weakness 2 in the red-team review.* Untouched by implementation.
+
+**[REVISED again after the measurement pass — how 2 and 5 landed on data.]**
+
+2. *Sharpened, not resolved, and it has got worse.* The objection was that nobody has
+   these numbers. The measurement pass grants that and adds a second objection that is
+   more serious: even when you *do* have them, they are not sufficient. Two synthetic
+   evaluators with nearly identical pooled sensitivity (0.672 and 0.682) and identical
+   planner output (`n=7, k=3`) differ completely in what repetition buys — one has zero
+   cases repetition cannot fix, the other has seven. Filling the registry with *real*
+   measured rates would not have separated them. The deficiency is in the summary
+   statistic, not only in the effort required to obtain it.
+5. *Confirmed on data, and the diagnosis was slightly wrong.* The prediction named
+   correlation between consecutive runs. What dominates in the fixtures is heterogeneity
+   *between cases* — averaging the miss probability over cases is not the miss
+   probability at the average rate, and that error is present even in data with no
+   detectable clustering at all (φ=1.67, warning not fired, model still off by 3× at
+   `n=7`). Correlation is real and measurable on fixture B (φ=6.82, 192 runs carrying
+   28 runs' worth of information), but it is the second-largest problem, not the first.
+   See §2.1.
