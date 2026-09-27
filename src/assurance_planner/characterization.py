@@ -35,9 +35,31 @@ MIN_RUNS_FOR_DISPERSION = 2
 # --------------------------------------------------------------------------------
 
 
+def _majority(flags: int, runs: int) -> bool | None:
+    """Majority verdict over ``runs`` observations, ``None`` on no data or a tie."""
+    if not runs or flags * 2 == runs:
+        return None
+    return flags * 2 > runs
+
+
+def _disagreement(flags: int, runs: int) -> float:
+    """Probability two distinct observations of the same case disagree."""
+    if runs < 2:
+        return 0.0
+    return 2.0 * flags * (runs - flags) / (runs * (runs - 1))
+
+
 @dataclass(frozen=True, slots=True)
 class CaseRun:
-    """One reference case and every verdict the evaluator gave it, in order."""
+    """One reference case and every verdict the evaluator gave it, in order.
+
+    A case may also carry observations from a *second* source on the same case.  That
+    pairing is the whole point: two sources measured on two different case sets can be
+    compared on aggregate accuracy and on nothing else, and aggregate accuracy cannot
+    answer whether the second source is wrong where the first one is wrong.  Only
+    paired observations can, so the pairing is a property of the case record rather
+    than something reconstructed later by joining two files on ``case_id``.
+    """
 
     case_id: str
     #: The human/reference judgement: is the failure genuinely present in this case?
@@ -56,6 +78,13 @@ class CaseRun:
     #: for synthetic data and means "use the declared cost model".
     latencies_ms: tuple[float, ...] = ()
     costs_usd: tuple[float, ...] = ()
+    #: Observations from the alternate source on *this same case*.  Empty means the
+    #: case was never sent to the alternate, which is different from "the alternate
+    #: said nothing" and is counted separately everywhere downstream.
+    alternate_outcomes: tuple[bool, ...] = ()
+    alternate_scores: tuple[float, ...] = ()
+    alternate_latencies_ms: tuple[float, ...] = ()
+    alternate_costs_usd: tuple[float, ...] = ()
     note: str = ""
 
     @property
@@ -85,16 +114,41 @@ class CaseRun:
         resolved here: a policy that ties has not reached a decision, and recording
         that honestly is what lets the benchmark count abstentions.
         """
-        if not self.runs:
-            return None
-        flags = self.flags
-        if flags * 2 == self.runs:
-            return None
-        return flags * 2 > self.runs
+        return _majority(self.flags, self.runs)
 
     @property
     def majority_agrees_with_reference(self) -> bool:
         return self.majority_verdict is self.reference_label
+
+    # --- the alternate source, on this same case ---------------------------------
+
+    @property
+    def has_alternate(self) -> bool:
+        return bool(self.alternate_outcomes)
+
+    @property
+    def alternate_runs(self) -> int:
+        return len(self.alternate_outcomes)
+
+    @property
+    def alternate_flags(self) -> int:
+        return sum(self.alternate_outcomes)
+
+    @property
+    def alternate_majority_verdict(self) -> bool | None:
+        """Same rule as the primary, including ``None`` on a tie.
+
+        Using the same rule matters more than which rule it is.  If the primary were
+        scored on a majority and the alternate on "flagged at least once", every
+        complementarity figure below would partly be measuring the difference between
+        two decision rules rather than between two sources.
+        """
+        return _majority(self.alternate_flags, self.alternate_runs)
+
+    @property
+    def alternate_disagreement_rate(self) -> float:
+        """Within-alternate instability.  Zero when the alternate was run once."""
+        return _disagreement(self.alternate_flags, self.alternate_runs)
 
     @property
     def disagreement_rate(self) -> float:
@@ -104,11 +158,7 @@ class CaseRun:
         is the quantity that separates "noisy" from "confidently mistaken", and it is
         invisible in any aggregate.
         """
-        n = self.runs
-        if n < 2:
-            return 0.0
-        flags = self.flags
-        return 2.0 * flags * (n - flags) / (n * (n - 1))
+        return _disagreement(self.flags, self.runs)
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,6 +170,15 @@ class CharacterizationRun:
     population_id: str
     distribution_id: str
     cases: tuple[CaseRun, ...]
+    #: The source that produced ``CaseRun.alternate_outcomes``, when any case carries
+    #: them.  Required in that case: an alternate whose version is not recorded cannot
+    #: be qualified, because a qualification key without a source version is the exact
+    #: silent substitution the key exists to prevent.
+    alternate_version: SourceVersionRef | None = None
+    #: Set by the data file.  Marks observations that were generated rather than
+    #: collected.  Nothing in this package can infer it, and everything that turns a
+    #: run into planner evidence refuses when it is true.
+    synthetic: bool = False
     note: str = ""
     #: The date the observations were collected.  Supplied by the data file, never
     #: read from a clock -- this package is asserted to contain neither.
@@ -133,6 +192,12 @@ class CharacterizationRun:
     run_id: str = ""
 
     def __post_init__(self) -> None:
+        if self.alternate_version is None and any(c.has_alternate for c in self.cases):
+            raise ValueError(
+                "cases carry alternate observations but the run does not name the "
+                "alternate source version; unattributed observations cannot be keyed "
+                "to a qualification slot"
+            )
         if not self.run_id:
             object.__setattr__(self, "run_id", self.content_digest())
 
@@ -151,9 +216,11 @@ class CharacterizationRun:
                 self.population_id,
                 self.distribution_id,
             ]
+            + [str(self.alternate_version or "")]
             + [
                 f"{c.case_id}:{c.slice_id}:{int(c.reference_label)}:"
-                f"{''.join('1' if o else '0' for o in c.outcomes)}"
+                f"{''.join('1' if o else '0' for o in c.outcomes)}:"
+                f"{''.join('1' if o else '0' for o in c.alternate_outcomes)}"
                 for c in self.cases
             ]
         )
@@ -173,6 +240,50 @@ class CharacterizationRun:
 
     def in_slice(self, slice_id: str) -> tuple[CaseRun, ...]:
         return tuple(c for c in self.cases if c.slice_id == slice_id)
+
+    @property
+    def paired_cases(self) -> tuple[CaseRun, ...]:
+        """Cases with observations from both sources.  The only comparable ones."""
+        return tuple(c for c in self.cases if c.runs and c.has_alternate)
+
+    def alternate_view(self) -> "CharacterizationRun":
+        """The same study, read as a characterization *of the alternate source*.
+
+        This is how the alternate gets its own sensitivity, false-positive rate,
+        Wilson intervals, dispersion statistic and qualification artifact: not through
+        a second implementation of all of that, but by presenting its observations in
+        the shape the existing machinery already consumes.  A second implementation
+        would be a second set of conventions to keep in agreement, and the first thing
+        to drift would be the one that matters -- whether a tie counts as an error.
+
+        Restricted to paired cases, because an alternate rate computed over a
+        different case set than the primary's cannot be differenced against it.
+        """
+        if self.alternate_version is None:
+            raise ValueError(
+                f"run '{self.run_id}' has no alternate source to characterize"
+            )
+        cases = tuple(
+            replace(
+                case,
+                outcomes=case.alternate_outcomes,
+                scores=case.alternate_scores,
+                latencies_ms=case.alternate_latencies_ms,
+                costs_usd=case.alternate_costs_usd,
+                alternate_outcomes=(),
+                alternate_scores=(),
+                alternate_latencies_ms=(),
+                alternate_costs_usd=(),
+            )
+            for case in self.paired_cases
+        )
+        return replace(
+            self,
+            evaluator_version=self.alternate_version,
+            cases=cases,
+            alternate_version=None,
+            run_id="",
+        )
 
     def with_cases(self, cases: tuple[CaseRun, ...]) -> "CharacterizationRun":
         """Same study identity, a subset of its cases.  Used for fold splitting.

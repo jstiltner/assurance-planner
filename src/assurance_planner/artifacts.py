@@ -49,6 +49,15 @@ class ArtifactIdentityError(ValueError):
     """An artifact was read into a slot it was not measured for."""
 
 
+class SyntheticArtifactError(ValueError):
+    """An artifact built from generated observations was read as planner evidence.
+
+    Separate from ``ArtifactIdentityError`` because the fix is different: an identity
+    mismatch means the wrong file was referenced, and this means the right file was
+    referenced and the study behind it never happened.
+    """
+
+
 def _ref(text: str) -> tuple[str, str]:
     left, _, right = text.partition("@")
     if not right:
@@ -146,6 +155,12 @@ def artifact_document(
         "known_limitations": list(analysis.derived_limitations()),
         "cases": _case_summary(analysis),
     }
+    if run.synthetic:
+        #: Second key in the document, right under the schema, because a reader
+        #: skimming the head of the file must not have to reach ``known_limitations``
+        #: to find out that none of this was collected.  ``qualification_from_document``
+        #: refuses to load it, so the marker is enforced and not only displayed.
+        document = {"schema": document.pop("schema"), "synthetic": True, **document}
     if run.note:
         document["note"] = run.note
     return document
@@ -180,6 +195,15 @@ def qualification_from_document(
     if schema != ARTIFACT_SCHEMA:
         raise ValueError(
             f"unrecognised artifact schema {schema!r}; expected {ARTIFACT_SCHEMA!r}"
+        )
+
+    if document.get("synthetic"):
+        raise SyntheticArtifactError(
+            "this qualification artifact is marked synthetic: its counts were "
+            "generated, not collected. It can be written and inspected, to exercise "
+            "the analysis machinery on input whose structure is known, but it cannot "
+            "become a planner input. Nothing that plans against it would be measuring "
+            "anything."
         )
 
     identity = document["identity"]

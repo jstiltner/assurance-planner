@@ -283,20 +283,68 @@ def _parse_verdict(value: object, case_id: str) -> bool:
     )
 
 
-def _parse_bitstring_case(entry: dict) -> CaseRun:
-    outcomes = str(entry["outcomes"])
+def _bitstring(entry: dict, field: str) -> tuple[bool, ...]:
+    outcomes = str(entry[field])
     if set(outcomes) - {"0", "1"} or not outcomes:
         raise ValueError(
-            f"case '{entry['case_id']}': outcomes must be a non-empty string of "
+            f"case '{entry['case_id']}': {field} must be a non-empty string of "
             f"0 and 1, got {outcomes!r}"
         )
+    return tuple(c == "1" for c in outcomes)
+
+
+def _parse_bitstring_case(entry: dict) -> CaseRun:
+    """The short form.  Carries verdicts and nothing else.
+
+    ``alternate_outcomes`` is accepted here so that a large paired fixture stays
+    readable, but the short form has nowhere to record per-observation cost or latency
+    for either source.  That is why the collection protocol requires the long form for
+    real data: a paired study written this way cannot answer the cost question, and
+    would have to have its costs supplied from a declared model -- which is the
+    substitution this pass exists to make impossible.
+    """
     return CaseRun(
         case_id=entry["case_id"],
         reference_label=bool(entry["failure_present"]),
-        outcomes=tuple(c == "1" for c in outcomes),
+        outcomes=_bitstring(entry, "outcomes"),
         scores=tuple(float(s) for s in entry.get("scores", [])),
         slice_id=str(entry.get("slice_id", "")),
+        alternate_outcomes=(
+            _bitstring(entry, "alternate_outcomes")
+            if "alternate_outcomes" in entry
+            else ()
+        ),
         note=entry.get("note", ""),
+    )
+
+
+def _parse_observations(
+    observations: list, case_id: str, field: str
+) -> tuple[tuple[bool, ...], tuple[float, ...], tuple[float, ...], tuple[float, ...]]:
+    """``(verdicts, scores, latencies_ms, costs)`` from one observation list.
+
+    Shared by the primary and the alternate so that both are held to the same rules.
+    An alternate list that were allowed sloppier annotation than the primary would
+    produce a cost comparison between one measured source and one estimated one, which
+    is the comparison the protocol exists to prevent.
+    """
+    if not observations:
+        raise ValueError(f"case '{case_id}': {field} must be non-empty")
+
+    scores = [o["score"] for o in observations if o.get("score") is not None]
+    latencies = [o["latency_ms"] for o in observations if o.get("latency_ms") is not None]
+    costs = [o["cost"] for o in observations if o.get("cost") is not None]
+    for name, values in (("score", scores), ("latency_ms", latencies), ("cost", costs)):
+        if values and len(values) != len(observations):
+            raise ValueError(
+                f"case '{case_id}': {name} is present on {len(values)} of "
+                f"{len(observations)} {field}; supply it on all or none"
+            )
+    return (
+        tuple(_parse_verdict(o["verdict"], case_id) for o in observations),
+        tuple(float(s) for s in scores),
+        tuple(float(v) for v in latencies),
+        tuple(float(v) for v in costs),
     )
 
 
@@ -306,6 +354,11 @@ def _parse_observation_case(entry: dict) -> CaseRun:
     This is the shape a real harness emits.  ``reference_label`` is spelled
     ``pass``/``fail`` rather than a boolean because "failure_present: false" reads as a
     double negative on a labelling sheet and gets miskeyed.
+
+    ``alternate_observations`` is the second source's verdicts *on this same case*.  It
+    is optional and the absence of it is meaningful: a case without it was never sent
+    to the alternate, and is excluded from every paired statistic rather than being
+    treated as agreement.
     """
     case_id = entry["case_id"]
     if "reference_label" in entry:
@@ -313,28 +366,28 @@ def _parse_observation_case(entry: dict) -> CaseRun:
     else:
         reference = bool(entry["failure_present"])
 
-    observations = entry["observations"]
-    if not observations:
-        raise ValueError(f"case '{case_id}': observations must be non-empty")
-
-    scores = [o["score"] for o in observations if o.get("score") is not None]
-    latencies = [o["latency_ms"] for o in observations if o.get("latency_ms") is not None]
-    costs = [o["cost"] for o in observations if o.get("cost") is not None]
-    for name, values in (("score", scores), ("latency_ms", latencies), ("cost", costs)):
-        if values and len(values) != len(observations):
-            raise ValueError(
-                f"case '{case_id}': {name} is present on {len(values)} of "
-                f"{len(observations)} observations; supply it on all or none"
-            )
+    outcomes, scores, latencies, costs = _parse_observations(
+        entry["observations"], case_id, "observations"
+    )
+    alternate = entry.get("alternate_observations")
+    alt_outcomes, alt_scores, alt_latencies, alt_costs = (
+        _parse_observations(alternate, case_id, "alternate_observations")
+        if alternate is not None
+        else ((), (), (), ())
+    )
 
     return CaseRun(
         case_id=case_id,
         reference_label=reference,
-        outcomes=tuple(_parse_verdict(o["verdict"], case_id) for o in observations),
-        scores=tuple(float(s) for s in scores),
+        outcomes=outcomes,
+        scores=scores,
         slice_id=str(entry.get("slice_id", "")),
-        latencies_ms=tuple(float(v) for v in latencies),
-        costs_usd=tuple(float(v) for v in costs),
+        latencies_ms=latencies,
+        costs_usd=costs,
+        alternate_outcomes=alt_outcomes,
+        alternate_scores=alt_scores,
+        alternate_latencies_ms=alt_latencies,
+        alternate_costs_usd=alt_costs,
         note=entry.get("note", ""),
     )
 
@@ -357,6 +410,21 @@ def load_characterization(path: str | Path) -> CharacterizationRun:
         reference_label: fail
         observations:
           - {verdict: fail, score: 0.81, latency_ms: 1900, cost: 0.0625}
+    ```
+
+    **Paired form** -- the same file with a second source's verdicts on the same cases.
+    ``alternate_version`` in the header is mandatory as soon as any case carries
+    ``alternate_observations``; a run refuses to construct without it:
+
+    ```yaml
+    experiment:
+      evaluator_version: judge@v4
+      alternate_version: reviewer-judge@v1
+      ...
+    cases:
+      - case_id: C-001
+        observations:          [{verdict: fail,  latency_ms: 1900, cost: 0.0625}]
+        alternate_observations: [{verdict: pass, latency_ms: 240000, cost: 0.75}]
     ```
 
     **Short form** -- ``outcomes: "10110100"`` with a top-level ``evaluator``.  Retained
@@ -385,12 +453,19 @@ def load_characterization(path: str | Path) -> CharacterizationRun:
     )
 
     measured_on = header.get("measured_on", raw.get("measured_on"))
+    alternate = header.get("alternate_version", raw.get("alternate_version"))
     return CharacterizationRun(
         evaluator_version=_parse_source_ref(evaluator),
         failure_mode=_parse_failure_mode_ref(failure_mode),
         population_id=population,
         distribution_id=distribution,
         cases=cases,
+        alternate_version=None if alternate is None else _parse_source_ref(alternate),
+        #: Declared by the file, never inferred.  There is no heuristic for "was this
+        #: generated" and a guess would be worse than the absence of a guess: a file
+        #: that forgets the marker is a data-collection defect, and one that is caught
+        #: by review rather than papered over by a filename check here.
+        synthetic=bool(header.get("synthetic", raw.get("synthetic", False))),
         note=raw.get("note", header.get("note", "")),
         measured_on=(
             None
