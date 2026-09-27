@@ -470,6 +470,42 @@ def test_the_report_announces_synthetic_input_and_names_no_recommendation(paired
         assert word not in lowered
 
 
+def test_on_an_all_failures_corpus_disagreement_and_recovery_are_one_number():
+    """The arithmetic behind the warning the statistics block prints unconditionally.
+
+    Every case here has the primary wrong, which is what a failure-enriched corpus is.
+    With binary verdicts against a shared reference the sources then disagree exactly
+    when the alternate is right, so two statistics printed four lines apart under
+    different names are the same quantity -- and the production disagreement rate,
+    which this would be read as, is smaller by a factor of the primary error rate.
+
+    Phi is already refused on this table, but by the empty-margin rule rather than by
+    any understanding of the sampling: the primary-correct row is empty. That rule does
+    not fire on a *partially* enriched corpus, where phi is a plausible number computed
+    from reweighted cells. Nothing in the schema records the sampling design and no
+    arithmetic recovers it, which is why the warning is prose and not a check.
+    """
+    table = paired_errors(
+        tuple(_case(f"f{i}", True, "000", "111" if i < 7 else "000") for i in range(10))
+    )
+    assert table.primary_errors == table.decided == 10
+    assert table.disagreement_rate.point == table.alternate_correct_given_primary_wrong.point
+    assert table.error_association_phi is None
+
+
+def test_the_report_warns_that_phi_and_disagreement_assume_representative_sampling(
+    paired,
+):
+    text = render_complementarity(
+        analyse_complementarity(paired),
+        characterize(paired, 0.05),
+        characterize(paired.alternate_view(), 0.05),
+    )
+    statistics = text.split("Complementarity statistics")[1].split("Is the recovery")[0]
+    assert "Phi is not invariant to" in statistics
+    assert "the same number under two names" in statistics
+
+
 def test_the_report_separates_the_observation_the_interval_and_the_declared_threshold(
     paired,
 ):

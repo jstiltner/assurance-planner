@@ -190,6 +190,24 @@ def _statistics(analysis: ComplementarityAnalysis) -> list[str]:
         "  'primary errors also made by alternate' is 1 minus the recovery rate on the "
         "same denominator.",
         "  Both are printed because both get quoted; they are one number, not two.",
+        #: A disclosed gap, not a check.  Nothing in the schema records how the cases
+        #: were sampled, and no arithmetic can recover it: a corpus of hand-picked
+        #: primary failures and a representative corpus of a bad primary produce the
+        #: same table.  So the warning is unconditional.  Printing it only above some
+        #: error-rate threshold would be the mistake this report was just corrected for
+        #: -- an unjustified constant deciding what the reader is told.
+        "  Two figures above assume the cases were sampled without reference to either "
+        "source's outcome,",
+        "  and the instrument cannot verify that. Phi is not invariant to "
+        "outcome-dependent sampling, so",
+        "  on a corpus enriched with known primary failures -- or on one pooled from an "
+        "enriched corpus",
+        "  and a representative one -- it estimates nothing. And where every case has "
+        "the primary wrong,",
+        "  the sources disagree exactly when the alternate is right, so the "
+        "disagreement rate and the",
+        "  recovery rate become the same number under two names. See section 9.3 of",
+        "  docs/alternate_source_collection_protocol.md.",
         "",
     ]
     return lines
