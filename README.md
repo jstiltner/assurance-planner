@@ -116,10 +116,18 @@ keys at any depth, and a test tampers with a real scenario to prove it.
   `profile_ref`. A field only exists if changing it can change which plans are
   admissible — there is a test that flips every one of them and asserts the outcome
   moves, and a second test asserting `profile_ref` changes nothing at all.
-- **Not validated.** The qualification numbers in the fixtures are plausible, not
+- **Not validated.** The qualification numbers in the three scenarios are plausible, not
   measured, and Scenario A's error requirements were reverse-engineered from the
   replication counts they were meant to produce — stated in the file itself, and
   asserted in a test so it stays stated. See `docs/red_team_review.md`.
+  `data/REAL_arb_*` is the exception and a narrow one: two real evaluator pairs imported
+  from AgentRewardBench, 1,106 expert-labelled agent trajectories each, marked
+  `synthetic: false`. No scenario consumes them and none should yet — they cover one
+  failure mode, carry no latency, and are single-shot, so they cannot qualify a source
+  for a plan. What they do establish is that assuming evaluator independence overstates a
+  two-source system's joint accuracy about threefold on that population (measured phi
+  +0.323). See `docs/agent_reward_bench_gate1.md` for the predeclaration and
+  `docs/agent_reward_bench_findings.md` for the result.
 - **Not a measurement system.** It consumes sensitivity and false-positive rate. It
   does not produce them, and `characterize-evaluator` exists to argue that consuming
   only those two numbers is the planner's largest remaining assumption.

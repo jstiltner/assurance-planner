@@ -488,11 +488,22 @@ failed.
    has exactly one survivor, that is close to falsification and must be reported.
 
 2. **Qualification evidence is unobtainable, so the model is vacuous.** The planner
-   requires per-(source × failure-mode × population) sensitivity and FPR. Nobody has
-   these. If in practice they get filled in with guesses, the derived `n` inherits the
-   guess and the arithmetic launders it into false precision. The model's realism
-   depends entirely on an experiment nobody currently runs — which may itself be the
-   most valuable thing this exercise reveals.
+   requires per-(source × failure-mode × population) sensitivity and FPR. If in practice
+   they get filled in with guesses, the derived `n` inherits the guess and the arithmetic
+   launders it into false precision.
+
+   *Narrowed — see `docs/agent_reward_bench_findings.md` §9.* Earlier versions of this
+   item said "Nobody has these" and that the model "depends entirely on an experiment
+   nobody currently runs". Both overreached. AgentRewardBench measured 15 evaluators
+   against six human experts' labels on 1,302 real agent trajectories across four
+   benchmarks and four agents under test, with per-judgment cost, and this repository now
+   holds two pairs of it as real evidence. What survives of the concern is narrower and
+   still real: that corpus covers **one** failure mode, its populations are benchmarks
+   rather than deployment traffic, it records **no judge latency at all** and no cost for
+   self-hosted judges, and every judgment is **single-shot** — so it supplies marginals
+   and paired structure but contains no evidence whatever about the run-to-run
+   instability that the replication machinery exists to bound. The unrun experiment is
+   the repetition study, not the qualification study.
 
 3. **Intent-as-admissibility is too rigid.** Making intent gate admissibility keeps
    "least-cost" honest but means the planner returns *nothing* rather than a degraded
@@ -581,6 +592,17 @@ document describes any of these as a finding of this project, that document is w
 - Mutation testing of evaluators, and construct-validity testing.
 - Uncertainty calibration and interval estimation. The Wilson intervals and the
   Beta-Binomial comparator are textbook.
+- **Benchmarking evaluators against human reference labels, with per-judgment cost
+  accounting.** Added after the AgentRewardBench pass; it was missing from this list and
+  its absence let the gap claim in §9.2 stand wider than the field warranted.
+  AgentRewardBench (arXiv:2504.08942) does this for 15 judges on 1,302 expert-annotated
+  agent trajectories. ATFD (`Galea-foo/atfd`) additionally implements Wilson and bootstrap
+  intervals, DR/FPR/F1, Fleiss' κ, and per-trajectory cost with latency and token counts.
+- **Paired significance testing between two evaluators on the same cases.** McNemar's test,
+  which ATFD implements. It is the nearest prior art to this repository's paired work and
+  the distinction is narrow: McNemar asks whether one source is better, not whether the
+  alternate recovers the primary's misses. If a future document describes paired
+  evaluator comparison as new, that document is wrong.
 
 ### 10.2 The candidate contribution, stated as narrowly as it can be
 
