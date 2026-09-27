@@ -46,8 +46,16 @@ Three findings, in decreasing order of how much they survive scrutiny.
 
 **1. Repetition cannot reach a case the judge is confidently wrong about, and no amount of
 it ever will.** On the systematic fixture false negatives sit at 7.0 from the first
-observation to the eighth. This is not close and it is what makes the escalation half of
-the design worth keeping.
+observation to the eighth. This is not close.
+
+It is also only half an argument, and it is the cheap half. That repetition cannot reach
+these cases is *measured* here. That **escalation** can is not: every escalation figure in
+this document is computed from an alternate whose sensitivity and FPR were declared rather
+than measured, and even a measured alternate settles nothing except relative to a break-even
+recovery `r*` that has to be declared as policy. Finding 1 establishes that repetition is
+not the lever on this fixture. It does not establish that escalation is. (This sentence
+originally read "…and it is what makes the escalation half of the design worth keeping",
+which asserted the second thing from evidence for the first.)
 
 **2. Escalating is not the same as escalating the right cases, and disagreement is the
 wrong trigger.** `probe_2` escalates when two observations disagree, so it selects the

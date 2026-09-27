@@ -690,6 +690,43 @@ specifies the input. Until it is satisfied, the replacement / complement / rejec
 has no answer, and the escalation half of the design in §10.2 rests on an assumption that
 now has to announce itself.
 
+#### Repetition versus escalation: where the comparison actually stands
+
+Stated explicitly because several documents in this repository drifted into treating it as
+resolved, and the drift was always in the same direction — evidence about what repetition
+*cannot* do being spent as evidence for what escalation *can*. The defensible position, in
+five parts:
+
+1. **Repetition policies have been measured under this repository's current assumptions.**
+   Fixed-N, majority-race, interval stopping and their budgets were replayed against
+   recorded observations on held-out folds. That repetition stops paying after roughly six
+   observations, and cannot reach a case the judge is confidently wrong about, is a result
+   about those fixtures and that cost model.
+2. **Escalation is not measured, and is not even *decisionable*, except against a
+   predeclared break-even recovery `r*`.** Every escalation figure in
+   [`policy_benchmark_findings.md`](policy_benchmark_findings.md) is downstream of an
+   alternate whose accuracy was declared at 0.95/0.05. Replacing that guess with a
+   measurement would make the recovery rate knowable; it would still not make escalation
+   *worth it*, because worth is a comparison against `r*`, and `r*` is policy.
+3. **Population-level complementarity requires a representative paired corpus.** Prevalence,
+   both marginals, the production disagreement rate, phi, and `P(alternate wrong | primary
+   right)` — the term that measures what escalation breaks — are estimable from nothing
+   else.
+4. **An enriched corpus of confirmed primary failures supports an inexpensive rejection
+   screen and nothing more.** It cannot estimate unconditional disagreement, phi, population
+   recovery, or any routing economics; on it, the disagreement rate is identically the
+   recovery rate, and phi is not invariant to the sampling that produced it. A negative
+   screen kills the routing branch cheaply. A positive screen licenses commissioning the
+   representative study and authorises no adoption.
+5. **No universal sample size, sufficiency floor, or economic conclusion is justified by
+   anything in this repository.** The sample size is a function of the gap between an
+   observed recovery and a declared `r*`, and ranges over two orders of magnitude within
+   plausible inputs.
+
+So the comparison is asymmetric rather than settled: one arm has been measured under stated
+assumptions, and the other has been *priced* under them. Those are different verbs, and §10.5
+is the record of what happened the last time this repository let one stand in for the other.
+
 ### 10.5 An economic threshold that spent six weeks dressed as a statistical one
 
 Added after [`alternate_corpus_red_team.md`](alternate_corpus_red_team.md), which set out to

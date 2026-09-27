@@ -9,8 +9,11 @@ The distinction is worth stating precisely, because it is easy to write the wron
 here and it would look right:
 
 * ``the recovery rate is 6/11`` -- fine.  It is a statement about the counting.
-* ``the recovery rate is above 0.5`` -- not fine.  It is a statement about the generator
-  that would read, to anyone scanning the suite, as support for the routing hypothesis.
+* ``the recovery rate is above <any number>`` -- not fine.  It is a statement about the
+  generator that would read, to anyone scanning the suite, as support for the routing
+  hypothesis.  The tests below do compare this fixture's interval against thresholds, but
+  only ever to assert which *branch* the comparison takes; the thresholds are chosen to
+  exercise ABOVE and BELOW and are not proposed as break-even values.
 """
 
 from __future__ import annotations
@@ -468,6 +471,40 @@ def test_the_report_announces_synthetic_input_and_names_no_recommendation(paired
     lowered = text.lower()
     for word in ("recommend", "we should", "conclude that", "best option"):
         assert word not in lowered
+
+
+def test_synthetic_input_cannot_produce_a_successful_exit_at_any_threshold(capsys):
+    """The last gate, and it was untested until this pass.
+
+    Everything else in this file checks what the report *says*; a pipeline reads the exit
+    code and nothing else. Three thresholds are used deliberately: none, one the fixture's
+    interval clears from above, and one it clears from below. All three are 1, because
+    ``measured`` is false on synthetic input and no threshold can make a generated number
+    into a measurement.
+
+    The 0.90 case is the one worth having. Its interval lies entirely *below* the
+    threshold, which is a decisive finding -- it rejects the alternate -- so the analysis
+    reports ``decisive`` and the exit code is still 1. Decisiveness and favourability are
+    separate, and synthetic input is disqualified from both.
+    """
+    from assurance_planner.cli import main
+
+    for extra in ([], ["--break-even-recovery", "0.20"], ["--break-even-recovery", "0.90"]):
+        assert main(["characterize-alternate", str(PAIRED), *extra]) == 1
+        capsys.readouterr()
+
+
+def test_a_decisive_rejection_is_decisive(paired):
+    """BELOW is decisive. Only UNDECLARED, INCONCLUSIVE and NO_DATA are not.
+
+    Worth pinning because "decisive" reads like "good news" and is not: an interval
+    entirely below the declared break-even settles the question in the direction that
+    kills the routing branch, and an instrument that only recognised favourable answers
+    as answers would be the same failure as one that only produced favourable numbers.
+    """
+    below = analyse_complementarity(paired, 0.90)
+    assert below.recovery_sufficiency is Sufficiency.BELOW
+    assert below.decisive
 
 
 def test_on_an_all_failures_corpus_disagreement_and_recovery_are_one_number():

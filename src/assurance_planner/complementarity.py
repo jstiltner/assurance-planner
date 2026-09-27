@@ -242,10 +242,13 @@ class PairedErrors:
     def alternate_correct_given_primary_wrong(self) -> Conditional:
         """The recovery rate: of the primary's mistakes, how many does the alternate get?
 
-        This is the number that decides whether escalation can work at all.  At 0 the
-        alternate is wrong wherever the primary is and routing cannot help however
-        cheap it is.  Note that it says nothing about *cost*: a recovery rate of 1.0
-        on a source that also fires false alarms everywhere is not a usable router.
+        Necessary for escalation to be worth anything, and on its own sufficient for
+        nothing.  At 0 the alternate is wrong wherever the primary is and routing cannot
+        help however cheap it is, so this number can *kill* the idea by itself.  It
+        cannot establish it: that requires the declared break-even ``r*`` it is compared
+        against, and it says nothing at all about what escalation breaks on the cases
+        the primary already got right.  A recovery rate of 1.0 on a source that also
+        fires false alarms everywhere is not a usable router.
         """
         return Conditional(
             "P(alternate correct | primary wrong)",

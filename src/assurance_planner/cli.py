@@ -168,10 +168,13 @@ def _alternate_command(argv: list[str]) -> int:
             )
         print(f"\nwrote {write_artifact(alternate, args.emit)}")
 
-    #: 1 whenever the decision is unsupported, which at present is always.  A pipeline
-    #: that treats 0 as "the alternate is fine" must not be able to get a 0 out of a
-    #: study that measured nothing -- nor out of one that measured something and was
-    #: never told what would count as success.
+    #: 1 whenever the evidence is not decision-sufficient, which on every fixture in this
+    #: repository is always, because every one of them is synthetic.  A pipeline that
+    #: treats 0 as "the alternate is fine" must not be able to get a 0 out of a study that
+    #: measured nothing -- nor out of one that measured something and was never told what
+    #: would count as success.  Note that a 0 would also be reachable by an interval lying
+    #: entirely *below* a declared r*: BELOW is decisive, and "decisive" is not "in
+    #: favour".  The exit code reports that a question was answered, not which way.
     return 0 if analysis.measured and analysis.decisive else 1
 
 

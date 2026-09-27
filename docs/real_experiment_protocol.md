@@ -7,14 +7,24 @@ or it does not and this work should stop.
 
 The synthetic results that motivate the design are in
 [`docs/policy_benchmark_findings.md`](policy_benchmark_findings.md). The short version: on
-a deliberately adversarial synthetic population, repetition stops buying anything after
-six observations; escalation rather than repetition is what reaches the cases the judge is
-confidently wrong about; *which* cases get escalated is what determines whether escalation
-helps at all; and a plain interval-stopping rule is nonetheless the cheapest policy at
-equal assurance, so everything the candidate policy adds is bought rather than saved.
+a deliberately adversarial synthetic population, repetition stops buying anything after six
+observations and cannot reach the cases the judge is confidently wrong about; *which* cases
+get escalated is what determines whether escalation helps at all; and a plain
+interval-stopping rule is nonetheless the cheapest policy at equal assurance, so everything
+the candidate policy adds is bought rather than saved.
 
 That last point, plus a blind escalation control that dominates the candidate policy on one
 of the three fixtures, is why this is a protocol rather than a deployment plan.
+
+This paragraph previously read "escalation rather than repetition is what reaches the cases
+the judge is confidently wrong about". Half of that was measured and half was not, and the
+halves are kept separate now. Repetition's ceiling is a finding: it is visible in the
+fixture regardless of what any other source does. Escalation's reach is an *input* — it
+follows from an alternate whose accuracy was declared at 0.95/0.05 rather than measured,
+and whether reaching those cases pays for itself is a question about a break-even recovery
+`r*` that has to be declared as policy and has not been. §6.1 of
+[`alternate_source_collection_protocol.md`](alternate_source_collection_protocol.md) is
+where that lives now.
 
 **Sections 2, 7, 12.1, 12.2 and 12.3 were revised after
 [`experiment_red_team.md`](experiment_red_team.md)**, which found that the original sample
@@ -23,7 +33,12 @@ on the thing they were meant to catch. The revisions are marked and the original
 because in both cases the reason the first version was wrong is more useful than the
 correction. The red-team document also argues that the study below should **not** be the next
 action — measuring the alternate source's real sensitivity and false-positive rate should be,
-and it is much cheaper.
+and it is much cheaper. **That last clause is false and is retracted**; §0 of
+[`alternate_source_collection_protocol.md`](alternate_source_collection_protocol.md) says
+why. There is no labelled corpus, so measuring the alternate is a data-collection project
+rather than an afternoon's work. Which of the two studies to run first is therefore still
+open; it is not settled in favour of the alternate study by a cost argument that turned out
+to be wrong.
 
 ---
 

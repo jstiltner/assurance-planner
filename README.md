@@ -22,6 +22,10 @@ assurance-plan benchmark-policies data/judge_runs_mixed.yaml --assume-alternate-
 assurance-plan characterize-alternate data/SYNTHETIC_paired_runs.yaml
 ```
 
+The fourth command takes an optional `--break-even-recovery R`. It has no default and none
+is suggested here, because any number printed in a README becomes the number people use.
+Without it the command reports what it observed and declines to call it decision-sufficient.
+
 The second command is the planner's own falsifier. See
 [Are the inputs measurable?](#are-the-inputs-measurable) — the short answer is that on
 one of the three shipped fixtures they are not, and the planner cannot tell.
@@ -34,8 +38,13 @@ table and **refuses to name a preferred policy**, because choosing inside the Pa
 requires a price for a missed failure, which is policy rather than measurement.
 
 Results so far, on synthetic fixtures: repetition stops buying anything after six
-observations; repetition cannot touch a case the judge is confidently wrong about, and
-escalation can; and on one fixture the blind control beats the candidate policy outright.
+observations; repetition cannot touch a case the judge is confidently wrong about; and on
+one fixture the blind control beats the candidate policy outright. **What escalation does
+instead is not a result here** — every escalation figure in those fixtures is computed from
+an alternate source whose accuracy was declared rather than measured, and whether
+escalating pays at all is a question about a break-even recovery nobody has declared. The
+repetition half has been measured under this repository's assumptions; the escalation half
+has been priced under them, which is a different verb.
 See [`docs/policy_benchmark_findings.md`](docs/policy_benchmark_findings.md) for all of it
 including the parts that argue against continuing,
 [`docs/real_experiment_protocol.md`](docs/real_experiment_protocol.md) for the real-data study
