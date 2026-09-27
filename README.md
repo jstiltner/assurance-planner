@@ -18,11 +18,27 @@ about is stochastic; the reasoning is not.
 pip install -e .
 assurance-plan scenarios/voice_early.yaml --context nightly
 assurance-plan characterize-evaluator data/judge_runs_systematic.yaml
+assurance-plan benchmark-policies data/judge_runs_mixed.yaml
 ```
 
 The second command is the planner's own falsifier. See
 [Are the inputs measurable?](#are-the-inputs-measurable) — the short answer is that on
 one of the three shipped fixtures they are not, and the planner cannot tell.
+
+The third asks whether a planner is needed at all. It replays every established
+evaluation policy — fixed-N, majority-race early stopping, interval stopping, a
+probe-and-escalate cascade — against the same recorded observations under one cost model,
+on held-out folds, alongside a blind escalation control sized to match. It prints the
+table and **refuses to name a preferred policy**, because choosing inside the Pareto set
+requires a price for a missed failure, which is policy rather than measurement.
+
+Results so far, on synthetic fixtures: repetition stops buying anything after six
+observations; repetition cannot touch a case the judge is confidently wrong about, and
+escalation can; and on one fixture the blind control beats the candidate policy outright.
+See [`docs/policy_benchmark_findings.md`](docs/policy_benchmark_findings.md) for all of it
+including the parts that argue against continuing, and
+[`docs/real_experiment_protocol.md`](docs/real_experiment_protocol.md) for the real-data
+study and its ten kill criteria, written before any real data exists.
 
 ## What it decides
 
@@ -62,6 +78,11 @@ keys at any depth, and a test tampers with a real scenario to prove it.
 - **Not a measurement system.** It consumes sensitivity and false-positive rate. It
   does not produce them, and `characterize-evaluator` exists to argue that consuming
   only those two numbers is the planner's largest remaining assumption.
+- **Not novel in its mechanisms.** Judge nondeterminism, adaptive sampling, early
+  stopping, judge cascades, selective human escalation and uncertainty calibration are
+  all established work, and `docs/architecture.md` §10.1 lists them so that none can be
+  quietly renamed as a finding here. The only candidate claim is a systems one — §10.2 —
+  and §10.3 says what would falsify it.
 
 ## The three scenarios
 

@@ -549,3 +549,77 @@ failed.
    `n=7`). Correlation is real and measurable on fixture B (φ=6.82, 192 runs carrying
    28 runs' worth of information), but it is the second-largest problem, not the first.
    See §2.1.
+
+---
+
+## 10. What is a contribution and what is not
+
+Added after the experimental pass. This section exists so that nothing in this repository
+can be written up as new when it is not, and so that the one claim that might be new is
+stated narrowly enough to be falsified.
+
+### 10.1 Established. Not ours, not novel, not to be renamed
+
+Every item below is prior work. Where this repository implements one, it implements it as a
+*baseline the candidate must beat*, under a name that says what it is. If a future
+document describes any of these as a finding of this project, that document is wrong.
+
+- LLM-as-judge nondeterminism and run-to-run verdict instability.
+- Inconsistency across repeated judgments of the same item.
+- Self-consistent wrong answers: an evaluator that is confidently and repeatably wrong.
+- Item- and case-level heterogeneity in difficulty.
+- Correlated evaluator errors, and the loss of effective sample size that follows.
+- The inefficiency of fixed-N evaluation.
+- Adaptive sampling and sequential early stopping. `EarlyStopMajority` is a
+  majority-race stopping rule and nothing more; `ConfidenceStop` is interval-based
+  stopping with a stated confidence level.
+- Cheap-to-expensive evaluator cascades. `ProbeThenEscalate` is the simplest one.
+- Selective escalation to human review.
+- Value-of-information and sequential decision theory generally. The planner's
+  minimal-replication search is a binomial admissibility check, not a VOI engine, and it
+  is not to be described as one.
+- Mutation testing of evaluators, and construct-validity testing.
+- Uncertainty calibration and interval estimation. The Wilson intervals and the
+  Beta-Binomial comparator are textbook.
+
+### 10.2 The candidate contribution, stated as narrowly as it can be
+
+> Treat deterministic tests, stochastic evaluators, and humans as **failure-mode-specific
+> evidence sources**, then allocate verification effort according to assurance policy,
+> development intent, empirical qualification, and current economics.
+
+It is a *systems* claim, not a statistical one. The parts that are load-bearing:
+
+1. **Qualification is keyed, not global.** A source's sensitivity and FPR are properties of
+   the quadruple `(source version, failure mode, population, behaviour distribution)`, and
+   a lookup miss is the invalidation mechanism rather than a staleness heuristic.
+2. **Intent gates admissibility rather than weighting a score.** No hand-tuned objective.
+3. **Effort is allocated per failure-mode subtype using empirically measured behaviour of
+   the evidence source on that subtype**, with slices as the only generalisation handle.
+4. **Economics enter only at selection**, never at measurement — so a price change can
+   change the plan and can never change the qualification.
+
+What is *not* claimed: that any individual mechanism is new, that the allocation is
+optimal, that the binomial model is adequate (§2.1 says it is not), or that the planner's
+output has been validated against anything.
+
+### 10.3 What would falsify it
+
+Item 3 is the vulnerable one and it is the only one with an experiment behind it. It fails
+if slice-level behaviour of an evidence source does not transfer to cases the calibration
+never saw — that is, if there is no reusable subtype signal, only memorised cases. The
+held-out fold machinery exists to test exactly that, and
+[`real_experiment_protocol.md`](real_experiment_protocol.md) §12 lists the kill criteria
+in advance.
+
+The synthetic evidence so far is mixed and is recorded in
+[`policy_benchmark_findings.md`](policy_benchmark_findings.md). Two results cut against the
+claim: a two-observation probe with no subtype knowledge captures most of the benefit, and
+on one fixture a blind escalation control dominates the candidate policy outright because
+the assumed alternate source is simply better than the primary. One result supports it:
+where slices carry signal, targeting beats size-matched blind escalation on errors,
+escalation count and cost simultaneously.
+
+Items 1, 2 and 4 are design claims that the implementation either exhibits or does not, and
+it does — but exhibiting a design is not evidence that the design helps. Nothing here
+measures that, and §9.2 remains the top open problem.
