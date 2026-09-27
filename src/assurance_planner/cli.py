@@ -1,6 +1,7 @@
 """assurance-plan <scenario.yaml> [--context NAME]
 
     assurance-plan characterize-evaluator <runs.yaml> [--max-error E]
+    assurance-plan characterize-alternate <paired_runs.yaml> [--emit PATH]
     assurance-plan benchmark-policies <runs.yaml> [--folds K] [--judge-cost USD] ...
 """
 
@@ -8,7 +9,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
+from .artifacts import load_artifact, write_artifact
 from .benchmark import (
     allocation_diagnostic,
     compare,
@@ -20,12 +23,24 @@ from .benchmark import (
 )
 from .benchmark_report import render_benchmark
 from .characterization import characterize
+from .complementarity import analyse_complementarity
+from .complementarity_report import render_complementarity
 from .loader import load, load_characterization
 from .planner import plan
-from .policies import CostModel, default_policies, stratified_folds
+from .policies import (
+    AlternateCharacteristics,
+    CostModel,
+    UnqualifiedAlternateError,
+    default_policies,
+    stratified_folds,
+)
 from .rationale import render, render_characterization
 
-SUBCOMMANDS = ("characterize-evaluator", "benchmark-policies")
+SUBCOMMANDS = (
+    "characterize-evaluator",
+    "characterize-alternate",
+    "benchmark-policies",
+)
 
 
 def _plan_command(argv: list[str]) -> int:
@@ -96,9 +111,80 @@ def _characterize_command(argv: list[str]) -> int:
     return 1 if analysis.independence_is_implausible else 0
 
 
+def _alternate_command(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="assurance-plan characterize-alternate")
+    parser.add_argument(
+        "runs", help="a paired per-case outcomes YAML file (both sources, same cases)"
+    )
+    parser.add_argument("--max-error", type=float, default=0.05)
+    parser.add_argument("--max-replications", type=int, default=12)
+    parser.add_argument(
+        "--emit",
+        metavar="PATH",
+        help=(
+            "write an alternate qualification artifact. Refused when the run has no "
+            "alternate observations, and marked synthetic when the run is"
+        ),
+    )
+    args = parser.parse_args(argv)
+
+    run = load_characterization(args.runs)
+    analysis = analyse_complementarity(run)
+    primary = characterize(run, args.max_error, args.max_replications)
+    alternate_run = run.alternate_view() if run.alternate_version else None
+    alternate = (
+        characterize(alternate_run, args.max_error, args.max_replications)
+        if alternate_run is not None and alternate_run.cases
+        else None
+    )
+
+    print("=" * 78)
+    print(f"Alternate source characterization :: {run.evaluator_version}")
+    print("=" * 78)
+    print(render_complementarity(analysis, primary, alternate))
+
+    if args.emit:
+        if alternate is None:
+            parser.error(
+                "cannot emit an alternate qualification artifact from a run with no "
+                "paired alternate observations"
+            )
+        print(f"\nwrote {write_artifact(alternate, args.emit)}")
+
+    #: 1 whenever the decision is unsupported, which at present is always.  A pipeline
+    #: that treats 0 as "the alternate is fine" must not be able to get a 0 out of a
+    #: study that measured nothing.
+    return 0 if analysis.measured else 1
+
+
 #: ``slots=True`` makes the dataclass class attributes descriptors rather than
 #: values, so argparse defaults are read off an instance.
 _DEFAULT_COST = CostModel()
+
+
+def _alternate_characteristics(args) -> AlternateCharacteristics:
+    """Neither flag given returns an unusable instance, on purpose.
+
+    It does not raise here.  A benchmark of primary-only policies is a legitimate run
+    that needs no alternate evidence, and refusing it up front would make the safeguard
+    an obstacle rather than a check.  The refusal happens at the point of use, where a
+    policy has actually escalated a case and the rates are about to become a number.
+    """
+    if args.alternate_qualification:
+        evidence = load_artifact(args.alternate_qualification)
+        return AlternateCharacteristics(
+            sensitivity=evidence.sensitivity,
+            false_positive_rate=evidence.false_positive_rate,
+            qualification_ref=Path(args.alternate_qualification).name,
+        )
+    if args.assume_alternate_rates:
+        sensitivity, fpr = args.assume_alternate_rates
+        return AlternateCharacteristics(
+            sensitivity=sensitivity,
+            false_positive_rate=fpr,
+            assumed_because="--assume-alternate-rates on the command line",
+        )
+    return AlternateCharacteristics()
 
 
 def _benchmark_command(argv: list[str]) -> int:
@@ -137,8 +223,28 @@ def _benchmark_command(argv: list[str]) -> int:
     parser.add_argument(
         "--alternate-cost", type=float, default=_DEFAULT_COST.alternate_cost_usd
     )
-    parser.add_argument(
-        "--alternate-sensitivity", type=float, default=_DEFAULT_COST.alternate_sensitivity
+    #: The alternate's accuracy is either measured or explicitly assumed, and there is
+    #: no third option.  ``--alternate-sensitivity`` used to default to 0.95 with no
+    #: mention of where 0.95 came from; a policy that escalates now fails unless one of
+    #: these two flags is given, because that default was the leak.
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
+        "--alternate-qualification",
+        metavar="PATH",
+        help=(
+            "an alternate qualification artifact from 'characterize-alternate --emit'. "
+            "Its counts supply the alternate's sensitivity and false-positive rate"
+        ),
+    )
+    source.add_argument(
+        "--assume-alternate-rates",
+        nargs=2,
+        type=float,
+        metavar=("SENSITIVITY", "FPR"),
+        help=(
+            "model the alternate's accuracy instead of measuring it. Every number "
+            "derived from it is labelled ASSUMED in the report"
+        ),
     )
     parser.add_argument("--human-cost", type=float, default=_DEFAULT_COST.human_cost_usd)
     args = parser.parse_args(argv)
@@ -148,14 +254,21 @@ def _benchmark_command(argv: list[str]) -> int:
         judge_latency_seconds=args.judge_latency,
         judge_parallelism=args.judge_parallelism,
         alternate_cost_usd=args.alternate_cost,
-        alternate_sensitivity=args.alternate_sensitivity,
+        alternate=_alternate_characteristics(args),
         human_cost_usd=args.human_cost,
     )
 
     run = load_characterization(args.runs)
     analysis = characterize(run, args.max_error, args.max_replications)
     policies = default_policies(args.budget)
-    results, leakage = compare(run, policies, cost, k=args.folds)
+    try:
+        results, leakage = compare(run, policies, cost, k=args.folds)
+    except UnqualifiedAlternateError as error:
+        #: Reported, not raised as a traceback: this is a missing-input condition, and
+        #: a stack trace invites the reader to look for a bug in the code instead of
+        #: for the experiment nobody ran.
+        print(f"refusing to report modelled escalation error:\n\n{error}", file=sys.stderr)
+        return 3
     folds = stratified_folds(run, k=args.folds)
     #: ``compare`` appends the blind escalation control itself; rebuild it here so the
     #: allocation diagnostic covers it too, since "is the targeting doing anything" is
@@ -194,6 +307,8 @@ def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if argv and argv[0] == "characterize-evaluator":
         return _characterize_command(argv[1:])
+    if argv and argv[0] == "characterize-alternate":
+        return _alternate_command(argv[1:])
     if argv and argv[0] == "benchmark-policies":
         return _benchmark_command(argv[1:])
     return _plan_command(argv)
