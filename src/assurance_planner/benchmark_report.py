@@ -135,15 +135,15 @@ def _costs(cost: CostModel) -> list[str]:
         f"  judge      ${cost.judge_cost_usd:.4f}/call, "
         f"{_hms(cost.judge_latency_seconds)}/call, parallelism {cost.judge_parallelism}",
         f"  alternate  ${cost.alternate_cost_usd:.4f}/case, "
-        f"{_hms(cost.alternate_latency_seconds)}/case, declared sensitivity "
-        f"{cost.alternate_sensitivity:.2f}, declared FPR "
-        f"{cost.alternate_false_positive_rate:.2f}",
+        f"{_hms(cost.alternate_latency_seconds)}/case, sensitivity "
+        f"{cost.alternate.sensitivity:.2f}, FPR "
+        f"{cost.alternate.false_positive_rate:.2f}",
+        f"             {cost.alternate.provenance}",
         f"  human      ${cost.human_cost_usd:.2f}/case, "
         f"{_hms(cost.human_latency_seconds)}/case, treated as the reference label",
-        "  No alternate-source or human observations exist in this dataset. An escalated "
-        "case contributes",
-        "  *expected* error from the declared rates above, which is why error counts can "
-        "be fractional.",
+        "  No human observations exist in this dataset. An escalated case contributes",
+        "  *expected* error from the rates above, which is why error counts can be "
+        "fractional.",
         "",
     ]
 

@@ -58,6 +58,79 @@ BLIND_PREFIX = "blind_escalation_"
 # --------------------------------------------------------------------------------
 
 
+class UnqualifiedAlternateError(RuntimeError):
+    """An unmeasured alternate error rate was about to become a reported number."""
+
+
+@dataclass(frozen=True, slots=True)
+class AlternateCharacteristics:
+    """What the alternate source is believed to do, and where the belief came from.
+
+    For the whole of the previous pass these were two float literals on ``CostModel``,
+    and nothing stopped them flowing into a printed false-negative count.  A declared
+    0.95 and a measured 0.95 produce byte-identical output and completely different
+    claims, so the difference has to be enforced rather than documented.
+
+    The enforcement is that the rates are unreadable by default.  Either
+    ``qualification_ref`` names an artifact they were read out of, or ``assumed_because``
+    records that a caller explicitly chose to model them and why.  A default-constructed
+    instance has neither, so any policy that escalates to the alternate raises.  That is
+    deliberately noisy: the alternative -- a benchmark that silently reports modelled
+    error as measured error -- is the failure this whole pass was commissioned to close.
+    """
+
+    sensitivity: float = 0.95
+    false_positive_rate: float = 0.05
+    #: Name of the alternate qualification artifact these rates were read from.
+    qualification_ref: str = ""
+    #: Why a caller accepted unmeasured rates.  Rendered next to every number they
+    #: produced, so the disclosure travels with the result rather than with the flag.
+    assumed_because: str = ""
+
+    def __post_init__(self) -> None:
+        if self.qualification_ref and self.assumed_because:
+            raise ValueError(
+                "alternate rates cannot be both read from a qualification artifact "
+                "and declared as an assumption; one of the two is not true"
+            )
+
+    @property
+    def measured(self) -> bool:
+        return bool(self.qualification_ref)
+
+    @property
+    def usable(self) -> bool:
+        return bool(self.qualification_ref or self.assumed_because)
+
+    @property
+    def provenance(self) -> str:
+        if self.measured:
+            return f"measured; qualification artifact '{self.qualification_ref}'"
+        if self.assumed_because:
+            return f"ASSUMED, NOT MEASURED ({self.assumed_because})"
+        return "UNMEASURED and not declared; unusable"
+
+    def expected_error_rates(self) -> tuple[float, float]:
+        """``(expected false negatives, expected false positives)`` per escalated case.
+
+        The single accessor for these two numbers.  Kept as a method rather than two
+        attributes so that there is exactly one place to refuse, and so that a caller
+        cannot reach the rates by reading a field name that looks harmless.
+        """
+        if not self.usable:
+            raise UnqualifiedAlternateError(
+                "the alternate source's sensitivity and false-positive rate have not "
+                "been measured: there is no alternate qualification artifact, and no "
+                "caller has declared that it is modelling them. A policy escalated a "
+                "case to the alternate, so these rates would have been reported as "
+                "error counts. Supply a qualification artifact produced by "
+                "'characterize-alternate --emit', or state the assumption explicitly "
+                "via AlternateCharacteristics(assumed_because=...). See "
+                "docs/alternate_source_collection_protocol.md."
+            )
+        return (1.0 - self.sensitivity, self.false_positive_rate)
+
+
 @dataclass(frozen=True, slots=True)
 class CostModel:
     """Prices and latencies for every source a policy may spend.
@@ -69,11 +142,11 @@ class CostModel:
     different time, and a policy comparison that ignores that will recommend the wrong
     thing.  Both figures are reported; neither is presented as the other.
 
-    The alternate evaluator's rates are **declared, not measured**.  No alternate-source
-    observations exist in any fixture, so escalating to it contributes expected error
-    rather than an observed one.  Setting both to a perfect oracle is how the harness
-    models human adjudication, and that is itself an assumption: it treats the
-    reference label as ground truth by definition.
+    The alternate's accuracy lives in ``alternate``, behind an accessor that refuses
+    unmeasured rates.  Its *price* and *latency* are still plain floats here, because
+    they are quoted parameters of a service rather than estimates of its behaviour --
+    but a study that does not record them is the only source of truth for what the
+    alternate actually costs, and the default below is a placeholder, not a measurement.
     """
 
     judge_cost_usd: float = 0.0625
@@ -82,9 +155,9 @@ class CostModel:
 
     alternate_cost_usd: float = 0.75
     alternate_latency_seconds: float = 240.0
-    #: Declared, not measured.  See class docstring.
-    alternate_sensitivity: float = 0.95
-    alternate_false_positive_rate: float = 0.05
+    alternate: AlternateCharacteristics = field(
+        default_factory=AlternateCharacteristics
+    )
 
     human_cost_usd: float = 12.0
     human_latency_seconds: float = 900.0

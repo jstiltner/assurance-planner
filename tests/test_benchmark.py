@@ -38,6 +38,7 @@ from assurance_planner.policies import (
     ALTERNATE,
     BLIND_PREFIX,
     HUMAN,
+    AlternateCharacteristics,
     Calibration,
     CaseOutcome,
     ConfidenceStop,
@@ -46,13 +47,22 @@ from assurance_planner.policies import (
     FixedN,
     HeterogeneityTriage,
     ProbeThenEscalate,
+    UnqualifiedAlternateError,
     UntargetedEscalation,
     default_policies,
     stratified_folds,
 )
 
 DATA = Path(__file__).resolve().parents[1] / "data"
-COST = CostModel()
+
+#: Every escalating policy in this file prices its escalations from *assumed* alternate
+#: accuracy, and now has to say so.  A bare ``AlternateCharacteristics()`` raises the
+#: moment a case is escalated, so no test in this file can produce a modelled error
+#: count without this declaration appearing in the source above it.
+ASSUMED_ALTERNATE = AlternateCharacteristics(
+    assumed_because="test fixture; no alternate source has been measured"
+)
+COST = CostModel(alternate=ASSUMED_ALTERNATE)
 
 
 @pytest.fixture
@@ -114,12 +124,59 @@ def test_escalation_error_is_expected_not_observed():
     ]
     result = score("escalate_always", outcomes, COST)
 
-    assert result.false_negatives == pytest.approx(1.0 - COST.alternate_sensitivity)
-    assert result.false_positives == pytest.approx(COST.alternate_false_positive_rate)
+    assert result.false_negatives == pytest.approx(1.0 - COST.alternate.sensitivity)
+    assert result.false_positives == pytest.approx(
+        COST.alternate.false_positive_rate
+    )
     assert result.unresolved == 0, "an escalated case was answered by someone"
     assert result.escalations == 2
     #: No sample behind an escalated case, so no interval is offered for one.
     assert result.sensitivity_interval_judge_only is None
+
+
+def test_escalation_refuses_to_score_against_unmeasured_alternate_rates():
+    """The safeguard, asserted rather than trusted.
+
+    Until this pass the alternate's 0.95/0.05 were float literals on ``CostModel`` and a
+    bare ``CostModel()`` would happily print a false-negative count derived from them.
+    The two numbers still exist and still default to 0.95/0.05 -- what changed is that
+    reading them requires either a qualification artifact or a caller who says out loud
+    that it is modelling them.
+
+    Note what does *not* raise: a comparison of primary-only policies. The refusal is at
+    the point of use, so the safeguard costs nothing until a case is actually escalated.
+    """
+    unqualified = CostModel()
+    assert not unqualified.alternate.usable
+    assert not unqualified.alternate.measured
+
+    settled = [CaseOutcome("A", "s", True, True, 3)]
+    score("no_escalation", settled, unqualified)
+
+    with pytest.raises(UnqualifiedAlternateError):
+        score(
+            "escalate",
+            [CaseOutcome("B", "s", True, None, 1, escalated_to=ALTERNATE)],
+            unqualified,
+        )
+
+
+def test_measured_and_assumed_alternate_rates_cannot_both_be_claimed():
+    """An artifact reference and an assumption are mutually exclusive claims.
+
+    Allowing both would make ``provenance`` a choice about which sentence to print,
+    and the one that got printed would be the reassuring one.
+    """
+    with pytest.raises(ValueError):
+        AlternateCharacteristics(
+            qualification_ref="alt.yaml", assumed_because="also guessing"
+        )
+
+    measured = AlternateCharacteristics(qualification_ref="alt.yaml")
+    assert measured.measured and measured.usable
+    assert not ASSUMED_ALTERNATE.measured and ASSUMED_ALTERNATE.usable
+    assert "ASSUMED" in ASSUMED_ALTERNATE.provenance
+    assert "ASSUMED" not in measured.provenance
 
 
 def test_human_escalation_is_treated_as_the_reference_label_and_says_so():
@@ -277,8 +334,8 @@ def test_changing_only_the_prices_changes_the_preferred_policy(mixed):
     escalation. Under a cheap alternate, escalating is on the frontier; under an
     expensive one it is bought out of it.
     """
-    cheap = CostModel(alternate_cost_usd=0.10)
-    dear = CostModel(alternate_cost_usd=40.0)
+    cheap = CostModel(alternate_cost_usd=0.10, alternate=ASSUMED_ALTERNATE)
+    dear = CostModel(alternate_cost_usd=40.0, alternate=ASSUMED_ALTERNATE)
 
     cheap_results, _ = compare(mixed, default_policies(), cheap)
     dear_results, _ = compare(mixed, default_policies(), dear)
@@ -313,7 +370,11 @@ def test_the_qualification_counts_do_not_move_when_the_prices_do(mixed):
     sensitivity claim.
     """
     before = characterize(mixed, 0.05).qualification_counts()
-    compare(mixed, default_policies(), CostModel(judge_cost_usd=99.0))
+    compare(
+        mixed,
+        default_policies(),
+        CostModel(judge_cost_usd=99.0, alternate=ASSUMED_ALTERNATE),
+    )
     after = characterize(mixed, 0.05).qualification_counts()
     assert before == after
 

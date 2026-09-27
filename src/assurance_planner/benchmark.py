@@ -13,12 +13,15 @@ abstention look like success.  ``PolicyResult`` therefore carries the reference
 positive and negative totals, the unresolved count and the escalation count
 separately, and the rate properties state which denominator they used.
 
-**Escalation error is expectation, not observation.**  No fixture contains
-alternate-evaluator observations, so a case handed to the alternate contributes
-``1 - alternate_sensitivity`` expected false negatives rather than a measured
-outcome.  That makes error counts fractional, which is the point: it is visibly not
-a count of things that happened.  Confidence intervals are computed over the
-judge-decided cases only, because those are the only ones with a sample behind them.
+**Escalation error is expectation, not observation.**  A case handed to the alternate
+contributes ``1 - alternate_sensitivity`` expected false negatives rather than a
+measured outcome.  That makes error counts fractional, which is the point: it is
+visibly not a count of things that happened.  Confidence intervals are computed over
+the judge-decided cases only, because those are the only ones with a sample behind
+them.  Since no alternate source has been measured, those rates are now unreadable
+unless a caller supplies a qualification artifact or states the assumption -- see
+``AlternateCharacteristics``.  A benchmark of primary-only policies is unaffected,
+because it never reaches the accessor.
 
 **Two time figures, never one.**  Total evaluator seconds is what the evaluator
 fleet is occupied for.  Wall clock is the slowest single case's critical path, on
@@ -215,10 +218,15 @@ def score(
                 #: Human adjudication *is* the reference label, by construction.  That
                 #: is an assumption about the reference, not a measurement of humans.
                 continue
+            #: Raises unless the alternate's rates are backed by a qualification
+            #: artifact or a caller has explicitly declared that it is modelling them.
+            #: Reached only when a policy actually escalated, so a comparison of
+            #: primary-only policies needs no alternate evidence at all.
+            expected_fn, expected_fp = cost.alternate.expected_error_rates()
             if outcome.reference_label:
-                false_negatives += 1.0 - cost.alternate_sensitivity
+                false_negatives += expected_fn
             else:
-                false_positives += cost.alternate_false_positive_rate
+                false_positives += expected_fp
             continue
 
         if outcome.verdict is None:
