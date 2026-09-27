@@ -423,6 +423,34 @@ Its role is bounded:
 - Neither prove-red successes nor prove-red misses are representative data, and neither may
   be pooled with a representative corpus.
 
+**Retention is not implemented, because there is nothing here to retain.** A prove-red
+exercise is not executed anywhere in this repository. `prove_red_runs` is a scalar typed
+into a scenario file by hand and read by one constraint
+(`constraints.py`, `prove_red_sufficient`); there is no per-case record, no target
+identifier, and no execution. The misses are discarded by whatever process produces that
+number, which is outside this codebase. Adding retention machinery here would be building a
+consumer for a producer that does not exist.
+
+The minimal follow-up, for whenever a prove-red harness is written:
+
+1. **Emit per-exercise records, not a count.** Per exercise: the target identifier, the
+   defect it was constructed to contain, the failure mode version it was constructed
+   against, and the evaluator's verdicts. A miss is then already expressible in the
+   existing per-case schema — `reference_label: fail`, true by construction rather than by
+   adjudication, with the evaluator's `pass` verdicts as observations. **No new file format
+   is needed**; `CharacterizationRun` already has the shape.
+2. **Record attempts alongside REDs.** `QualificationEvidence` stores `prove_red_runs` and
+   no denominator, so `prove_red_runs: 3` may be 3 of 3 or 3 of 20, and a miss is not
+   currently a countable event. This is a schema addition that changes what the
+   `prove_red_sufficient` constraint can see, so it is a change to prove-red semantics and
+   is deliberately **not** made here.
+3. **Keep the resulting corpus separable.** Prove-red misses must never merge into a
+   representative run, which needs the per-case sampling provenance of §9.4 — also not
+   added, for the reason in §9.1.
+
+Items 2 and 3 are the blocking ones, and both are larger than this pass. Item 1 is free
+whenever the harness is written.
+
 ### 9.6 The only endorsed use: a rejection screen
 
 Sample size is set by the gap to `r*` (§6.2), and **rejection is an order of magnitude

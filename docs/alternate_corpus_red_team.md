@@ -314,6 +314,13 @@ What it cannot do:
 * **Selection on the failure being noticed is absent here**, which is its main advantage
   over route 3 and worth stating explicitly.
 
+**And it is currently hypothetical.** No prove-red exercise is executed in this repository.
+`prove_red_runs` is a scalar typed into a scenario file and consumed by one constraint;
+there are no per-case records, no target identifiers, and no attempt count — so a miss is
+not merely discarded, it is not a representable event. `prove_red_runs: 3` may be 3 of 3 or
+3 of 20. §9.5 of the protocol specifies what a harness would have to emit; the two blocking
+changes both alter schemas that other code reads, and neither is made here.
+
 ## 8. How collection burden scales — and what the saving is actually on
 
 Two relationships govern everything, and neither depends on a constant.
