@@ -1,6 +1,7 @@
 """assurance-plan <scenario.yaml> [--context NAME]
 
     assurance-plan characterize-evaluator <runs.yaml> [--max-error E]
+    assurance-plan benchmark-policies <runs.yaml> [--folds K] [--judge-cost USD] ...
 """
 
 from __future__ import annotations
@@ -8,12 +9,22 @@ from __future__ import annotations
 import argparse
 import sys
 
+from .benchmark import (
+    allocation_diagnostic,
+    compare,
+    fit_by_reference_label,
+    marginal_value,
+    sample_size_warnings,
+    slice_diagnostics,
+)
+from .benchmark_report import render_benchmark
 from .characterization import characterize
 from .loader import load, load_characterization
 from .planner import plan
+from .policies import CostModel, default_policies, stratified_folds
 from .rationale import render, render_characterization
 
-SUBCOMMANDS = ("characterize-evaluator",)
+SUBCOMMANDS = ("characterize-evaluator", "benchmark-policies")
 
 
 def _plan_command(argv: list[str]) -> int:
@@ -84,10 +95,100 @@ def _characterize_command(argv: list[str]) -> int:
     return 1 if analysis.independence_is_implausible else 0
 
 
+#: ``slots=True`` makes the dataclass class attributes descriptors rather than
+#: values, so argparse defaults are read off an instance.
+_DEFAULT_COST = CostModel()
+
+
+def _benchmark_command(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="assurance-plan benchmark-policies")
+    parser.add_argument("runs", help="path to a per-case evaluator outcomes YAML file")
+    parser.add_argument("--max-error", type=float, default=0.05)
+    parser.add_argument("--max-replications", type=int, default=12)
+    parser.add_argument(
+        "--folds",
+        type=int,
+        default=5,
+        help=(
+            "cross-validation folds. Every case is scored by a policy calibrated "
+            "without it. Default: 5"
+        ),
+    )
+    parser.add_argument(
+        "--budget",
+        type=int,
+        default=8,
+        help=(
+            "the repetition budget the fixed-N and early-stopping policies are given. "
+            "Default: 8, because that is the historical operating practice under test"
+        ),
+    )
+    #: Every one of these is an assumption.  They are flags rather than constants
+    #: because the whole question of which policy wins is downstream of them, and a
+    #: reader should be able to find out how little it takes to flip the answer.
+    parser.add_argument("--judge-cost", type=float, default=_DEFAULT_COST.judge_cost_usd)
+    parser.add_argument(
+        "--judge-latency", type=float, default=_DEFAULT_COST.judge_latency_seconds
+    )
+    parser.add_argument(
+        "--judge-parallelism", type=int, default=_DEFAULT_COST.judge_parallelism
+    )
+    parser.add_argument(
+        "--alternate-cost", type=float, default=_DEFAULT_COST.alternate_cost_usd
+    )
+    parser.add_argument(
+        "--alternate-sensitivity", type=float, default=_DEFAULT_COST.alternate_sensitivity
+    )
+    parser.add_argument("--human-cost", type=float, default=_DEFAULT_COST.human_cost_usd)
+    args = parser.parse_args(argv)
+
+    cost = CostModel(
+        judge_cost_usd=args.judge_cost,
+        judge_latency_seconds=args.judge_latency,
+        judge_parallelism=args.judge_parallelism,
+        alternate_cost_usd=args.alternate_cost,
+        alternate_sensitivity=args.alternate_sensitivity,
+        human_cost_usd=args.human_cost,
+    )
+
+    run = load_characterization(args.runs)
+    analysis = characterize(run, args.max_error, args.max_replications)
+    policies = default_policies(args.budget)
+    results, leakage = compare(run, policies, cost, k=args.folds)
+    folds = stratified_folds(run, k=args.folds)
+
+    print("=" * 78)
+    print(f"Policy benchmark :: {run.evaluator_version}")
+    print("=" * 78)
+    print(
+        render_benchmark(
+            run=run,
+            analysis=analysis,
+            results=results,
+            leakage=leakage,
+            marginal=marginal_value(run, cost, args.budget),
+            slices=slice_diagnostics(run),
+            allocation=tuple(
+                allocation_diagnostic(run, policy, cost, folds) for policy in policies
+            ),
+            fits=fit_by_reference_label(run),
+            warnings=sample_size_warnings(run),
+            cost=cost,
+        )
+    )
+    #: Non-zero when the comparison cannot be trusted, so a pipeline cannot quietly
+    #: consume a leaking or under-powered result.
+    if not leakage.clean:
+        return 2
+    return 1 if sample_size_warnings(run) else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if argv and argv[0] == "characterize-evaluator":
         return _characterize_command(argv[1:])
+    if argv and argv[0] == "benchmark-policies":
+        return _benchmark_command(argv[1:])
     return _plan_command(argv)
 
 
