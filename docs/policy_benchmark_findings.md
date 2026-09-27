@@ -10,6 +10,19 @@ arithmetic.
 Read this alongside [`real_experiment_protocol.md`](real_experiment_protocol.md). That
 document is what these results argue for.
 
+**Reproducing these numbers now requires
+`--assume-alternate-rates 0.95 0.05`.** Every escalating policy below prices its escalated
+cases from an assumed alternate sensitivity of 0.95 and false-positive rate of 0.05. Those
+were two unsourced float literals in the cost model; they are now gone, and the benchmark
+refuses to score an escalation unless the caller either supplies a real qualification
+artifact or states the assumption on the command line. **The table is unchanged** — the flag
+reinstates exactly the values that were previously implicit — but it can no longer be
+produced by accident, and the columns for `probe_2`, `blind control` and
+`heterogeneity_triage` above should be read as *modelled* rather than measured error counts
+wherever an escalation occurred. See
+[`alternate_source_collection_protocol.md`](alternate_source_collection_protocol.md) for
+what would have to be collected to make them measured; no such data exists.
+
 ## The headline
 
 **Corrected.** An earlier draft of this document claimed that a two-observation

@@ -18,7 +18,8 @@ about is stochastic; the reasoning is not.
 pip install -e .
 assurance-plan scenarios/voice_early.yaml --context nightly
 assurance-plan characterize-evaluator data/judge_runs_systematic.yaml
-assurance-plan benchmark-policies data/judge_runs_mixed.yaml
+assurance-plan benchmark-policies data/judge_runs_mixed.yaml --assume-alternate-rates 0.95 0.05
+assurance-plan characterize-alternate data/SYNTHETIC_paired_runs.yaml
 ```
 
 The second command is the planner's own falsifier. See
@@ -41,6 +42,23 @@ including the parts that argue against continuing,
 and its ten kill criteria written before any real data exists, and
 [`docs/experiment_red_team.md`](docs/experiment_red_team.md) for the pass that found the
 protocol's original sample size could not test its own central claim.
+
+The fourth command is the instrument for the question those documents said to ask next:
+does a second, more expensive source get right what the primary gets wrong? **It has never
+been run on real data, because there is no real alternate source and no human-labelled
+corpus — every case in `data/` is generated.** The benchmark used to price escalation from
+a hard-coded sensitivity of 0.95 and a false-positive rate of 0.05 that no study produced;
+those literals are gone, and a policy that escalates now raises unless the caller supplies
+a qualification artifact or says out loud that it is assuming. Hence
+`--assume-alternate-rates` above, which is the only way to reproduce the published
+benchmark table. Every cell of `characterize-alternate`'s decision table reads
+`UNMEASURED`, and no code path can write anything else into one; the command **exits
+non-zero** on a study whose conditionals are unsupported, so a pipeline cannot get a green
+result out of a study that measured nothing. What would have to be
+collected first is in
+[`docs/alternate_source_collection_protocol.md`](docs/alternate_source_collection_protocol.md);
+the short version is that the denominator is *primary errors*, not cases, so an accurate
+primary makes this expensive rather than cheap.
 
 ## What it decides
 
@@ -258,6 +276,8 @@ so, and a test asserts that it keeps saying so.
 | `planner.py` | enumerate → reject → rank |
 | `rationale.py` | why the winner won and why the losers lost |
 | `characterization.py` | the falsifier. Imported by nothing in the planner's decision path |
+| `complementarity.py` | the paired-error 2x2 and the statistics read off it. Emits no verdict |
+| `complementarity_report.py` | renders those numbers and refuses the conclusion |
 
 `docs/architecture.md` was written before the implementation and its wrong predictions
 are marked `[REVISED]` rather than corrected. `docs/red_team_review.md` is the
