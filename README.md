@@ -53,12 +53,28 @@ a qualification artifact or says out loud that it is assuming. Hence
 `--assume-alternate-rates` above, which is the only way to reproduce the published
 benchmark table. Every cell of `characterize-alternate`'s decision table reads
 `UNMEASURED`, and no code path can write anything else into one; the command **exits
-non-zero** on a study whose conditionals are unsupported, so a pipeline cannot get a green
-result out of a study that measured nothing. What would have to be
-collected first is in
-[`docs/alternate_source_collection_protocol.md`](docs/alternate_source_collection_protocol.md);
-the short version is that the denominator is *primary errors*, not cases, so an accurate
-primary makes this expensive rather than cheap.
+non-zero** on a study that measured nothing — and also on one that measured something and
+was never told what would count as success, so a pipeline cannot get a green result out of
+either.
+
+That second clause is a correction. The report used to compare the recovery rate to **0.5**
+and call the comparison a support rule. 0.5 is not a statistical quantity; it encodes "the
+alternate is right more often than not on the primary's mistakes", which is rhetorically
+satisfying and economically empty. The threshold that matters is the break-even recovery
+`r*` at which escalation starts to pay for itself; it is set by consequence, prevalence and
+price rather than by arithmetic, and the sample size needed swings thirtyfold across its
+plausible range. `r*` is now supplied with `--break-even-recovery`, on the same footing as
+`--max-error`, and is never inferred from the data being analysed.
+
+What would have to be collected first is in
+[`docs/alternate_source_collection_protocol.md`](docs/alternate_source_collection_protocol.md).
+The short version is that **under representative sampling** the denominator of the recovery
+rate is *primary errors*, not cases, so an accurate primary makes that design expensive
+rather than cheap. The qualifier is doing work:
+[`docs/alternate_corpus_red_team.md`](docs/alternate_corpus_red_team.md) examines a
+failure-enriched design for which it does not hold, and finds the design sound but not
+applicable here — it buys alternate observations rather than labels, and labels are the
+thing this project has none of.
 
 ## What it decides
 

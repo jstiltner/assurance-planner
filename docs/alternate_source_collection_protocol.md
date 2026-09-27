@@ -21,8 +21,11 @@ numbers the planner had been pricing escalation from — sensitivity 0.95, false
 rate 0.05 — were float literals with no study behind them.
 
 So this is not a measurement that can be scheduled for an afternoon. It is a
-data-collection project, and its cost is dominated by a fact established in §6: the
-denominator for the only statistic that matters is *primary errors*, not cases.
+data-collection project, and under the representative design specified here its cost is
+dominated by a fact established in §6: the denominator of the recovery rate is *primary
+errors*, not cases. That qualifier is load-bearing and was missing from earlier versions of
+this document — §9 describes the sampling design under which it does not hold, and §10
+records what was overstated.
 
 The instrument that will read this data already exists and is tested
 (`complementarity.py`, `complementarity_report.py`, `characterize-alternate`). Nothing in
@@ -77,7 +80,10 @@ Rules:
   `P(primary correct | alternate wrong)` un-estimable, destroys both marginals, and makes
   the alternate's standalone sensitivity unmeasurable — which is exactly the number needed
   to answer "replace the primary". If budget forces subsampling, subsample **at random with
-  a recorded seed and a recorded sampling rate**, never by outcome.
+  a recorded seed and a recorded sampling rate**, never by outcome. (Outcome-dependent
+  sampling is not universally invalid — it is a recognised design with a narrow set of
+  estimable quantities and an untestable assumption behind it. §9 says what it would take
+  and why it is not what this study does. This rule stands for the study specified here.)
 - **Do not add cases for the alternate that the primary never saw.** They will be dropped.
 - **Record non-coverage explicitly.** A case not sent to the alternate keeps an empty
   `alternate_observations` list. Absence is a value; do not backfill it.
@@ -156,57 +162,90 @@ Rules:
 - **Record the currency and date if labour cost is converted**, and record fixed setup cost
   separately from per-observation cost.
 
-## 6. Minimum sample size and slice support
+## 6. Sample size, and the break-even recovery it depends on
 
-The governing arithmetic, and the reason this study is not cheap:
+### 6.1 Declare `r*` before collecting
 
-> The denominator of `P(alternate correct | primary wrong)` is **primary errors**, not
-> cases. An accurate primary makes complementarity *more* expensive to measure, not less.
+**Sample size cannot be computed until someone says what would count as success**, and this
+document previously claimed otherwise. See §10.
 
-`MIN_ERRORS_FOR_CONDITIONAL = 16` is derived, not chosen: to place a Wilson interval
-against 0.5 at all requires 16 errors even at an optimistic observed recovery rate of 0.75
-(12/16 gives [0.505, 0.898]; 9/12 gives [0.468, 0.911] and cannot). At less flattering
-recovery rates the requirement grows sharply:
+The recovery rate is not compared to a constant. It is compared to the **break-even
+recovery `r*`** — the rate at which escalating to the alternate begins to pay for itself.
+`r*` is set by the consequence of the failure recovered, how often that failure occurs, what
+an alternate invocation costs, what the alternate's own false alarms cost, and the latency
+budget. It is a **policy input**, declared on the command line as `--break-even-recovery`,
+exactly as `--max-error` is declared. It is never inferred from the data being analysed and
+this project's code does not compute it.
 
-| true recovery rate | primary errors needed |
-|---|---|
-| 0.90 | 4 |
-| 0.80 | 11 |
-| 0.75 | 16 |
-| 0.70 | 21 |
-| 0.60 | 91 |
+Without a declared `r*`, `characterize-alternate` reports the observation and its interval
+and refuses to call either decision-sufficient. That refusal is correct: a study that was
+never told what success looks like has been asked no question.
 
-Converting to cases via `required_paired_cases(primary_error_rate) = ceil(16 / rate)`:
+### 6.2 The governing arithmetic
 
-| primary error rate | paired cases for 16 errors |
-|---|---|
-| 0.40 | 40 |
-| 0.20 | 80 |
-| 0.10 | 160 |
-| 0.05 | 320 |
+Two relationships, neither of which is a constant.
 
-Floors:
+**(a) Errors needed is set by the gap between the observed recovery and `r*`,** and the
+dependence is steep:
+
+| observed recovery | `r*` | primary errors to decide |
+|---|---|---|
+| 0.60 | 0.10 | 3 |
+| 0.60 | 0.20 | 3 |
+| 0.60 | 0.30 | 12 |
+| 0.60 | 0.50 | 91 |
+| 0.75 | 0.70 | 306 |
+| 0.50 | 0.50 | no finite study |
+
+A thirtyfold swing, driven by an economic input. This is `errors_to_decide(r, r*)`, and
+the report prints the same sensitivity table against the study's own observed recovery.
+
+**(b) Representative cases needed is `errors / primary error rate`.** The denominator of
+`P(alternate correct | primary wrong)` is **primary errors**, not cases, so under
+representative sampling an accurate primary makes the *conditional* expensive to measure:
+
+| primary error rate | cases for 16 errors | cases for 91 errors |
+|---|---|---|
+| 0.40 | 40 | 228 |
+| 0.20 | 80 | 455 |
+| 0.10 | 160 | 910 |
+| 0.05 | 320 | 1820 |
+
+`required_paired_cases(rate, errors)`. Note the qualifier: this is a property of
+representative sampling, not of complementarity. §9 covers what changes without it.
+
+**(c) A proportion needs about `1/s²` events for relative standard error `s`, whatever the
+underlying rate.** So 16 errors is exactly 25 % relative SE on the primary error rate — a
+representative corpus sized for the conditional delivers prevalence at that precision as a
+by-product, at no additional cost.
+
+### 6.3 Floors
 
 - **`MIN_PAIRED_CASES = 40` decided pairs** before any overall figure is quoted, matching
   the existing `MIN_CASES_FOR_COMPARISON`.
-- **16 primary errors** before any conditional is quoted. Below it the report prints the
-  point estimate and interval but marks the conditional unsupported, and
-  `characterize-alternate` exits non-zero.
+- **`POINT_ESTIMATE_FLOOR = 16` primary errors is a presentation warning, not a
+  sufficiency criterion.** Below it the Wilson interval is wider than 0.39 even at an
+  optimistic observed 0.75, so the report tells the reader to quote the interval rather
+  than the point. It carries no verdict in either direction: a thin denominator can still
+  decide a question posed against a distant `r*`, and a fat one can fail to decide one
+  posed against a near `r*`.
 - **Replacement vs complementarity needs both marginals**, each on ≥40 pairs: replacement
   is a claim about the alternate's standalone sensitivity and FPR, complementarity is a
   claim about the off-diagonal. A study powered for one is not powered for the other.
-- **Per slice, the same two floors apply**: the instrument flags any slice under 40 decided
-  pairs as thin and any slice conditional under 16 errors as unsupported. This is the
-  expensive line and it is not negotiable if a routing rule is the goal — a routing rule is
-  a per-slice claim, and a per-slice claim on 12 cases is not a claim. Three slices is 120
-  pairs *and* needs 16 primary errors inside each one, which an even split will not
-  produce. (§2.2 of [`real_experiment_protocol.md`](real_experiment_protocol.md) derives a
-  separate per-slice floor of ~30 for placing a slice's stable-wrong rate against 0.30.
+  Replacement is powered by *cases* rather than by errors, which makes it the cheap
+  question of the three.
+- **Per slice, size against the slice's own gap to `r*`.** A routing rule is a per-slice
+  claim and a per-slice claim on 12 cases is not a claim; the instrument flags any slice
+  under 40 decided pairs as thin. There is no fixed per-slice error floor, for the reason
+  in §6.2(a). (§2.2 of [`real_experiment_protocol.md`](real_experiment_protocol.md) derives
+  a separate per-slice floor of ~30 for placing a slice's stable-wrong rate against 0.30.
   That is a different question with a different denominator; satisfying it does not satisfy
   this one.)
-- **If the primary is accurate and the budget is fixed, the honest outcome is that
-  complementarity is unmeasurable at this scale.** Report that. It is a real answer and it
-  argues against the routing feature, which is the point.
+- **If the primary is accurate and the budget is fixed, the honest outcome may be that
+  complementarity is unmeasurable *by representative sampling* at this scale.** Report
+  that. It is a real answer and it argues against the routing feature, which is the point.
+  Note the qualifier — rejecting the routing branch is much cheaper than adopting it (§9),
+  so "cannot adopt at this budget" is not the same finding as "cannot conclude anything".
 
 ## 7. What must remain held out if a routing selector is later designed
 
@@ -245,7 +284,187 @@ no code path that writes anything else into one. Replacement, selective routing,
 rejection are conclusions for a human to draw from a real artifact, against criteria fixed
 before the data is seen — which is what §§1–7 are for.
 
+It also emits **no economics.** `r*` is printed as a policy input and is never computed,
+and with no `r*` declared the sufficiency section says so rather than falling back on a
+default (§6.1).
+
 The synthetic paired fixture (`data/SYNTHETIC_paired_runs.yaml`) exists only to exercise
 that arithmetic on input whose structure is known. Its artifact can be written and
 inspected but never loaded as planner evidence, and its numbers are statements about a
 seeded random number generator.
+
+---
+
+## 9. Failure-enriched corpora: not planned, and what would bind if they were
+
+**This section describes a design that is not being used.** It is recorded because the
+design is mathematically sound, because it will be proposed again, and because two of its
+failure modes produce plausible-looking numbers from the existing code path. Naming them
+now is cheaper than catching them later.
+
+[`alternate_corpus_red_team.md`](alternate_corpus_red_team.md) is the full review.
+
+### 9.1 The disposition
+
+> The two-corpus design is valid with limitations, but it is **not** the first-study design
+> for this project, because no real labelled corpus currently exists. **The first empirical
+> study remains a representative corpus (Design A)**, specified by §§1–7 above.
+
+Three limitations bound it. Only the primary-error column is estimable from an enriched
+corpus, so half the instrument's outputs go undefined and two go silently wrong (§9.3).
+The selection assumption cannot be checked in the regime where enrichment is attractive,
+because the only diagnostic compares against the error-poor corpus enrichment exists to
+avoid needing. And the saving is on *alternate observations*, not on *labels* — and
+labelling is the constraint this project is actually under, since it has zero labelled
+cases.
+
+Nothing in the codebase supports enriched sampling, no enriched corpus exists, and none is
+planned.
+
+### 9.2 The two roles, if it ever runs
+
+* **Corpus A — representative.** Sampled without reference to any outcome. The only source
+  of: the primary error rate, both sources' marginals, `P(alternate wrong | primary right)`
+  — the term that measures what escalation *breaks*, and the one most often forgotten —
+  the production disagreement rate, phi, slice frequencies, and the cost and latency
+  distributions.
+* **Corpus B — failure-enriched.** Confirmed primary failures selected without reference to
+  the alternate's result. The only thing it estimates is the primary-error column:
+  `P(alternate correct | primary wrong)`, overall and per mode, and the shared-failure
+  fraction that is one minus it.
+
+They recombine by arithmetic, not by concatenation. With `π` the primary error rate from
+A, `β = P(alternate wrong | primary wrong)` from B, and `γ = P(alternate wrong | primary
+right)` **from A**:
+
+```
+both wrong = πβ    primary only = π(1−β)    alternate only = (1−π)γ    neither = (1−π)(1−γ)
+```
+
+Note that `γ` comes from A. The two corpora are not two halves of one table; A is a whole
+table with a thin row and B thickens that row. Intervals on the products must be
+propagated from intervals on both factors, and the instrument does not do this today.
+
+### 9.3 Forbidden operations
+
+Both of these would run cleanly on enriched data in the current code path and produce a
+number a reader could not distinguish from a valid one.
+
+1. **The disagreement rate on an enriched corpus must never be reported as a disagreement
+   rate.** Every case in B has the primary wrong, so with binary verdicts against a shared
+   reference the sources disagree *exactly* when the alternate is right. B's disagreement
+   rate **is** its recovery rate — the same number under a different name, overstating
+   production disagreement by roughly `1/π`.
+2. **Pearson phi must never be computed on enriched or pooled data.** Unlike the odds
+   ratio, phi is not invariant to outcome-dependent sampling: it is a function of the four
+   cell proportions, and enrichment changes those by construction. On B it estimates
+   nothing. On A ∪ B it estimates nothing *and* is a function of the mixing ratio, which is
+   a budget decision. Phi is the statistic the routing hypothesis lives or dies on and it
+   has no denominator printed beside it, so this is the more dangerous of the two.
+
+Also forbidden: quoting a prevalence, either marginal, `γ`, a cost distribution, or a slice
+frequency from an enriched corpus; and pooling the case rows of the two corpora into a
+single run for any purpose.
+
+### 9.4 Provenance requirements
+
+The selection assumption is **S ⊥ E_a | E_p = 1** — inclusion independent of the alternate's
+correctness within the primary-error stratum. "The selector was blind to the alternate" is
+necessary and nowhere near sufficient; selecting on anything correlated with the alternate's
+verdict violates it.
+
+Failures arrive by five routes and the routes do not share a denominator. Record which one
+each case came by, per case:
+
+| route | standing |
+|---|---|
+| random sample, fully labelled, errors retained | valid by construction, and saves nothing on labels |
+| prove-red misses (§9.5) | valid *within the prove-red target population* only |
+| production incidents, escalations, complaints | severity-weighted, not error-weighted; a distinct estimand, and it must be labelled as conditional on the failure having been noticed |
+| disagreement mining | **invalid by construction** — selection is a function of the alternate's verdict, which is the exact violation |
+| adversarially authored cases | no population, so no sampling assumption to satisfy; a stress corpus, not an estimate |
+
+Also required: pre-register the selection rule before any alternate output is visible;
+record the screening ratio (cases examined per failure found); freeze reference labels
+before the alternate runs, which enrichment makes *harder* because a labeller who knows a
+case was selected as a failure is anchored; and discard cases used to gate admission to the
+corpus, or report the conditioning.
+
+**Root-cause deduplication is mandatory and biases in both directions.** Twenty cases from
+one broken template are one failure seen twenty times, and counting them as twenty narrows
+the interval by about `1/√20` around whatever that template does. Deduplicating hard can
+instead delete the mode that dominates production volume. Record the dedup key and report
+both the raw and deduplicated counts; there is no neutral choice, only a recorded one.
+
+Per-mode stratification relocates the sparse-denominator problem rather than solving it:
+balanced quotas make per-mode estimates comparable and make the pooled figure a weighted
+average with weights set by the quota rather than by production. Reweight by A's mode
+frequencies, or do not report the pooled figure.
+
+### 9.5 The restricted role of prove-red
+
+A *successful* prove-red is a case where the primary **succeeded** — `prove_red_runs`
+counts RED observations on a known-broken build, which is evidence the guard detected the
+defect. It is not failure-corpus material.
+
+The **miss** is: a prove-red exercise where the evaluator stayed GREEN on a target known to
+be broken. That is a confirmed primary failure whose reference label comes from the
+construction of the target rather than from adjudication, found by a mechanism that never
+saw the alternate. It is the cheapest confirmed failure this project can obtain.
+
+Its role is bounded:
+
+- It estimates recovery **on the prove-red target population**, and must be reported under
+  that name. Transporting it to production requires an untestable assumption that the two
+  populations match.
+- It cannot estimate a prevalence — the rate of prove-red misses is a property of the test
+  suite's difficulty, not of production.
+- It cannot estimate either marginal or `γ`.
+- Neither prove-red successes nor prove-red misses are representative data, and neither may
+  be pooled with a representative corpus.
+
+### 9.6 The only endorsed use: a rejection screen
+
+Sample size is set by the gap to `r*` (§6.2), and **rejection is an order of magnitude
+cheaper to establish than adoption**. A small pre-registered enriched corpus — 10–20
+confirmed failures, ideally prove-red misses — can therefore kill the routing branch before
+a representative study is commissioned: if the alternate recovers nothing on cases
+constructed to be recoverable, no volume of representative data will rescue it.
+
+Conditions, all binding: declare `r*` and the selection rule before collecting, since
+rejection is defined relative to `r*`; report **only** the recovery interval; name the
+population in the report; discard gate cases; and note that **a negative screen rejects
+while a positive screen does not adopt** — it licenses commissioning the representative
+study, and nothing more.
+
+This is a cheap way to stop, not a cheap way to go. Adoption requires the marginals, `γ`,
+the firing rate and phi, none of which an enriched corpus can produce.
+
+---
+
+## 10. Corrections to earlier versions of this document
+
+Three claims stated here before the corpus red-team. They are recorded rather than silently
+edited, because a protocol whose bar can move without a trace is not a bar.
+
+1. **"320 paired cases at a 5 % primary error rate."** Weakened. 320 is `16 / 0.05`, and 16
+   came from the retracted rule below. The case count is `errors_to_decide(r, r*) / π`, and
+   the numerator ranges from 3 to 306 across plausible `r*`. One point on that surface was
+   presented as the surface.
+2. **"An accurate primary makes complementarity more expensive to measure."** Narrowed, not
+   retracted. True under representative sampling, and true for the prevalence factor under
+   every design. False for the conditional under a valid enriched design, where the cost is
+   set by the gap to `r*` and not by the error rate at all.
+3. **"Complementarity may be unmeasurable at this scale."** Weakened to *unmeasurable by
+   representative sampling at a fixed budget*. Rejecting the routing branch remains
+   affordable (§9.6); adopting it does not.
+
+And the one retracted outright:
+
+4. **`MIN_ERRORS_FOR_CONDITIONAL = 16` as a sufficiency criterion.** Retracted. 16 was
+   derived against 0.5, and 0.5 was an undeclared economic assumption presented in the
+   register of a statistical convention — "the alternate is right more often than not on
+   the primary's mistakes" is a rhetorically satisfying sentence with no economic content.
+   It is not replaced by another constant. Sufficiency is evaluated against a declared `r*`
+   (§6.1), and 16 survives as `POINT_ESTIMATE_FLOOR`, a presentation warning that carries
+   no verdict.
