@@ -119,6 +119,20 @@ def _alternate_command(argv: list[str]) -> int:
     parser.add_argument("--max-error", type=float, default=0.05)
     parser.add_argument("--max-replications", type=int, default=12)
     parser.add_argument(
+        "--break-even-recovery",
+        type=float,
+        metavar="R",
+        default=None,
+        help=(
+            "the recovery rate at which escalating to the alternate begins to pay for "
+            "itself, supplied as policy in the same way --max-error is. Set by "
+            "consequence, prevalence, price and latency; never inferred from the data "
+            "being analysed. There is deliberately no default: without it the report "
+            "gives descriptive statistics and refuses to call any of them "
+            "decision-sufficient"
+        ),
+    )
+    parser.add_argument(
         "--emit",
         metavar="PATH",
         help=(
@@ -128,8 +142,11 @@ def _alternate_command(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.break_even_recovery is not None and not 0.0 <= args.break_even_recovery <= 1.0:
+        parser.error("--break-even-recovery must be a probability in [0, 1]")
+
     run = load_characterization(args.runs)
-    analysis = analyse_complementarity(run)
+    analysis = analyse_complementarity(run, args.break_even_recovery)
     primary = characterize(run, args.max_error, args.max_replications)
     alternate_run = run.alternate_view() if run.alternate_version else None
     alternate = (
@@ -153,8 +170,9 @@ def _alternate_command(argv: list[str]) -> int:
 
     #: 1 whenever the decision is unsupported, which at present is always.  A pipeline
     #: that treats 0 as "the alternate is fine" must not be able to get a 0 out of a
-    #: study that measured nothing.
-    return 0 if analysis.measured else 1
+    #: study that measured nothing -- nor out of one that measured something and was
+    #: never told what would count as success.
+    return 0 if analysis.measured and analysis.decisive else 1
 
 
 #: ``slots=True`` makes the dataclass class attributes descriptors rather than

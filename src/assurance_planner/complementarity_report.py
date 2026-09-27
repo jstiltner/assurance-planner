@@ -11,6 +11,16 @@ path in this module that writes anything else into those cells, because at the t
 writing there is no measured alternate source in this repository and a branch for the
 case where there is would be a guess about what the evidence will look like.
 
+**Sufficiency is relative to a declared threshold, never to a constant.**  Added after
+the corpus red-team, which found that this report's support rule -- compare the recovery
+rate to 0.5 -- was an economic assertion with no derivation, printed in the register of a
+statistical one.  Where the break-even recovery actually sits is set by what the recovered
+failure costs, how often it happens, and what the alternate charges to look; it can land
+anywhere in [0, 1], and the sample size needed swings thirtyfold across that range.  The
+report now prints the observation, the uncertainty, the declared threshold and the decision
+as four separate lines, and when no threshold has been declared it says the evidence is not
+decision-sufficient rather than falling back on one.
+
 **Synthetic input is announced, not footnoted.**  A 2x2 built from generated verdicts
 renders identically to one built from collected verdicts.  When the run is marked
 synthetic the report opens with a banner, every rate line is prefixed, and the
@@ -26,11 +36,13 @@ from statistics import fmean
 
 from .characterization import Characterization, CharacterizationRun
 from .complementarity import (
-    MIN_ERRORS_FOR_CONDITIONAL,
     MIN_PAIRED_CASES,
+    POINT_ESTIMATE_FLOOR,
     ComplementarityAnalysis,
     Conditional,
     PairedErrors,
+    Sufficiency,
+    errors_to_decide,
     required_paired_cases,
 )
 from .constraints import _hms
@@ -44,21 +56,25 @@ UNMEASURED = "UNMEASURED"
 
 
 def _conditional(conditional: Conditional, prefix: str = "") -> str:
-    """One proportion line, with its denominator and whether it supports anything."""
+    """One proportion line: the estimate, its interval, and its denominator.
+
+    Carries no sufficiency claim.  Whether a denominator is large enough depends on the
+    threshold the number is being read against, which is not this function's business
+    and for most of these statistics does not exist.
+    """
     if conditional.trials == 0:
         return f"  {prefix}{conditional.label:44} {UNMEASURED} (no cases in denominator)"
     point = conditional.point
     interval = conditional.interval
-    support = (
-        ""
-        if conditional.supported
-        else f"  << denominator {conditional.trials} < {MIN_ERRORS_FOR_CONDITIONAL}: "
-        f"cannot be placed against 0.5"
+    warning = (
+        f"  << n < {POINT_ESTIMATE_FLOOR}: quote the interval, not the point"
+        if conditional.thin_denominator
+        else ""
     )
     assert point is not None and interval is not None
     return (
         f"  {prefix}{conditional.label:44} {point:.3f}  {_interval(interval)}  "
-        f"n={conditional.trials}{support}"
+        f"n={conditional.trials}{warning}"
     )
 
 
@@ -179,6 +195,100 @@ def _statistics(analysis: ComplementarityAnalysis) -> list[str]:
     return lines
 
 
+#: What each outcome means, kept next to the enum rather than inline so the four
+#: branches are readable side by side.
+_SUFFICIENCY_TEXT = {
+    Sufficiency.NO_DATA: (
+        "no primary errors in the table, so there is nothing for the alternate to "
+        "recover and nothing to decide"
+    ),
+    Sufficiency.UNDECLARED: (
+        "NOT DECISION-SUFFICIENT. The statistics above are descriptive only. No "
+        "break-even recovery was declared, so nothing states what this study would have "
+        "to show to change a decision, and an interval cannot be decisive about a "
+        "question nobody asked"
+    ),
+    Sufficiency.ABOVE: (
+        "the whole interval lies above the declared break-even: at this break-even the "
+        "recovery evidence is decisive in favour"
+    ),
+    Sufficiency.BELOW: (
+        "the whole interval lies below the declared break-even: at this break-even the "
+        "recovery evidence is decisive against"
+    ),
+    Sufficiency.INCONCLUSIVE: (
+        "the interval spans the declared break-even, so this study does not settle it "
+        "either way"
+    ),
+}
+
+
+def _sufficiency(analysis: ComplementarityAnalysis) -> list[str]:
+    """Observation, uncertainty, declared threshold, decision -- four separate lines.
+
+    They are separated because they are four different kinds of thing, and collapsing
+    them is how an economic threshold gets mistaken for a statistical one.  The first
+    two are measurements.  The third is a policy input and is labelled as one.  Only the
+    fourth is a claim, and it is a claim *relative to* the third rather than an absolute.
+    """
+    recovery = analysis.overall.alternate_correct_given_primary_wrong
+    threshold = analysis.break_even_recovery
+    verdict = analysis.recovery_sufficiency
+    point, interval = recovery.point, recovery.interval
+
+    lines = ["Is the recovery evidence sufficient to decide?"]
+    lines.append(
+        f"  observed recovery              "
+        + (f"{point:.3f}" if point is not None else UNMEASURED)
+    )
+    lines.append(
+        f"  statistical uncertainty        "
+        + (
+            f"{_interval(interval)} 95% Wilson, n={recovery.trials} primary errors"
+            if interval is not None
+            else f"{UNMEASURED} (no primary errors)"
+        )
+    )
+    lines.append(
+        f"  declared break-even r*         "
+        + (
+            f"{threshold:.3f}  (POLICY INPUT, not measured here)"
+            if threshold is not None
+            #: Deliberately not UNMEASURED.  r* is never measured by anyone; it is
+            #: declared or it is missing, and calling it unmeasured would file a policy
+            #: input under the same heading as an empirical gap.
+            else "UNDECLARED  (none supplied; this is an input, not a measurement)"
+        )
+    )
+    lines.append(f"  decision support               {_SUFFICIENCY_TEXT[verdict]}")
+    lines.append(
+        "  r* is where escalating to the alternate begins to pay for itself. It is set "
+        "by the"
+    )
+    lines.append(
+        "  consequence of the failure recovered, how often it occurs, what the "
+        "alternate costs to"
+    )
+    lines.append(
+        "  invoke, what its own false alarms cost, and the latency budget. It is not a "
+        "statistical"
+    )
+    lines.append(
+        "  quantity and this module does not compute it. An earlier version of this "
+        "report compared"
+    )
+    lines.append(
+        "  the recovery rate to 0.5 and called that a support rule; 0.5 was an "
+        "undeclared economic"
+    )
+    lines.append(
+        "  assumption, and it has been removed rather than replaced with a different "
+        "constant."
+    )
+    lines.append("")
+    return lines
+
+
 def _per_slice(analysis: ComplementarityAnalysis) -> list[str]:
     lines = [
         "Per slice:",
@@ -197,26 +307,27 @@ def _per_slice(analysis: ComplementarityAnalysis) -> list[str]:
         "every slice here"
     )
     lines.append(
-        f"  needs {MIN_ERRORS_FOR_CONDITIONAL} primary errors of its own before its "
-        f"figure can be distinguished from"
+        "  needs enough primary errors of its own to be distinguished from the "
+        "population figure --"
     )
     lines.append(
-        "  the population figure. Slices are not folds: these are descriptive, and "
-        "using them to"
+        "  how many depends on the declared r* and on how far the slice sits from it, "
+        "not on a"
     )
     lines.append(
-        "  choose a routing threshold would fit the threshold on the data it is "
-        "later scored on."
+        "  constant. Slices are not folds: these are descriptive, and using them to "
+        "choose a routing"
     )
+    lines.append("  threshold would fit the threshold on the data it is later scored on.")
     lines.append("")
     return lines
 
 
 def _short(conditional: Conditional) -> str:
-    """A slice cell.  Denominator-starved cells say so instead of printing a number."""
+    """A slice cell.  Parenthesised when the point estimate must not travel alone."""
     if conditional.trials == 0:
         return "-"
-    if not conditional.supported:
+    if conditional.thin_denominator:
         return f"({conditional.point:.2f} n={conditional.trials})"
     return f"{conditional.point:.3f} n={conditional.trials}"
 
@@ -335,13 +446,14 @@ def _decision_table(analysis: ComplementarityAnalysis) -> list[str]:
         ),
         (
             "Keep both, route selectively",
-            "recovery rate above 0.5 with an interval that excludes it, joint error "
-            "rate well below the primary's error rate, and phi near or below 0",
+            "a declared break-even recovery r*, an interval lying entirely above it, "
+            "joint error rate well below the primary's error rate, and phi near or "
+            "below 0",
         ),
         (
             "Reject the alternate",
-            "recovery rate indistinguishable from 0, or joint error rate close to the "
-            "primary's error rate, or phi strongly positive",
+            "an interval lying entirely below the declared r*, or joint error rate "
+            "close to the primary's error rate, or phi strongly positive",
         ),
     )
     lines = ["Decision:"]
@@ -361,9 +473,22 @@ def _decision_table(analysis: ComplementarityAnalysis) -> list[str]:
         "  a hedge: the three outcomes are equally acceptable and none of them has "
         "support yet."
     )
-    if analysis.unsupported_conditionals:
-        lines.append("  Denominators too small to act on:")
-        for label in analysis.unsupported_conditionals:
+    if not analysis.decisive:
+        lines.append(
+            f"  Recovery evidence: {analysis.recovery_sufficiency.value}. A decisive "
+            f"result here would"
+        )
+        lines.append(
+            "  fill one row and not the others; it would not fill them all, and it "
+            "would still need"
+        )
+        lines.append("  the marginals and the economics to reach a decision.")
+    if analysis.thin_denominators:
+        lines.append(
+            f"  Denominators under {POINT_ESTIMATE_FLOOR}; do not quote these point "
+            f"estimates without their intervals:"
+        )
+        for label in analysis.thin_denominators:
             lines.append(f"    {label}")
     lines.append("")
     return lines
@@ -373,13 +498,12 @@ def _shortfall(analysis: ComplementarityAnalysis) -> list[str]:
     """What it would take to fill the table in, computed from this study's own rates."""
     table = analysis.overall
     error_rate = table.primary_errors / table.decided if table.decided else 0.0
-    needed = required_paired_cases(error_rate)
     lines = ["To unlock the decision:"]
     lines.append(
         f"  primary error rate on decided pairs     {error_rate:.3f} "
         f"({table.primary_errors} of {table.decided}, majority verdict vs reference)"
     )
-    if needed is None:
+    if error_rate <= 0.0:
         lines.append(
             "  The primary makes no errors here, so there is nothing for an alternate "
             "to recover and"
@@ -388,21 +512,84 @@ def _shortfall(analysis: ComplementarityAnalysis) -> list[str]:
         lines.append("")
         return lines
 
+    recovery = table.alternate_correct_given_primary_wrong.point
+    threshold = analysis.break_even_recovery
+    if threshold is None or recovery is None:
+        lines.append(
+            "  The sample size needed cannot be computed, because it is a function of "
+            "the gap between"
+        )
+        lines.append(
+            "  the observed recovery and the break-even recovery, and no break-even "
+            "has been declared."
+        )
+        lines.append(
+            "  Declare one and this section will size the study. The gap dominates: at "
+            "an observed"
+        )
+        lines.append(
+            "  recovery of 0.60, clearing a break-even of 0.20 takes 3 primary errors "
+            "and clearing"
+        )
+        lines.append(
+            "  0.50 takes 91 -- a thirtyfold difference in study cost set entirely by "
+            "an input this"
+        )
+        lines.append("  study has not been given.")
+        lines.append("  See docs/alternate_source_collection_protocol.md.")
+        lines.append("")
+        return lines
+
+    errors = errors_to_decide(recovery, threshold)
+    if errors is None:
+        lines.append(
+            f"  The observed recovery {recovery:.3f} sits on the declared break-even "
+            f"{threshold:.3f}. No sample"
+        )
+        lines.append(
+            "  size resolves that: an interval cannot exclude the point it is centred "
+            "on. The study"
+        )
+        lines.append(
+            "  cannot be made decisive by collecting more of the same; the break-even "
+            "has to move,"
+        )
+        lines.append("  which is an economic question and not one this report can answer.")
+        lines.append("  See docs/alternate_source_collection_protocol.md.")
+        lines.append("")
+        return lines
+
+    needed = required_paired_cases(error_rate, errors)
+    assert needed is not None
+    direction = "above" if recovery > threshold else "below"
     lines.append(
-        f"  paired cases for {MIN_ERRORS_FOR_CONDITIONAL} primary errors     {needed}  "
+        f"  to place {recovery:.3f} {direction} r*={threshold:.3f}      "
+        f"{errors} primary errors"
+    )
+    lines.append(
+        f"  representative cases for {errors} errors      {needed}  "
         f"(this study has {table.decided}; shortfall "
         f"{max(0, needed - table.decided)})"
     )
     lines.append(
-        f"  {MIN_ERRORS_FOR_CONDITIONAL} errors is a floor, and only sufficient if the "
-        f"recovery rate comes out at 0.75 or better."
+        "  Both figures move with r*. What the same observed recovery would cost "
+        "against other"
     )
-    lines.append("  What the same error rate implies at less favourable recovery rates:")
-    for rate, errors in ((0.70, 21), (0.60, 91)):
+    lines.append("  break-evens, at this study's primary error rate:")
+    for candidate in (0.10, 0.20, 0.30, 0.50):
+        alternative = errors_to_decide(recovery, candidate)
+        if alternative is None:
+            continue
+        cases = required_paired_cases(error_rate, alternative)
         lines.append(
-            f"    recovery {rate:.2f}  needs {errors:>3} primary errors  "
-            f"= {ceil(errors / error_rate)} paired cases"
+            f"    r*={candidate:.2f}  {alternative:>4} primary errors  "
+            f"= {cases} representative cases"
         )
+    lines.append(
+        "  Those are illustrations of the sensitivity, not candidate thresholds. Only "
+        "the declared"
+    )
+    lines.append("  r* above is the one this study is being read against.")
     lines.append("  See docs/alternate_source_collection_protocol.md.")
     lines.append("")
     return lines
@@ -450,6 +637,7 @@ def render_complementarity(
     lines += _marginals(primary, alternate)
     lines += _table(analysis.overall)
     lines += _statistics(analysis)
+    lines += _sufficiency(analysis)
     lines += _per_slice(analysis)
     lines += _economics(analysis.run)
     lines += _stochasticity(analysis)

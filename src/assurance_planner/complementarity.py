@@ -36,6 +36,7 @@ one about.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 from math import ceil, sqrt
 
 from .characterization import CaseRun, CharacterizationRun
@@ -48,40 +49,97 @@ from .statistics import wilson_interval
 #: This floor is about the joint error rate and the disagreement rate, which have the
 #: case count as their denominator.  It says nothing about the conditional
 #: probabilities, whose denominator is the *error* count -- a study can clear this floor
-#: several times over and still not support them.  See ``required_paired_cases``.
+#: several times over and still not support them.
 MIN_PAIRED_CASES = 40
 
-#: Errors below which a conditional probability is reported as unsupported.
+#: A **presentation** floor, and nothing more.  Below this denominator the Wilson
+#: interval is wider than 0.39 even at an optimistic observed 0.75, so a point estimate
+#: quoted without its interval attached will be read as more precise than it is.
 #:
-#: Derived, not chosen.  The recovery rate is used to decide whether the alternate
-#: fixes more of the primary's mistakes than it leaves standing, so the question asked
-#: of it is whether it exceeds 0.5.  At an observed 0.75 the 95% Wilson interval clears
-#: 0.5 at a denominator of 16 ([0.505, 0.898]) and not at 12 ([0.468, 0.911]).
+#: This constant previously served as a sufficiency rule -- 16 was the denominator at
+#: which an observed 0.75 clears **0.5**.  That was wrong, and the error is worth stating
+#: because the number survived and its justification did not.  0.5 is not a statistical
+#: quantity: it encodes "the alternate is right more often than not on the primary's
+#: mistakes", which is rhetorically satisfying and economically meaningless.  The
+#: threshold that matters is the break-even recovery at which escalation pays for
+#: itself, it is set by consequence, prevalence and price rather than by arithmetic, and
+#: it can land anywhere in [0, 1].  At a break-even of 0.10 an observed 0.60 is decisive
+#: on **three** errors; at a break-even of 0.70 the same 0.60 is not decisive on any
+#: sample size at all, because it is on the wrong side.
 #:
-#: Sixteen is therefore a floor at an *optimistic* recovery rate and is not a sufficient
-#: sample size in general.  At an observed 0.70 the requirement is 21 errors; at 0.60 it
-#: is 91.  A study that collects 16 primary errors and observes 0.62 has measured
-#: nothing, and the report says so rather than printing the interval and moving on.
-MIN_ERRORS_FOR_CONDITIONAL = 16
+#: So a fixed error floor cannot be a sufficiency criterion, and this one is not used as
+#: one anywhere below.  Sufficiency is ``Conditional.against(threshold)``, and the
+#: threshold is declared by the caller.
+POINT_ESTIMATE_FLOOR = 16
 
 
-def required_paired_cases(primary_error_rate: float) -> int | None:
-    """Paired cases needed before the recovery rate has a usable denominator.
+class Sufficiency(StrEnum):
+    """Whether an interval decides a question, relative to a *declared* threshold.
 
-    ``MIN_ERRORS_FOR_CONDITIONAL`` primary errors are needed, and the primary only
-    produces errors at its own error rate, so a study of an accurate primary needs a
-    large case set to say anything about complementarity at all.  A primary that is
-    wrong on one case in ten needs 160 paired cases to accumulate 16 errors.
+    There is no ``SUPPORTED`` member, because support is not a property of a sample
+    size.  An interval decides a question when it lies entirely on one side of the
+    threshold that question is asked against, and if no threshold has been declared then
+    no question has been asked and the sample size cannot answer it.
+    """
 
-    This is the figure that makes the collection protocol expensive, and it is stated
-    as a function rather than a constant so that it is computed from the primary's
-    measured error rate instead of a hoped-for one.  ``None`` when the primary makes no
-    errors, which is not "zero cases needed" -- it means the routing question does not
-    arise, and if that is the measured result then the alternate has nothing to recover.
+    #: Empty denominator.  Not a small sample; no sample.
+    NO_DATA = "no data"
+    #: Descriptive statistics are available and a decision is not, because the caller
+    #: has not said what would count as success.
+    UNDECLARED = "no break-even recovery declared"
+    ABOVE = "interval lies above the threshold"
+    BELOW = "interval lies below the threshold"
+    INCONCLUSIVE = "interval spans the threshold"
+
+    @property
+    def decisive(self) -> bool:
+        return self in (Sufficiency.ABOVE, Sufficiency.BELOW)
+
+
+def errors_to_decide(
+    recovery: float, threshold: float, limit: int = 5000
+) -> int | None:
+    """Errors needed for an interval around ``recovery`` to clear ``threshold``.
+
+    The sample size is a function of the *gap* between the two, and a steep one, which
+    is why no constant can stand in for it.  At a threshold of 0.20 an observed 0.60
+    needs 3 errors; at a threshold of 0.50 the same 0.60 needs 91.
+
+    ``None`` when the two are equal -- an interval cannot exclude a point it is centred
+    on, at any sample size -- or when ``limit`` is reached, which is itself the useful
+    answer: the study being contemplated is not affordable.
+    """
+    if recovery == threshold:
+        return None
+    for trials in range(2, limit + 1):
+        low, high = wilson_interval(round(recovery * trials), trials)
+        if recovery > threshold and low > threshold:
+            return trials
+        if recovery < threshold and high < threshold:
+            return trials
+    return None
+
+
+def required_paired_cases(primary_error_rate: float, errors: int) -> int | None:
+    """Paired cases a representative study needs to accumulate ``errors``.
+
+    The primary only produces errors at its own error rate, so representative sampling
+    pays ``errors / rate`` to observe ``errors`` of them, and an accurate primary is
+    therefore *more* expensive to measure complementarity on rather than less.
+
+    That relationship holds only for representative sampling, and only for the
+    conditional.  A corpus enriched with known primary failures buys the same errors at
+    roughly ``errors`` cases -- at the price of an untestable assumption about how those
+    failures were selected, and with several of the statistics in this module becoming
+    undefined on it.  See ``docs/alternate_corpus_red_team.md``; no enriched corpus
+    exists, none is planned, and nothing in this module supports one.
+
+    ``None`` when the primary makes no errors.  That is not "zero cases needed": it
+    means the routing question does not arise on this population.
     """
     if primary_error_rate <= 0.0:
         return None
-    return ceil(MIN_ERRORS_FOR_CONDITIONAL / primary_error_rate)
+    return ceil(errors / primary_error_rate)
 
 
 def _correct(verdict: bool | None, reference: bool) -> bool | None:
@@ -108,9 +166,34 @@ class Conditional:
         return wilson_interval(self.successes, self.trials) if self.trials else None
 
     @property
-    def supported(self) -> bool:
-        """Is the denominator large enough for the interval to exclude anything?"""
-        return self.trials >= MIN_ERRORS_FOR_CONDITIONAL
+    def thin_denominator(self) -> bool:
+        """Should the point estimate be quoted only alongside its interval?
+
+        A presentation property, not a sufficiency one.  A thin denominator can still
+        decide a question posed against a threshold far from the observed value, and a
+        fat one can fail to decide a question posed against a threshold close to it.
+        """
+        return 0 < self.trials < POINT_ESTIMATE_FLOOR
+
+    def against(self, threshold: float | None) -> Sufficiency:
+        """Does this interval settle the question, given what counts as success?
+
+        The threshold is supplied, never assumed.  This module computes no economics
+        and holds no opinion about where break-even lies; it reports which side of a
+        declared line the evidence falls on, and reports ``UNDECLARED`` rather than
+        substituting a default when no line has been drawn.
+        """
+        interval = self.interval
+        if interval is None:
+            return Sufficiency.NO_DATA
+        if threshold is None:
+            return Sufficiency.UNDECLARED
+        low, high = interval
+        if low > threshold:
+            return Sufficiency.ABOVE
+        if high < threshold:
+            return Sufficiency.BELOW
+        return Sufficiency.INCONCLUSIVE
 
 
 @dataclass(frozen=True, slots=True)
@@ -297,6 +380,21 @@ class ComplementarityAnalysis:
     run: CharacterizationRun
     overall: PairedErrors
     per_slice: tuple[PairedErrors, ...]
+    #: The recovery rate at which escalating to the alternate breaks even, supplied as
+    #: policy in exactly the way ``--max-error`` is.  ``None`` means the caller has not
+    #: declared one, and the report then refuses to call any evidence decisive rather
+    #: than falling back on a default -- because a default here would be an economic
+    #: assertion wearing a statistical costume, which is the mistake this field exists
+    #: to correct.
+    break_even_recovery: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.break_even_recovery is not None and not (
+            0.0 <= self.break_even_recovery <= 1.0
+        ):
+            raise ValueError(
+                f"break-even recovery {self.break_even_recovery} is not a probability"
+            )
 
     @property
     def has_paired_data(self) -> bool:
@@ -314,23 +412,46 @@ class ComplementarityAnalysis:
         return self.has_paired_data and not self.run.synthetic
 
     @property
-    def unsupported_conditionals(self) -> tuple[str, ...]:
-        """Names of the statistics whose denominators are too small to act on."""
+    def recovery_sufficiency(self) -> Sufficiency:
+        """Whether the recovery evidence settles the question that was asked of it.
+
+        Only the recovery rate gets a threshold, because it is the only statistic here
+        with a break-even.  Inventing one for the joint error rate or for phi would be
+        the same error in a new place.
+        """
+        return self.overall.alternate_correct_given_primary_wrong.against(
+            self.break_even_recovery
+        )
+
+    @property
+    def decisive(self) -> bool:
+        return self.recovery_sufficiency.decisive
+
+    @property
+    def thin_denominators(self) -> tuple[str, ...]:
+        """Statistics whose point estimate must not be quoted on its own.
+
+        A display warning.  A statistic can appear here and still be decisive, and can
+        be absent from it and still be inconclusive.
+        """
         return tuple(
             conditional.label
             for conditional in (
                 self.overall.alternate_correct_given_primary_wrong,
                 self.overall.primary_correct_given_alternate_wrong,
             )
-            if not conditional.supported
+            if conditional.thin_denominator
         )
 
 
-def analyse_complementarity(run: CharacterizationRun) -> ComplementarityAnalysis:
+def analyse_complementarity(
+    run: CharacterizationRun, break_even_recovery: float | None = None
+) -> ComplementarityAnalysis:
     return ComplementarityAnalysis(
         run=run,
         overall=paired_errors(run.cases),
         per_slice=tuple(
             paired_errors(run.in_slice(slice_id), slice_id) for slice_id in run.slices
         ),
+        break_even_recovery=break_even_recovery,
     )

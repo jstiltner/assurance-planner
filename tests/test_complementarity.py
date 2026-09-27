@@ -29,8 +29,10 @@ from assurance_planner.artifacts import (
 )
 from assurance_planner.characterization import CaseRun, CharacterizationRun, characterize
 from assurance_planner.complementarity import (
-    MIN_ERRORS_FOR_CONDITIONAL,
+    POINT_ESTIMATE_FLOOR,
+    Sufficiency,
     analyse_complementarity,
+    errors_to_decide,
     paired_errors,
     required_paired_cases,
 )
@@ -229,37 +231,96 @@ def test_perfectly_coincident_errors_give_phi_of_one():
     assert table.joint_error_rate.point == 0.5
 
 
-def test_a_conditional_is_marked_unsupported_below_its_derived_denominator():
-    """The floor is 16 primary errors, and 16 is derived rather than chosen.
+def test_the_error_floor_is_about_presentation_and_not_about_sufficiency():
+    """16 is retained only as a "quote the interval" warning, and carries no verdict.
 
-    At 12 the Wilson interval around an observed 0.75 spans [0.468, 0.911] and so
-    cannot be placed against 0.5, which is the only question the recovery rate is used
-    to answer. At 16 it spans [0.505, 0.898] and can.
+    The distinction is the whole point of the corpus red-team's fourth retraction. A
+    thin denominator says the point estimate is a bad summary of the interval; it says
+    nothing about whether the interval answers a question, because that depends on a
+    threshold the denominator knows nothing about. Both halves are asserted: a
+    12-error sample is thin *and* decisive against a distant threshold, and a
+    20-error sample is not thin *and* inconclusive against a near one.
     """
-    assert MIN_ERRORS_FOR_CONDITIONAL == 16
-    wrong = tuple(_case(f"w{i}", True, "000", "111") for i in range(12))
-    table = paired_errors(wrong)
-    conditional = table.alternate_correct_given_primary_wrong
-    assert conditional.trials == 12
-    assert not conditional.supported
+    assert POINT_ESTIMATE_FLOOR == 16
+    thin = paired_errors(
+        tuple(_case(f"w{i}", True, "000", "111" if i < 9 else "000") for i in range(12))
+    ).alternate_correct_given_primary_wrong
+    assert thin.trials == 12 and thin.thin_denominator
+    #: Thin, and still decisive: 0.75 on 12 errors spans [0.468, 0.911], which clears
+    #: a break-even of 0.20 outright.
+    assert thin.against(0.20) is Sufficiency.ABOVE
 
-    topped_up = wrong + tuple(_case(f"x{i}", True, "000", "111") for i in range(4))
-    assert paired_errors(topped_up).alternate_correct_given_primary_wrong.supported
+    fat = paired_errors(
+        tuple(_case(f"w{i}", True, "000", "111" if i < 15 else "000") for i in range(20))
+    ).alternate_correct_given_primary_wrong
+    assert fat.trials == 20 and not fat.thin_denominator
+    #: Not thin, and still undecided, because 0.70 is inside the interval.
+    assert fat.against(0.70) is Sufficiency.INCONCLUSIVE
+
+
+def test_an_undeclared_break_even_is_refused_rather_than_defaulted():
+    """No threshold means no question, and no question cannot be answered by data.
+
+    The failure this guards is the one the module used to commit: substituting 0.5 for
+    a threshold nobody declared, then reporting the comparison in the register of a
+    measurement. ``UNDECLARED`` has to be distinguishable from ``INCONCLUSIVE`` -- the
+    first is a missing input, the second is a finding.
+    """
+    table = paired_errors(
+        tuple(_case(f"w{i}", True, "000", "111" if i < 9 else "000") for i in range(12))
+    )
+    conditional = table.alternate_correct_given_primary_wrong
+    assert conditional.against(None) is Sufficiency.UNDECLARED
+    assert not Sufficiency.UNDECLARED.decisive
+    assert not Sufficiency.INCONCLUSIVE.decisive
+
+    #: An empty denominator is NO_DATA even when a threshold *is* declared: the reason
+    #: nothing can be concluded is the absence of observations, not of policy.
+    assert paired_errors(()).alternate_correct_given_primary_wrong.against(
+        0.5
+    ) is Sufficiency.NO_DATA
+
+
+def test_an_analysis_without_a_declared_break_even_is_never_decisive():
+    run = _run(tuple(_case(f"w{i}", True, "000", "111") for i in range(40)))
+    assert analyse_complementarity(run).recovery_sufficiency is Sufficiency.UNDECLARED
+    assert not analyse_complementarity(run).decisive
+    assert analyse_complementarity(run, 0.5).decisive
+
+    with pytest.raises(ValueError, match="not a probability"):
+        analyse_complementarity(run, 1.5)
+
+
+def test_the_sample_size_is_set_by_the_gap_to_the_threshold_not_by_a_constant():
+    """The arithmetic that falsified the 16-error rule, asserted so it stays falsified.
+
+    The same observed recovery of 0.60 needs 3 errors to clear a break-even of 0.10 and
+    91 to clear one of 0.50 -- a thirtyfold swing driven entirely by an economic input.
+    No fixed denominator can stand in for that, which is why sufficiency takes a
+    threshold and the floor above does not.
+    """
+    assert errors_to_decide(0.60, 0.10) == 3
+    assert errors_to_decide(0.60, 0.50) == 91
+    assert errors_to_decide(0.75, 0.70) == 306
+    #: An interval cannot exclude the point it is centred on, at any sample size. The
+    #: honest answer is "no such study", not a large number.
+    assert errors_to_decide(0.50, 0.50) is None
 
 
 def test_required_paired_cases_scales_with_the_primary_being_accurate():
-    """An accurate primary makes complementarity expensive to measure, not cheap.
+    """Under *representative* sampling, an accurate primary makes errors expensive.
 
-    This is the finding that sizes the whole collection protocol: errors are the
-    denominator, so a primary that is wrong once in twenty needs 320 paired cases before
-    its recovery rate means anything.
+    Errors are the denominator of the conditional, so a primary wrong once in twenty
+    buys 16 of them only at 320 paired cases. The qualifier matters: this is a property
+    of representative sampling, not of complementarity, and the errors figure is now a
+    caller's argument rather than a constant this module believes in.
     """
-    assert required_paired_cases(1.0) == MIN_ERRORS_FOR_CONDITIONAL
-    assert required_paired_cases(0.20) == 80
-    assert required_paired_cases(0.05) == 320
+    assert required_paired_cases(1.0, 16) == 16
+    assert required_paired_cases(0.20, 16) == 80
+    assert required_paired_cases(0.05, 16) == 320
     #: Not zero.  A primary with no errors has no routing question, which is a different
     #: statement from "no cases are needed".
-    assert required_paired_cases(0.0) is None
+    assert required_paired_cases(0.0, 16) is None
 
 
 # --------------------------------------------------------------------------------
@@ -407,6 +468,53 @@ def test_the_report_announces_synthetic_input_and_names_no_recommendation(paired
     lowered = text.lower()
     for word in ("recommend", "we should", "conclude that", "best option"):
         assert word not in lowered
+
+
+def test_the_report_separates_the_observation_the_interval_and_the_declared_threshold(
+    paired,
+):
+    """Four lines, because they are four different kinds of thing.
+
+    Collapsing them is exactly how an economic constant came to be printed in the
+    register of a statistical convention. The first two are measurements, the third is
+    a policy input and is labelled as one, and only the fourth is a claim -- a claim
+    relative to the third rather than an absolute.
+    """
+    text = render_complementarity(
+        analyse_complementarity(paired, 0.20),
+        characterize(paired, 0.05),
+        characterize(paired.alternate_view(), 0.05),
+    )
+    section = text.split("Is the recovery evidence sufficient")[1].split("Per slice")[0]
+    assert "observed recovery" in section
+    assert "statistical uncertainty" in section
+    assert "declared break-even r*" in section
+    assert "POLICY INPUT, not measured here" in section
+    assert "decision support" in section
+
+    #: The retraction is printed, not merely enacted: 0.5 appears only as the rule that
+    #: was withdrawn, never as a comparison being made.
+    assert "0.5 was an undeclared economic" in section
+
+
+def test_without_a_declared_break_even_the_report_refuses_to_call_anything_sufficient(
+    paired,
+):
+    """Descriptive statistics remain; the verdict does not.
+
+    A study that was never told what would count as success has not failed to measure
+    anything -- it has been asked no question. The report has to render that as a
+    missing input rather than as a weak result or, worse, as a passing one.
+    """
+    analysis = analyse_complementarity(paired)
+    text = render_complementarity(
+        analysis, characterize(paired, 0.05), characterize(paired.alternate_view(), 0.05)
+    )
+    assert analysis.recovery_sufficiency is Sufficiency.UNDECLARED
+    assert "UNDECLARED  (none supplied; this is an input, not a measurement)" in text
+    assert "NOT DECISION-SUFFICIENT" in text
+    #: Still reports the observation and its uncertainty.
+    assert "0.545" in text and "[0.280, 0.787]" in text
 
 
 def test_a_single_source_run_reports_unmeasured_rather_than_zero_complementarity(mixed):
