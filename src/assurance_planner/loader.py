@@ -34,6 +34,7 @@ from .domain import (
     SystemUnderTest,
     UncertaintyDisposition,
 )
+from .artifacts import load_artifact
 from .characterization import CaseRun, CharacterizationRun
 from .registry import World
 
@@ -167,6 +168,27 @@ def load(path: str | Path) -> Scenario:
         )
 
     for entry in raw.get("qualification", []):
+        #: A row may be typed out, or it may point at an artifact emitted by
+        #: ``characterize-evaluator``.  The artifact form is the one that removes the
+        #: transcription seam; the inline form is kept because a scenario describing a
+        #: deterministic oracle has no characterization study to point at.
+        if "artifact" in entry:
+            artifact_path = (Path(path).parent / entry["artifact"]).resolve()
+            world.add_qualification(
+                load_artifact(
+                    artifact_path,
+                    expected_key=QualificationKey(
+                        source_version=_parse_source_ref(entry["source"]),
+                        failure_mode=_parse_failure_mode_ref(entry["failure_mode"]),
+                        population_id=entry["population"],
+                        distribution_id=entry["measured_against"],
+                    ),
+                    prove_red_runs=int(entry.get("prove_red_runs", 0)),
+                    prove_green_runs=int(entry.get("prove_green_runs", 0)),
+                )
+            )
+            continue
+
         evidence_date = entry["evidence_date"]
         world.add_qualification(
             QualificationEvidence(
@@ -239,39 +261,144 @@ def load(path: str | Path) -> Scenario:
     )
 
 
-def load_characterization(path: str | Path) -> CharacterizationRun:
-    """Load per-case evaluator outcomes.
+#: Verdict spellings accepted in the long-form observation list.  ``pass`` means the
+#: evaluator did *not* flag the failure; ``fail`` means it did.  Both spellings of each
+#: are accepted because a harness author will reach for whichever their tool emits, and
+#: rejecting real data over vocabulary is a bad trade.
+_FLAGGED = {"fail": True, "flag": True, "flagged": True, "true": True, "1": True}
+_NOT_FLAGGED = {"pass": False, "ok": False, "clean": False, "false": False, "0": False}
 
-    ``outcomes`` is a string of ``1``/``0`` rather than a YAML list because a case with
-    eight repetitions is the common shape and a list of eight booleans per case makes
-    a fifty-case file unreadable.  The encoding is the only concession to brevity: the
-    per-case records themselves are never collapsed.
+
+def _parse_verdict(value: object, case_id: str) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in _FLAGGED:
+        return True
+    if text in _NOT_FLAGGED:
+        return False
+    raise ValueError(
+        f"case '{case_id}': verdict {value!r} is not one of "
+        f"{sorted(_FLAGGED) + sorted(_NOT_FLAGGED)}"
+    )
+
+
+def _parse_bitstring_case(entry: dict) -> CaseRun:
+    outcomes = str(entry["outcomes"])
+    if set(outcomes) - {"0", "1"} or not outcomes:
+        raise ValueError(
+            f"case '{entry['case_id']}': outcomes must be a non-empty string of "
+            f"0 and 1, got {outcomes!r}"
+        )
+    return CaseRun(
+        case_id=entry["case_id"],
+        reference_label=bool(entry["failure_present"]),
+        outcomes=tuple(c == "1" for c in outcomes),
+        scores=tuple(float(s) for s in entry.get("scores", [])),
+        slice_id=str(entry.get("slice_id", "")),
+        note=entry.get("note", ""),
+    )
+
+
+def _parse_observation_case(entry: dict) -> CaseRun:
+    """The long form: one mapping per observation, with optional cost and latency.
+
+    This is the shape a real harness emits.  ``reference_label`` is spelled
+    ``pass``/``fail`` rather than a boolean because "failure_present: false" reads as a
+    double negative on a labelling sheet and gets miskeyed.
+    """
+    case_id = entry["case_id"]
+    if "reference_label" in entry:
+        reference = _parse_verdict(entry["reference_label"], case_id)
+    else:
+        reference = bool(entry["failure_present"])
+
+    observations = entry["observations"]
+    if not observations:
+        raise ValueError(f"case '{case_id}': observations must be non-empty")
+
+    scores = [o["score"] for o in observations if o.get("score") is not None]
+    latencies = [o["latency_ms"] for o in observations if o.get("latency_ms") is not None]
+    costs = [o["cost"] for o in observations if o.get("cost") is not None]
+    for name, values in (("score", scores), ("latency_ms", latencies), ("cost", costs)):
+        if values and len(values) != len(observations):
+            raise ValueError(
+                f"case '{case_id}': {name} is present on {len(values)} of "
+                f"{len(observations)} observations; supply it on all or none"
+            )
+
+    return CaseRun(
+        case_id=case_id,
+        reference_label=reference,
+        outcomes=tuple(_parse_verdict(o["verdict"], case_id) for o in observations),
+        scores=tuple(float(s) for s in scores),
+        slice_id=str(entry.get("slice_id", "")),
+        latencies_ms=tuple(float(v) for v in latencies),
+        costs_usd=tuple(float(v) for v in costs),
+        note=entry.get("note", ""),
+    )
+
+
+def load_characterization(path: str | Path) -> CharacterizationRun:
+    """Load per-case evaluator outcomes in either supported shape.
+
+    **Long form** -- what a real harness should emit, and what
+    ``docs/real_experiment_protocol.md`` specifies:
+
+    ```yaml
+    experiment:
+      evaluator_version: judge@v4
+      failure_mode_version: MODE@v1
+      population_id: suite
+      sut_distribution_id: dist-r4
+    cases:
+      - case_id: C-001
+        slice_id: borderline-semantic
+        reference_label: fail
+        observations:
+          - {verdict: fail, score: 0.81, latency_ms: 1900, cost: 0.0625}
+    ```
+
+    **Short form** -- ``outcomes: "10110100"`` with a top-level ``evaluator``.  Retained
+    because a fifty-case synthetic fixture written the long way is unreadable, and
+    because the committed fixtures are meant to be edited by hand.  The two forms
+    produce identical objects; no statistic can tell them apart.
     """
     raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    header = raw.get("experiment", raw)
 
-    cases: list[CaseRun] = []
-    for entry in raw["cases"]:
-        outcomes = str(entry["outcomes"])
-        if set(outcomes) - {"0", "1"} or not outcomes:
-            raise ValueError(
-                f"case '{entry['case_id']}': outcomes must be a non-empty string of "
-                f"0 and 1, got {outcomes!r}"
-            )
-        cases.append(
-            CaseRun(
-                case_id=entry["case_id"],
-                reference_label=bool(entry["failure_present"]),
-                outcomes=tuple(c == "1" for c in outcomes),
-                scores=tuple(float(s) for s in entry.get("scores", [])),
-                note=entry.get("note", ""),
-            )
+    evaluator = header.get("evaluator_version", header.get("evaluator"))
+    failure_mode = header.get("failure_mode_version", header.get("failure_mode"))
+    population = header.get("population_id", header.get("population"))
+    distribution = header.get("sut_distribution_id", header.get("measured_against"))
+    if not all((evaluator, failure_mode, population, distribution)):
+        raise ValueError(
+            f"{path}: every run must name an evaluator, a failure mode, a population "
+            f"and the behaviour distribution it was measured against; a measurement "
+            f"missing any of the four cannot be keyed to a qualification slot"
         )
 
+    cases = tuple(
+        _parse_observation_case(entry) if "observations" in entry
+        else _parse_bitstring_case(entry)
+        for entry in raw["cases"]
+    )
+
+    measured_on = header.get("measured_on", raw.get("measured_on"))
     return CharacterizationRun(
-        evaluator_version=_parse_source_ref(raw["evaluator"]),
-        failure_mode=_parse_failure_mode_ref(raw["failure_mode"]),
-        population_id=raw["population"],
-        distribution_id=raw["measured_against"],
-        cases=tuple(cases),
-        note=raw.get("note", ""),
+        evaluator_version=_parse_source_ref(evaluator),
+        failure_mode=_parse_failure_mode_ref(failure_mode),
+        population_id=population,
+        distribution_id=distribution,
+        cases=cases,
+        note=raw.get("note", header.get("note", "")),
+        measured_on=(
+            None
+            if measured_on is None
+            else measured_on
+            if isinstance(measured_on, date)
+            else date.fromisoformat(str(measured_on))
+        ),
+        limitations=tuple(raw.get("limitations", header.get("limitations", []))),
+        run_id=str(header.get("run_id", "")),
     )

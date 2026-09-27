@@ -14,10 +14,12 @@ apart.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from datetime import date
+from hashlib import sha256
 from statistics import fmean
 
-from .domain import FailureModeRef, SourceVersionRef
+from .domain import FailureModeRef, MeasurementProvenance, SourceVersionRef
 from .statistics import prob_at_least, prob_fewer_than, procedure_for, wilson_interval
 
 #: Below this many cases the dispersion statistic has too few degrees of freedom to
@@ -45,6 +47,15 @@ class CaseRun:
     #: Optional continuous score per repetition, kept but not yet used in any
     #: statistic.  Present because discarding it at ingest would be irreversible.
     scores: tuple[float, ...] = ()
+    #: A behavioural subtype this case belongs to.  This is the *only* handle a
+    #: retrospective policy is allowed to generalise over: a policy that keys on
+    #: ``case_id`` has memorised the answer, and a policy that keys on nothing cannot
+    #: allocate effort at all.  Empty string means unsliced.
+    slice_id: str = ""
+    #: Per-observation measurements, when the harness recorded them.  Empty is normal
+    #: for synthetic data and means "use the declared cost model".
+    latencies_ms: tuple[float, ...] = ()
+    costs_usd: tuple[float, ...] = ()
     note: str = ""
 
     @property
@@ -65,6 +76,25 @@ class CaseRun:
         if not self.runs:
             return 0.0
         return sum(o == self.reference_label for o in self.outcomes) / self.runs
+
+    @property
+    def majority_verdict(self) -> bool | None:
+        """What an unlimited-budget majority vote over every repetition concludes.
+
+        ``None`` on an exact tie, which is a real outcome and not a coin toss to be
+        resolved here: a policy that ties has not reached a decision, and recording
+        that honestly is what lets the benchmark count abstentions.
+        """
+        if not self.runs:
+            return None
+        flags = self.flags
+        if flags * 2 == self.runs:
+            return None
+        return flags * 2 > self.runs
+
+    @property
+    def majority_agrees_with_reference(self) -> bool:
+        return self.majority_verdict is self.reference_label
 
     @property
     def disagreement_rate(self) -> float:
@@ -91,6 +121,43 @@ class CharacterizationRun:
     distribution_id: str
     cases: tuple[CaseRun, ...]
     note: str = ""
+    #: The date the observations were collected.  Supplied by the data file, never
+    #: read from a clock -- this package is asserted to contain neither.
+    measured_on: date | None = None
+    #: Caveats the person who ran the study wants carried forward onto every planner
+    #: input derived from it.
+    limitations: tuple[str, ...] = ()
+    #: Stable identifier for this study.  Defaults to a content hash so that two
+    #: artifacts claiming the same provenance can be told apart, and so that an
+    #: artifact regenerated from unchanged data keeps its id.
+    run_id: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.run_id:
+            object.__setattr__(self, "run_id", self.content_digest())
+
+    def content_digest(self) -> str:
+        """A short deterministic fingerprint of identity plus every case outcome.
+
+        Not a cryptographic commitment and not a substitute for storing the data --
+        it exists so a reader can tell whether two artifacts came from the same
+        observations, which is the question that actually gets asked when two
+        qualification rows disagree.
+        """
+        material = "|".join(
+            [
+                str(self.evaluator_version),
+                str(self.failure_mode),
+                self.population_id,
+                self.distribution_id,
+            ]
+            + [
+                f"{c.case_id}:{c.slice_id}:{int(c.reference_label)}:"
+                f"{''.join('1' if o else '0' for o in c.outcomes)}"
+                for c in self.cases
+            ]
+        )
+        return sha256(material.encode("utf-8")).hexdigest()[:16]
 
     @property
     def positives(self) -> tuple[CaseRun, ...]:
@@ -99,6 +166,21 @@ class CharacterizationRun:
     @property
     def negatives(self) -> tuple[CaseRun, ...]:
         return tuple(c for c in self.cases if not c.reference_label)
+
+    @property
+    def slices(self) -> tuple[str, ...]:
+        return tuple(sorted({c.slice_id for c in self.cases}))
+
+    def in_slice(self, slice_id: str) -> tuple[CaseRun, ...]:
+        return tuple(c for c in self.cases if c.slice_id == slice_id)
+
+    def with_cases(self, cases: tuple[CaseRun, ...]) -> "CharacterizationRun":
+        """Same study identity, a subset of its cases.  Used for fold splitting.
+
+        ``run_id`` is recomputed rather than inherited, because a fold is not the
+        study and an artifact emitted from one must not claim to be the other.
+        """
+        return replace(self, cases=cases, run_id="")
 
 
 # --------------------------------------------------------------------------------
@@ -407,6 +489,90 @@ class Characterization:
             ):
                 return point.replications
         return None
+
+    def qualification_counts(self) -> tuple[int, int, int, int]:
+        """``(positive_runs, true_positives, negative_runs, false_positives)``.
+
+        **Observations, not cases.** The planner's model is ``Binomial(n, sensitivity)``
+        over repeated runs of one case, so the rate it needs is a per-*run* flag
+        probability and the denominator has to be runs.  Collapsing to a majority vote
+        per case first would answer a different question and silently change what
+        ``n`` means.
+
+        The cost of that choice is that the raw denominator overstates the information
+        present whenever outcomes cluster by case, which is exactly the effect the
+        dispersion statistic measures.  Both numbers travel together in the
+        provenance record so a reader can see the gap rather than having to suspect it.
+        """
+        positives, negatives = self.run.positives, self.run.negatives
+        return (
+            sum(c.runs for c in positives),
+            sum(c.flags for c in positives),
+            sum(c.runs for c in negatives),
+            sum(c.flags for c in negatives),
+        )
+
+    def provenance(self, artifact_ref: str = "") -> MeasurementProvenance:
+        cases = self.run.cases
+        repetitions = fmean([c.runs for c in cases]) if cases else 0.0
+        sensitivity_dispersion = self.sensitivity.dispersion
+        return MeasurementProvenance(
+            characterization_run_id=self.run.run_id,
+            reference_positive_cases=len(self.run.positives),
+            reference_negative_cases=len(self.run.negatives),
+            repetitions_per_case=repetitions,
+            effective_positive_runs=(
+                sensitivity_dispersion.effective_runs
+                if sensitivity_dispersion
+                else float(self.sensitivity.runs)
+            ),
+            effective_negative_runs=(
+                self.false_positive_rate.dispersion.effective_runs
+                if self.false_positive_rate.dispersion
+                else float(self.false_positive_rate.runs)
+            ),
+            dispersion_phi=(
+                sensitivity_dispersion.phi if sensitivity_dispersion else None
+            ),
+            mean_same_case_agreement=self.mean_agreement,
+            cases_repetition_cannot_fix=len(self.unfixable_cases),
+            artifact_ref=artifact_ref,
+        )
+
+    def derived_limitations(self) -> tuple[str, ...]:
+        """Caveats the study author wrote, plus the ones the data itself forces.
+
+        These end up on the qualification row and are rendered in the planner's
+        rationale.  The point is that a reader of a *plan* sees the warning, not only
+        a reader of the characterization report -- the seam this pass exists to close
+        runs in that direction too.
+        """
+        derived = list(self.run.limitations)
+        positives, _, negatives, _ = self.qualification_counts()
+        derived.append(
+            f"counts are observations, not cases: {len(self.run.positives)} positive "
+            f"and {len(self.run.negatives)} negative reference cases at "
+            f"{self.provenance().repetitions_per_case:.1f} repetitions "
+            f"({positives} and {negatives} runs)"
+        )
+        if self.independence_is_implausible:
+            phi = self.sensitivity.dispersion
+            derived.append(
+                f"outcomes cluster by case (phi={phi.phi:.2f}); the run counts "
+                f"overstate the evidence by roughly {phi.phi:.1f}x"
+            )
+        if self.unfixable_cases:
+            derived.append(
+                f"{len(self.unfixable_cases)} case(s) are decided wrong at every "
+                f"replication count in the studied range; replication does not "
+                f"bound their error"
+            )
+        if not self.has_repeated_cases:
+            derived.append(
+                "single-observation study: within-case variance is unmeasured, so no "
+                "replication count derived from this row is empirically supported"
+            )
+        return tuple(derived)
 
     def empirical_replications(self) -> int | None:
         """The smallest n at which the *per-case* error rates meet the same target."""

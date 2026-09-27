@@ -242,6 +242,38 @@ class QualificationKey:
 
 
 @dataclass(frozen=True, slots=True)
+class MeasurementProvenance:
+    """Where a qualification row's counts came from.
+
+    Carried so that a planner input can be traced back to the characterization run
+    that produced it without anyone retyping a number.  Everything here is
+    *descriptive*: no field is read by the planner, and adding one must never change
+    a plan.  The test suite asserts that.
+
+    The two effective-run figures are the honest sample size after the dispersion
+    correction.  They are recorded and reported, and deliberately **not** substituted
+    for the raw counts -- doing that silently would be the same category of mistake as
+    storing a rate without its denominator.
+    """
+
+    characterization_run_id: str
+    #: Cases, as distinct from observations.  A 50-case study at 8 repetitions has 400
+    #: observations, and the difference between those two numbers is the finding of
+    #: the previous pass.
+    reference_positive_cases: int
+    reference_negative_cases: int
+    repetitions_per_case: float
+    effective_positive_runs: float
+    effective_negative_runs: float
+    #: Pearson dispersion on the positives; None when too few cases or repetitions.
+    dispersion_phi: float | None
+    mean_same_case_agreement: float
+    cases_repetition_cannot_fix: int
+    #: Path or identifier of the artifact document this row was read from.
+    artifact_ref: str = ""
+
+
+@dataclass(frozen=True, slots=True)
 class QualificationEvidence:
     """A qualification *study*, stored as the counts it produced.
 
@@ -266,6 +298,9 @@ class QualificationEvidence:
     prove_green_runs: int
     evidence_date: date
     known_limitations: tuple[str, ...] = ()
+    #: Present when the row was produced by ``characterize-evaluator`` rather than
+    #: typed into a scenario file.  Never read by the planner.
+    provenance: MeasurementProvenance | None = None
 
     def __post_init__(self) -> None:
         if not 0 <= self.true_positives <= self.positive_cases:
