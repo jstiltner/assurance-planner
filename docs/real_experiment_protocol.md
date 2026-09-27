@@ -16,6 +16,15 @@ equal assurance, so everything the candidate policy adds is bought rather than s
 That last point, plus a blind escalation control that dominates the candidate policy on one
 of the three fixtures, is why this is a protocol rather than a deployment plan.
 
+**Sections 2, 7, 12.1, 12.2 and 12.3 were revised after
+[`experiment_red_team.md`](experiment_red_team.md)**, which found that the original sample
+size could not test the claim in §1 and that two kill criteria were written so as not to fire
+on the thing they were meant to catch. The revisions are marked and the original text is kept,
+because in both cases the reason the first version was wrong is more useful than the
+correction. The red-team document also argues that the study below should **not** be the next
+action — measuring the alternate source's real sensitivity and false-positive rate should be,
+and it is much cheaper.
+
 ---
 
 ## 1. The decision the experiment informs
@@ -33,22 +42,88 @@ and behind it, the one that decides whether the planner deserves more sophistica
 
 ## 2. Minimum credible study
 
+**[REVISED after the red-team pass. The original sizing is kept below because the reason it
+was wrong is the useful part.]**
+
+### 2.1 Originally specified, and inadequate
+
 | | Minimum | Preferred |
 |---|---|---|
-| Cases | 40 | **50** |
-| Repeated judgments per case | 5 | **8** |
+| Cases | 40 | 50 |
+| Repeated judgments per case | 5 | 8 |
 | Behavioural subtypes (slices) | 3 | 4 |
 | Cases per subtype | 10 | 12 |
-| Total judge calls | 200 | **400** |
+| Total judge calls | 200 | 400 |
 
-Eight repetitions is preferred specifically because eight is the historical operating
-practice this exercise exists to challenge. A study at five could not tell us whether
-observations six through eight were wasted, which is one of the two things we most want
-to know.
+Eight repetitions was preferred because eight is the historical operating practice this
+exercise exists to challenge, and the case count was set at whatever made the pooled
+sensitivity interval tolerable.
 
-Below 40 cases, or below 5 repetitions, `benchmark-policies` prints a warning and exits
-non-zero. That is not a formality: with 5 folds and 40 cases, a held-out fold is 8 cases,
-and a one-case difference between two policies is a fold artefact.
+**That sizes the study to characterize an evaluator, and it cannot test the routing claim in
+§1, which is the claim the study exists to test.** The routing rule places a slice on one side
+of a 0.30 threshold, and a Wilson interval on the slice's stable-wrong rate needs roughly 30
+cases *per slice* to do that at all:
+
+| cases per slice | interval at p=0.45 | resolves against 0.30? |
+|---|---|---|
+| 10 | [0.168, 0.687] | no |
+| 15 | [0.248, 0.699] | no |
+| 25 | [0.267, 0.629] | no |
+| 30 | [0.302, 0.639] | yes, barely |
+| 50 | [0.312, 0.577] | yes |
+
+50 cases over 4 slices is 12.5 per slice: 10 for calibration and 2–3 held out per fold. The
+threshold decision would rest on a rate with a ±0.25 interval, and the held-out cell meant to
+validate it would hold two cases. That is not a measurement.
+
+### 2.2 Specified instead
+
+| | Minimum | Preferred |
+|---|---|---|
+| Behavioural subtypes (slices) | 3 | 3 |
+| Cases per subtype | 30 | 40 |
+| Cases | **90** | **120** |
+| Repeated judgments per case | 4 | 4 |
+| Total judge calls | 360 | **480** |
+| Plus: repetition sub-study | 20 cases × 8 | 20 cases × 8 |
+
+Fewer slices, far more cases per slice, and fewer repetitions. The justification for dropping
+repetitions is measured rather than assumed: truncating each fixture's observations and
+re-scoring shows the routing advantage surviving down to three repetitions, and on the
+systematic fixture it is completely insensitive to repetition count.
+
+| max repetitions | mixed: triage vs blind control | systematic: triage vs blind |
+|---|---|---|
+| 8 | 9.60 vs 12.85 | 0.50 vs 5.75 |
+| 6 | 9.60 vs 12.85 | 0.50 vs 5.75 |
+| 5 | 7.00 vs 14.15 | 0.50 vs 6.75 |
+| 4 | 7.00 vs 14.15 | 0.50 vs 6.75 |
+| 3 | 10.00 vs 16.15 | 0.50 vs 6.75 |
+
+Four is chosen rather than three to keep a margin, and because a case that is unanimous across
+four observations is meaningfully stronger evidence of stability than one unanimous across
+three. Note the caveat visible in that table: at a cap of 5 the policy escalates 20 cases
+rather than 12, because fewer observations make more cases *look* stable. Part of the apparent
+improvement at low repetition counts is the cheap-and-good alternate source again, not better
+routing — which is another reason not to go below four.
+
+**The repetition question is answered separately and cheaply.** Whether observations six
+through eight are wasted is a question about the marginal value curve, and that curve needs
+depth on a few cases rather than breadth over many. 20 cases at 8 repetitions answers it for
+160 calls. Paying for eight observations of all 120 cases would cost 960 calls to learn the
+same thing.
+
+Total: 480 + 160 = 640 calls against the original 400, for a study that can answer both
+questions instead of neither.
+
+### 2.3 The warning thresholds in the code
+
+`benchmark-policies` warns and exits non-zero below 40 cases or 5 repetitions. Those bounds
+are unchanged and are now *below* the specified minimum in both dimensions for cases and
+above it for repetitions — they are a floor on "this comparison is not theatre", not an
+endorsement of the sizing. A 90-case study at 4 repetitions will trip the repetition warning.
+That is correct: it should be visible in the output that the repetition depth was traded away
+on purpose.
 
 ## 3. Inclusion criteria
 
@@ -157,7 +232,12 @@ only works inside one company is a format that gets rewritten.
 - Each fold's calibration set is the other four folds. Every case is scored exactly once,
   by a policy calibrated without it.
 - Stratification matters because the entire premise is that slices differ. An
-  unstratified split on a 12-case slice can put every difficult case on one side.
+  unstratified split on a small slice can put every difficult case on one side.
+
+At the revised sizing (§2.2) a 40-case slice yields 32 calibration and 8 held-out cases per
+fold. That is the *point* of the resizing: at the original sizing the held-out cell was 2–3
+cases, which is why the synthetic fixtures show held-out slice rates swinging 0.000 to 1.000
+between folds and why no amount of care in the split could have rescued the measurement.
 
 **Leakage risks, named:**
 
@@ -170,9 +250,10 @@ only works inside one company is a format that gets rewritten.
 | Thresholds tuned on the full dataset | The escalate/trust thresholds are fixed constants in `policies.py`, chosen before the benchmark was run, and **they sit close to the fold-to-fold noise on the synthetic data** — see §11 |
 | Reading the generating regime | The synthetic fixtures record it in a per-case note; a test strips every note and asserts no policy's behaviour changes |
 
-With 50 cases, cross-validation is the right choice over a single split; a single held-out
-set of 10 cases would be uninformative. Report the per-fold variation, not only the
-pooled number.
+Cross-validation is the right choice over a single split at either sizing; a single held-out
+set would be uninformative. Report the per-fold variation, not only the pooled number — the
+per-fold spread is what decides kill criteria 2 and 4, and on the synthetic data it is larger
+than the effect being measured.
 
 ## 8. Cost and latency collection
 
@@ -273,21 +354,46 @@ so; that is information, not an inconsistency.
 Stated before the data exists. If any of these holds, the corresponding conclusion
 follows and the work stops or narrows. No renegotiation.
 
-1. **Early stopping captures essentially all of the saving.** If `early_stop_8` reaches
-   within 5% of the best policy's cost at no worse error and no more unresolved cases,
-   then the candidate contribution is a rediscovery of sequential testing. Ship early
-   stopping, delete the triage policy, and do not add planner sophistication.
+1. **Sequential stopping captures essentially all of the saving.** If the cheapest *simple
+   sequential* policy — `early_stop_n` or `confidence_stop_n`, whichever is cheaper — reaches
+   within 5% of the cheapest policy overall at no worse error and no more unresolved cases,
+   then the cost argument for allocation is dead. Ship the stopping rule, delete the triage
+   policy, and do not add planner sophistication.
 
-2. **Triage does not beat `probe_2_escalate_alternate` on held-out data.** If the
-   candidate policy's error count is not lower at equal or lower escalation count — with
-   the difference larger than the per-fold spread — then heterogeneity awareness is
-   contributing nothing beyond "escalate sometimes". Keep the probe, drop the triage.
+   **[REVISED.]** This originally read "if `early_stop_8` reaches within 5% of the best
+   policy's cost". Naming one policy was the defect: on the synthetic data
+   `confidence_stop_8` ($19.31) is the cheapest policy at error no worse than `fixed_n_8`'s,
+   and `early_stop_8` ($25.19) is 30% above it — so the criterion did not fire even though
+   the thing it was written to catch had happened. Allocation captured 0% of the available
+   cost saving and bought assurance instead. Criteria that name a specific policy can be
+   evaded by a different policy in the same family, so this one now names the family.
 
-3. **Slice-level behaviour does not transfer.** If a slice's calibrated stable-wrong rate
-   on four folds does not predict its held-out stable-wrong rate — say a rank correlation
-   at or below zero across slices, or fold-to-fold swings that cross the routing
-   threshold in more than one fold in five — then there is no reusable signal, only
+2. **Triage does not beat the size-matched blind control on held-out data.** If the
+   candidate policy's error count is not lower at equal or lower escalation count — with the
+   difference larger than the per-fold spread — then heterogeneity awareness is contributing
+   nothing beyond "escalate sometimes". Escalate a fixed fraction and drop the triage.
+
+   **[REVISED.]** This originally named `probe_2_escalate_alternate` as the baseline to beat.
+   That was too easy a bar: measured against plain early stopping, disagreement-triggered
+   escalation gains 0.25 errors on one synthetic fixture and *loses* 0.15 and 2.50 on the
+   other two, because disagreement selects the noisy cases repetition already resolves and
+   can never select a confidently-wrong one. Beating it proves very little. The blind
+   escalation control (criterion 7) is the baseline with teeth, so this criterion now names
+   it. `probe_2` remains in the comparison table as the obvious cascade a reader will expect.
+
+3. **Slice-level behaviour does not transfer.** If a slice's calibrated stable-wrong rate on
+   four folds does not predict its held-out stable-wrong rate — a rank correlation at or
+   below zero across at least six slice × fold pairs, or fold-to-fold swings that cross the
+   routing threshold in more than one fold in five — then there is no reusable signal, only
    memorised cases. The candidate contribution is falsified.
+
+   This criterion is **not measurable at the originally specified sample size**, which is why
+   §2 was resized. It requires at least 20 cases in each held-out slice cell; the original
+   sizing gave 2–3, and on the synthetic fixtures the held-out rate of a small slice swings
+   from 0.000 to 1.000 between folds. The synthetic rank correlations are +0.455 and +0.555 —
+   positive, weak, and measured on cells too small to mean anything. Do not score this
+   criterion on a study that cannot support it; report that it was unmeasurable instead,
+   which is a different and more useful result than reporting a correlation of +0.455.
 
 4. **The routing thresholds are not robust.** If the identity of the routed slices changes
    with a ±0.05 perturbation of either threshold, the policy is fitting noise. Report it

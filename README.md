@@ -36,9 +36,11 @@ Results so far, on synthetic fixtures: repetition stops buying anything after si
 observations; repetition cannot touch a case the judge is confidently wrong about, and
 escalation can; and on one fixture the blind control beats the candidate policy outright.
 See [`docs/policy_benchmark_findings.md`](docs/policy_benchmark_findings.md) for all of it
-including the parts that argue against continuing, and
-[`docs/real_experiment_protocol.md`](docs/real_experiment_protocol.md) for the real-data
-study and its ten kill criteria, written before any real data exists.
+including the parts that argue against continuing,
+[`docs/real_experiment_protocol.md`](docs/real_experiment_protocol.md) for the real-data study
+and its ten kill criteria written before any real data exists, and
+[`docs/experiment_red_team.md`](docs/experiment_red_team.md) for the pass that found the
+protocol's original sample size could not test its own central claim.
 
 ## What it decides
 
