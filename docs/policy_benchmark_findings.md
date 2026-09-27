@@ -10,19 +10,45 @@ arithmetic.
 Read this alongside [`real_experiment_protocol.md`](real_experiment_protocol.md). That
 document is what these results argue for.
 
-## The headline, stated against our own interest
+## The headline
 
-On the fixture built specifically to make the candidate policy look good, a
-two-observation probe that knows nothing about heterogeneity at all captures most of the
-error reduction the candidate policy captures, at two thirds of the cost. The candidate
-policy's advantage over it on the mixed fixture is 1.2 false negatives and 3.95 false
-positives out of 76 cases, and it pays $7.56 more for them. The advantage is real and it
-survives the held-out split, but it is not the order of magnitude that would justify
-adding planner machinery on synthetic evidence alone.
+**Corrected.** An earlier draft of this document claimed that a two-observation
+probe-and-escalate rule "captures most of the error reduction the candidate policy
+captures." That was wrong, and wrong in the candidate policy's disfavour. Measured against
+early stopping, `probe_2_escalate_alternate` gains 0.25 errors on the mixed fixture and
+*loses* 0.15 and 2.50 on the other two. The original claim was reasoning from "escalation
+is the strongest lever, and this policy escalates" without doing the subtraction. The
+correction is kept visible because the mechanism behind it is the most useful thing in
+this document.
 
-Separately, and more robustly: repetition cannot reach a case the judge is confidently
-wrong about, and no amount of it ever will. That result is not close, and it is the one
-that makes the escalation half of the design worth keeping.
+Total error against `early_stop_8`, held out, default prices:
+
+| fixture | early_stop_8 | probe_2 | blind control | heterogeneity_triage |
+|---|---|---|---|---|
+| mixed | 15.00 | 14.75 *(+0.25)* | 12.85 *(+2.15)* | 9.60 *(+5.40)* |
+| systematic | 8.00 | 8.15 *(−0.15)* | 5.75 *(+2.25)* | 0.50 *(+7.50)* |
+| noisy | 4.00 | 6.50 *(−2.50)* | 1.75 *(+2.25)* | 4.00 *(0.00)* |
+
+Three findings, in decreasing order of how much they survive scrutiny.
+
+**1. Repetition cannot reach a case the judge is confidently wrong about, and no amount of
+it ever will.** On the systematic fixture false negatives sit at 7.0 from the first
+observation to the eighth. This is not close and it is what makes the escalation half of
+the design worth keeping.
+
+**2. Escalating is not the same as escalating the right cases, and disagreement is the
+wrong trigger.** `probe_2` escalates when two observations disagree, so it selects the
+*noisy* cases — exactly the ones a majority of eight already resolves — and it can never
+select a confidently-wrong case, because those are unanimous by definition. It buys second
+opinions on cases that did not need them and skips the ones that did. An escalation
+policy's value is entirely in its selection rule, which is a better argument for the
+candidate contribution than any number in this document.
+
+**3. But the selection rule only has to beat a coin, and it barely does on one fixture.**
+Against the size-matched blind control, targeting wins on mixed (+5.40 vs +2.15) and
+systematic (+7.50 vs +2.25), and *loses outright* on noisy (0.00 vs +2.25), where the
+candidate policy is dominated. See the noisy section for why that last one is the most
+damaging result here.
 
 ## Fixture 1: the mixed population (`judge_runs_mixed.yaml`)
 
@@ -87,11 +113,15 @@ noticing that easy cases are easy:
 
 The candidate policy reduces error in **both** columns. That rules out the cheapest
 explanation of its advantage — averaging over easy cases — and it is the strongest result
-in this document in the candidate's favour. But note the second row: `probe_2` gets 5.75
-contested errors for 66 contested calls. Most of the gap between it and the candidate is
-on uncontested cases (9.00 vs 7.20), which is to say: on cases where the judge was
-unanimous and wrong, reached only because the slice was known to be untrustworthy.
-**Escalation is doing the work. Heterogeneity knowledge is doing the targeting.**
+in this document in the candidate's favour.
+
+Note the second row. `probe_2` leaves the uncontested column completely untouched at 9.00,
+identical to every repetition-only policy, because a case the judge never disagreed with
+itself about is a case `probe_2` never escalates. All of its activity is in the contested
+column, and the contested column is the one repetition was already handling. The candidate
+policy's gain is 1.80 errors in the uncontested column — cases that looked unanimous and
+certain, reached only because the slice was known to be untrustworthy. **That is the whole
+mechanism, and it is a selection mechanism, not an escalation mechanism.**
 
 The blind control separates those two. On the mixed fixture it escalates 17 cases to
 triage's 12, and lands on 12.85 total error against triage's 9.60, for $4.75 more. So
@@ -271,9 +301,11 @@ the routing rule is fitting noise and the candidate contribution does not surviv
 Four questions, and the synthetic answers are two against, one for, one unanswerable.
 
 **Against.** The Beta-Binomial comparator does not earn a dependency; the dispersion
-statistic already reports its one useful signal. And a two-observation probe with no
-heterogeneity knowledge captures most of the error reduction on the fixture built to favour
-the candidate.
+statistic already reports its one useful signal more cheaply. And on the mixed fixture a
+plain interval-stopping rule (`confidence_stop_8`, $19.31) is the *cheapest policy at equal
+assurance* — every policy that beats it on error costs more. So sequential stopping alone
+captures 100% of the available cost saving, and everything the candidate policy adds is
+bought, not saved.
 
 **Also against, and worse.** Blind escalation beats the candidate policy outright on the
 well-behaved fixture, because the alternate source's assumed quality means escalating
@@ -281,8 +313,10 @@ well-behaved fixture, because the alternate source's assumed quality means escal
 escalation numbers here separate allocation from spending.
 
 **For.** Where slices carry signal, targeting beats size-matched blind escalation on all
-three axes at once — fewer escalations, fewer errors, less money. The advantage lives in
-both the contested and uncontested columns, so it is not easy-case averaging.
+three axes at once — fewer escalations, fewer errors, less money — and it beats
+disagreement-triggered escalation by a wide margin, because disagreement selects the cases
+repetition already handles. The advantage lives in both the contested and uncontested
+columns, so it is not easy-case averaging.
 
 **Unanswerable by fixtures.** Whether real failure slices behave consistently enough for a
 threshold to mean anything. The synthetic slices' predictive power is a parameter someone

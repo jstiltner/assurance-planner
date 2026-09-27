@@ -351,26 +351,46 @@ def test_triage_earns_its_advantage_on_the_contested_cases_too(mixed):
     assert triage.contested_escalations > 0
 
 
-def test_escalation_is_most_of_the_advantage_and_the_report_admits_it(mixed):
-    """Red-team item 5, recorded as a test rather than a claim.
+@pytest.mark.parametrize("fixture", ["mixed", "systematic", "noisy"])
+def test_disagreement_triggered_escalation_targets_the_wrong_cases(fixture, request):
+    """Red-team item 5, and it came out the opposite way to how it was first written.
 
-    A two-observation probe with no heterogeneity knowledge at all captures much of what
-    triage captures. Triage's remaining edge is that it escalates *better targeted*
-    cases: fewer escalations, less error. That is a small result and it is stated as one.
+    The first version of this test asserted that a two-observation probe "captures much
+    of what triage captures", because escalation is the strongest lever and the probe
+    escalates. It does not. Measured against early stopping it gains 0.25 errors on the
+    mixed fixture and *loses* 0.15 and 2.50 on the other two.
+
+    The mechanism is the point. ``probe_2`` escalates when two observations disagree, so
+    it selects the *noisy* cases -- exactly the ones a majority of eight already
+    resolves -- and it can never select a confidently-wrong case, because those are
+    unanimous by definition. It pays for a second opinion on cases that did not need one
+    and skips the ones that did. Escalating is not the same as escalating the right
+    cases, and disagreement is the wrong trigger for finding them.
     """
-    results = _results(mixed)
-    triage, probe, early = (
-        results["heterogeneity_triage"],
-        results["probe_2_escalate_alternate"],
-        results["early_stop_8"],
-    )
-    triage_errors = triage.false_negatives + triage.false_positives
+    results = _results(request.getfixturevalue(fixture))
+    probe, early = results["probe_2_escalate_alternate"], results["early_stop_8"]
     probe_errors = probe.false_negatives + probe.false_positives
     early_errors = early.false_negatives + early.false_positives
 
-    assert probe_errors < early_errors, "escalation alone already beats repetition"
-    assert triage_errors < probe_errors
-    assert triage.escalations < probe.escalations
+    assert probe.escalations > 0
+    assert probe_errors > early_errors - 0.5, (
+        "a probe that escalates on disagreement does not meaningfully beat plain early "
+        "stopping; if this ever fails, the claim in the findings doc must be rewritten"
+    )
+
+
+def test_triage_beats_the_probe_it_is_most_often_compared_to(mixed, systematic):
+    """The comparison from kill criterion 2, on the fixtures where slices carry signal."""
+    for run in (mixed, systematic):
+        results = _results(run)
+        triage, probe = (
+            results["heterogeneity_triage"],
+            results["probe_2_escalate_alternate"],
+        )
+        assert (
+            triage.false_negatives + triage.false_positives
+            < probe.false_negatives + probe.false_positives
+        )
 
 
 # --------------------------------------------------------------------------------

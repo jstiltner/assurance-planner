@@ -614,11 +614,18 @@ in advance.
 
 The synthetic evidence so far is mixed and is recorded in
 [`policy_benchmark_findings.md`](policy_benchmark_findings.md). Two results cut against the
-claim: a two-observation probe with no subtype knowledge captures most of the benefit, and
-on one fixture a blind escalation control dominates the candidate policy outright because
-the assumed alternate source is simply better than the primary. One result supports it:
-where slices carry signal, targeting beats size-matched blind escalation on errors,
-escalation count and cost simultaneously.
+claim: a plain interval-stopping rule is the cheapest policy at equal assurance, so
+everything the candidate adds is bought rather than saved; and on one fixture a blind
+escalation control dominates the candidate policy outright because the assumed alternate
+source is simply better than the primary.
+
+Two support it. Where slices carry signal, targeting beats size-matched blind escalation on
+errors, escalation count and cost simultaneously. And disagreement-triggered escalation —
+the obvious alternative selection rule, requiring no subtype knowledge — is *worse* than
+plain early stopping on two of three fixtures, because disagreement selects the noisy cases
+repetition already resolves and can never select a confidently-wrong one. That an
+escalation policy's whole value sits in its selection rule is the most direct support item
+3 has.
 
 Items 1, 2 and 4 are design claims that the implementation either exhibits or does not, and
 it does — but exhibiting a design is not evidence that the design helps. Nothing here

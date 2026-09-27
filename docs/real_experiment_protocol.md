@@ -6,12 +6,15 @@ falsifiable: either the data supports allocating verification effort by case beh
 or it does not and this work should stop.
 
 The synthetic results that motivate the design are in
-[`docs/policy_benchmark_findings.md`](policy_benchmark_findings.md). The short version:
-on a deliberately adversarial synthetic population, repetition stops buying anything
-after six observations, escalation rather than repetition is what reaches the cases the
-judge is confidently wrong about, and a simple two-observation probe with no
-heterogeneity knowledge at all already captures most of what the candidate policy
-captures. That last result is why this protocol exists rather than a deployment plan.
+[`docs/policy_benchmark_findings.md`](policy_benchmark_findings.md). The short version: on
+a deliberately adversarial synthetic population, repetition stops buying anything after
+six observations; escalation rather than repetition is what reaches the cases the judge is
+confidently wrong about; *which* cases get escalated is what determines whether escalation
+helps at all; and a plain interval-stopping rule is nonetheless the cheapest policy at
+equal assurance, so everything the candidate policy adds is bought rather than saved.
+
+That last point, plus a blind escalation control that dominates the candidate policy on one
+of the three fixtures, is why this is a protocol rather than a deployment plan.
 
 ---
 
