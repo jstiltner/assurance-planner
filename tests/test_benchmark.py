@@ -26,6 +26,7 @@ from assurance_planner.benchmark import (
     held_out_outcomes,
     leakage_report,
     marginal_value,
+    matched_control,
     pareto_front,
     sample_size_warnings,
     score,
@@ -35,6 +36,7 @@ from assurance_planner.characterization import characterize
 from assurance_planner.loader import load_characterization
 from assurance_planner.policies import (
     ALTERNATE,
+    BLIND_PREFIX,
     HUMAN,
     Calibration,
     CaseOutcome,
@@ -44,6 +46,7 @@ from assurance_planner.policies import (
     FixedN,
     HeterogeneityTriage,
     ProbeThenEscalate,
+    UntargetedEscalation,
     default_policies,
     stratified_folds,
 )
@@ -368,6 +371,114 @@ def test_escalation_is_most_of_the_advantage_and_the_report_admits_it(mixed):
     assert probe_errors < early_errors, "escalation alone already beats repetition"
     assert triage_errors < probe_errors
     assert triage.escalations < probe.escalations
+
+
+# --------------------------------------------------------------------------------
+# Kill criterion 7: is the *targeting* worth anything, or just the escalating?
+# --------------------------------------------------------------------------------
+
+
+def _blind(results):
+    return next(r for r in results.values() if r.policy.startswith(BLIND_PREFIX))
+
+
+def test_the_blind_control_cannot_be_left_out_of_a_comparison(mixed):
+    """It is appended by ``compare`` itself, not by a caller who remembered to.
+
+    A control that has to be requested is a control that will be quietly dropped the
+    first time it embarrasses the policy it is controlling.
+    """
+    results = _results(mixed)
+    control = _blind(results)
+    targeted = max(
+        r.escalations for r in results.values() if not r.policy.startswith(BLIND_PREFIX)
+    )
+    assert control.escalations > 0
+    #: Sized to the most escalation-heavy real policy, and not exactly equal to it --
+    #: a hash-selected subset of a fold is close to the target rate, not on it.
+    assert control.escalations == pytest.approx(targeted, abs=3)
+
+
+def test_sizing_the_control_is_idempotent(mixed):
+    """Re-deriving a control from results that already contain one must not ratchet.
+
+    The first version did: the control escalated more than the policy it was controlling,
+    so re-deriving it produced a larger control, and the CLI and the report disagreed
+    about which rate they were reporting.
+    """
+    results, _ = compare(mixed, default_policies(), COST)
+    assert matched_control(results, len(mixed.cases)) == matched_control(
+        tuple(r for r in results if not r.policy.startswith(BLIND_PREFIX)),
+        len(mixed.cases),
+    )
+    #: Nothing escalated, so there is nothing to control; the early-stopping baseline is
+    #: already in the table under its own name.
+    assert matched_control((), len(mixed.cases)) is None
+
+
+def test_the_control_selection_ignores_everything_about_the_case(mixed):
+    """It keys on a hash of the id, so it provably did not consult the evidence."""
+    control = UntargetedEscalation(rate=0.5)
+    chosen = {case.case_id: control.selects(case.case_id) for case in mixed.cases}
+
+    assert all(control.selects(cid) is picked for cid, picked in chosen.items())
+    #: And it does not select whole slices, which would make it a triage policy wearing
+    #: a control's name.
+    by_slice: dict[str, set] = {}
+    for case in mixed.cases:
+        by_slice.setdefault(case.slice_id, set()).add(chosen[case.case_id])
+    assert all(len(values) == 2 for values in by_slice.values())
+
+
+@pytest.mark.parametrize("fixture", ["mixed", "systematic"])
+def test_targeting_beats_blind_escalation_where_the_slices_mean_something(
+    fixture, request
+):
+    """The result that keeps candidate E alive, on the two fixtures where it should.
+
+    Triage escalates *fewer* cases than the size-matched blind control, makes fewer
+    errors doing it, and spends less money. That is the whole of what the candidate
+    contribution claims: failure-slice behaviour tells you which cases are worth a
+    second opinion.
+    """
+    results = _results(request.getfixturevalue(fixture))
+    triage = results["heterogeneity_triage"]
+    control = _blind(results)
+
+    assert (
+        triage.false_negatives + triage.false_positives
+        < control.false_negatives + control.false_positives
+    )
+    assert triage.escalations < control.escalations
+    assert triage.cost_usd < control.cost_usd
+
+
+def test_blind_escalation_beats_triage_on_the_well_behaved_judge(noisy):
+    """The unflattering half, and the more informative one.
+
+    On a judge whose errors are unbiased noise, triage correctly declines to escalate --
+    and is then *dominated* by a control that escalates an arbitrary fifth of the
+    population, because the declared alternate (0.95/0.05) is simply better than the
+    judge (0.672/0.087). Nothing about heterogeneity is being rewarded there. The
+    alternate's price is buying accuracy directly.
+
+    This is the finding that most threatens the design, so it is pinned rather than
+    described: whenever the alternate source is that much better than the primary, the
+    optimal policy is to stop using the primary, and no planner is needed to work that
+    out. The real study has to establish the alternate's true rates before any of these
+    comparisons mean anything.
+    """
+    results = _results(noisy)
+    triage = results["heterogeneity_triage"]
+    control = _blind(results)
+
+    assert triage.escalations == 0
+    assert (
+        control.false_negatives + control.false_positives
+        < triage.false_negatives + triage.false_positives
+    )
+    assert control.cost_usd > triage.cost_usd
+    assert "heterogeneity_triage" not in pareto_front(tuple(results.values()))
 
 
 # --------------------------------------------------------------------------------

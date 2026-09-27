@@ -41,6 +41,13 @@ Held-out comparison:
 | confidence_stop_8 | 7.00 | 8.00 | 1 | 0 | 309 | 4.07 | 8 | $19.31 | 16m |
 | probe_2_escalate_alternate | 6.50 | 8.25 | 0 | 15 | 152 | 2.00 | 2 | $20.75 | 8m |
 | heterogeneity_triage | 5.30 | 4.30 | 1 | 12 | 309 | 4.07 | 8 | $28.31 | 16m |
+| blind_escalation_0.20 *(control)* | 6.30 | 6.55 | 1 | 17 | 325 | 4.28 | 8 | $33.06 | 16m |
+
+`blind_escalation_0.20` is the kill-criterion-7 control, not a proposal: it escalates as
+many cases as the most escalation-heavy real policy, selected by a hash of the case id, so
+it cannot have consulted any evidence. It is appended by `compare` itself rather than
+requested by a caller, because a control that has to be asked for is a control that gets
+dropped the first time it embarrasses the policy it controls.
 
 Fractional error counts mean the policy escalated: an escalated case contributes
 *expected* error from the declared alternate rates rather than an observed outcome. That
@@ -84,9 +91,20 @@ in this document in the candidate's favour. But note the second row: `probe_2` g
 contested errors for 66 contested calls. Most of the gap between it and the candidate is
 on uncontested cases (9.00 vs 7.20), which is to say: on cases where the judge was
 unanimous and wrong, reached only because the slice was known to be untrustworthy.
-**Escalation is doing the work. Heterogeneity knowledge is doing the targeting.** Those
-are separable, and the protocol's kill criterion 7 exists to test whether the targeting
-is worth anything over escalating the same number of cases at random.
+**Escalation is doing the work. Heterogeneity knowledge is doing the targeting.**
+
+The blind control separates those two. On the mixed fixture it escalates 17 cases to
+triage's 12, and lands on 12.85 total error against triage's 9.60, for $4.75 more. So
+targeting is worth something here: fewer escalations, fewer errors, less money, all three
+at once. On the systematic fixture the gap is much larger — 0.50 total error from 10
+escalations against 5.75 from 15.
+
+That is the candidate contribution's only real win in this document, and it is worth being
+precise about what it is not. It is not evidence that *our* thresholds are right; §"the
+threshold instability" below shows they are not stable. It is evidence that *some*
+slice-level signal exists in these fixtures and that a policy keyed on it does better than
+one that isn't. The fixtures' slice structure is something we wrote, so this result cannot
+travel further than that.
 
 ## Fixture 2: the systematically wrong judge (`judge_runs_systematic.yaml`)
 
@@ -136,13 +154,45 @@ Repetition works here: 14 errors down to 6 by n=5. (The uptick at n=7 is 50 case
 sampling noise, not a trend; the fixture is not large enough to distinguish them, which is
 itself an argument for the sample sizes in the protocol.)
 
-And the control holds. `heterogeneity_triage` fires **zero** escalations and produces
-numbers identical to `early_stop_8` — FN 4.00, FP 0.00, 302 calls, $18.88. Given a judge
-whose disagreement is informative rather than systematic, the candidate policy correctly
-declines to do anything, and costs nothing extra for the privilege. `probe_2` by contrast
-escalates 10 cases here and *increases* false positives from 0.00 to 2.10 by handing clean
-cases to a less specific source. Unconditional escalation is not free; that is the one
-place the candidate policy clearly beats the simpler baseline.
+And the cry-wolf control holds. `heterogeneity_triage` fires **zero** escalations and
+produces numbers identical to `early_stop_8` — FN 4.00, FP 0.00, 302 calls, $18.88. Given
+a judge whose disagreement is informative rather than systematic, the candidate policy
+correctly declines to do anything, and costs nothing extra for the privilege. `probe_2` by
+contrast escalates 10 cases here and *increases* false positives from 0.00 to 2.10 by
+handing clean cases to a less specific source.
+
+### And then the blind control wins, which is the most damaging result in this document
+
+| policy | FN | FP | unres | esc | calls | cost |
+|---|---|---|---|---|---|---|
+| heterogeneity_triage | 4.00 | 0.00 | 5 | 0 | 302 | $18.88 |
+| blind_escalation_0.20 *(control)* | 1.35 | 0.40 | 3 | 15 | 224 | $25.25 |
+
+Escalating an arbitrary fifth of the population — chosen by a hash of the case id, with no
+knowledge of anything — cuts total error from 4.00 to 1.75. `heterogeneity_triage` is
+**dominated** on this fixture, and the test that pins this asserts exactly that.
+
+The reason is not subtle once stated: the declared alternate is 0.95 sensitivity / 0.05 FPR
+and the judge is 0.672 / 0.087. The alternate is simply a better evaluator. On a population
+with no structure to exploit, the optimal policy is *stop using the primary*, and no
+planner is required to reach that conclusion. Any escalation at all buys accuracy directly,
+in proportion to how much you spend.
+
+Two consequences, and both are load-bearing for the real study.
+
+1. **Every escalation result in this document is partly a statement about the alternate's
+   assumed quality rather than about allocation.** The 0.95/0.05 figures are a guess in a
+   default `CostModel`. If the real alternate is barely better than the primary, the
+   escalation half of the design collapses; if it is dramatically better, the correct
+   answer is to replace the primary and the allocation question disappears. **The
+   candidate contribution only has room to exist in the band between those two.** That
+   band is narrow and nobody has measured where it is.
+2. **A benchmark must include a population where escalation is not the answer**, or it
+   cannot distinguish "allocated well" from "spent more." The noisy fixture was supposed
+   to be that population and is not, because the price of the alternate makes escalation
+   worth it even at random. This is a fixture defect surfaced by the control, and it is
+   recorded rather than patched: tuning the alternate's declared rates downward until
+   triage wins would be constructing the result.
 
 ## The statistical comparator does not earn a dependency
 
@@ -218,12 +268,27 @@ the routing rule is fitting noise and the candidate contribution does not surviv
 
 ## The one thing this document is for
 
-Three of the four questions the candidate contribution needs answered are answered here,
-and two of the answers are unfavourable: the statistical model does not earn its keep, and
-a simple probe-and-escalate rule with no heterogeneity knowledge gets most of the way. The
-fourth question — does slice-level behaviour transfer to cases the calibration never saw,
-stably enough to route on — cannot be answered by fixtures at all, because the fixtures'
-slice structure is something we wrote.
+Four questions, and the synthetic answers are two against, one for, one unanswerable.
 
-That is the question the real study exists to answer, and the reason the protocol demands
-50 cases at 8 repetitions rather than a deployment plan.
+**Against.** The Beta-Binomial comparator does not earn a dependency; the dispersion
+statistic already reports its one useful signal. And a two-observation probe with no
+heterogeneity knowledge captures most of the error reduction on the fixture built to favour
+the candidate.
+
+**Also against, and worse.** Blind escalation beats the candidate policy outright on the
+well-behaved fixture, because the alternate source's assumed quality means escalating
+*anything* buys accuracy. Until the alternate's real rates are measured, none of the
+escalation numbers here separate allocation from spending.
+
+**For.** Where slices carry signal, targeting beats size-matched blind escalation on all
+three axes at once — fewer escalations, fewer errors, less money. The advantage lives in
+both the contested and uncontested columns, so it is not easy-case averaging.
+
+**Unanswerable by fixtures.** Whether real failure slices behave consistently enough for a
+threshold to mean anything. The synthetic slices' predictive power is a parameter someone
+chose, and the two thresholds currently sit inside the fold-to-fold noise.
+
+That last one is the question the real study exists to answer, and it is why the protocol
+specifies 50 cases at 8 repetitions and a set of kill criteria rather than a deployment
+plan. On this evidence the planner has not earned another feature. It has earned one
+experiment.

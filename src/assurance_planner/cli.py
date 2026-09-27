@@ -12,6 +12,7 @@ import sys
 from .benchmark import (
     allocation_diagnostic,
     compare,
+    matched_control,
     fit_by_reference_label,
     marginal_value,
     sample_size_warnings,
@@ -156,6 +157,12 @@ def _benchmark_command(argv: list[str]) -> int:
     policies = default_policies(args.budget)
     results, leakage = compare(run, policies, cost, k=args.folds)
     folds = stratified_folds(run, k=args.folds)
+    #: ``compare`` appends the blind escalation control itself; rebuild it here so the
+    #: allocation diagnostic covers it too, since "is the targeting doing anything" is
+    #: exactly a question about which cases the calls went to.
+    control = matched_control(results, len(run.cases), args.budget)
+    if control is not None:
+        policies += (control,)
 
     print("=" * 78)
     print(f"Policy benchmark :: {run.evaluator_version}")

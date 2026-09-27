@@ -42,12 +42,14 @@ from statistics import fmean
 from .characterization import CaseRun, CharacterizationRun
 from .policies import (
     ALTERNATE,
+    BLIND_PREFIX,
     HUMAN,
     Calibration,
     CaseOutcome,
     CostModel,
     FixedN,
     Fold,
+    UntargetedEscalation,
     stratified_folds,
 )
 from .statistics import wilson_interval
@@ -342,13 +344,50 @@ def compare(
     cost: CostModel,
     k: int = 5,
 ) -> tuple[tuple[PolicyResult, ...], LeakageReport]:
+    """Score every policy on cases its calibration never saw, plus the blind control.
+
+    The blind escalation control is appended here rather than passed in, because it is
+    the comparison that the candidate contribution is most likely to fail and there must
+    be no way to run the benchmark without it.  Its size depends on the results, so it
+    cannot be known before scoring; it is scored in a second pass over the same folds.
+    """
     folds = stratified_folds(run, k=k)
     report = leakage_report(folds, run)
     results = tuple(
         score(policy.name, held_out_outcomes(run, policy, folds), cost)
         for policy in policies
     )
+    control = matched_control(results, len(run.cases))
+    if control is not None:
+        results += (
+            score(control.name, held_out_outcomes(run, control, folds), cost),
+        )
     return results, report
+
+
+def matched_control(
+    results: tuple[PolicyResult, ...], cases: int, n_max: int = 8
+) -> UntargetedEscalation | None:
+    """A blind escalation control sized to the most escalation-heavy policy scored.
+
+    Kill criterion 7 of the experiment protocol says: if escalating the same number of
+    cases chosen arbitrarily does as well as escalating the cases the slice profile
+    picked out, then the targeting is worth nothing and the slice machinery should go.
+
+    Returns ``None`` when nothing escalated, because a zero-rate control is the
+    early-stopping baseline that is already in the table under its own name.  Results
+    from a previous control are ignored, so calling this on results that already include
+    one gives the same answer -- otherwise a control would ratchet its own size upward.
+    """
+    if not cases:
+        return None
+    target = max(
+        (r.escalations for r in results if not r.policy.startswith(BLIND_PREFIX)),
+        default=0,
+    )
+    if target == 0:
+        return None
+    return UntargetedEscalation(n_max=n_max, rate=target / cases)
 
 
 def pareto_front(results: tuple[PolicyResult, ...]) -> tuple[str, ...]:

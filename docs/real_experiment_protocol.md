@@ -247,6 +247,10 @@ Exactly the set already implemented, at a budget of 8:
 - **E** `heterogeneity_triage` — the candidate. Route on the slice's calibrated
   composition: escalate where unanimity has historically been unreliable, accept one call
   where it has been reliable, otherwise early-stop.
+- **Control** `blind_escalation_<rate>` — escalates as many cases as the most
+  escalation-heavy policy above, chosen by a hash of the case id. Not a proposal. It is
+  appended by `compare` automatically so that it cannot be omitted, and it is the
+  comparison E is most likely to lose: see kill criteria 7 and 8.
 
 **A disclosed weakness in E.** Its thresholds (escalate above 0.30 historically
 stable-wrong, trust above 0.80 historically stable-correct) sit close to the fold-to-fold
@@ -294,18 +298,36 @@ follows and the work stops or narrows. No renegotiation.
    evaluator is near-deterministic, the whole repetition question is moot, and the
    decision is a deterministic-source or human-review decision instead.
 
-7. **Escalation does all the work regardless of targeting.** If escalating a randomly
+7. **Escalation does all the work regardless of targeting.** If escalating an arbitrarily
    chosen set of cases of the same size as the triage policy escalates achieves the same
    error reduction, then targeting is worthless and the answer is "escalate a fixed
-   fraction". *(This control is not yet implemented; it must be added before the real
-   study is scored, and it is the most likely of these to fire.)*
+   fraction".
 
-8. **The cost model does not change the answer.** If no plausible price vector changes
+   This control is implemented as `UntargetedEscalation` and is **appended by `compare`
+   itself**, so a comparison cannot be scored without it. It selects cases by a hash of
+   the case id: arbitrary with respect to the case's behaviour, reproducible without a
+   random number generator. On the synthetic fixtures it does not fire on the two
+   populations that have slice structure, and it does fire on the well-behaved one — which
+   produced the criterion below.
+
+8. **The alternate source is good enough that escalation wins unconditionally.** If blind
+   escalation of an arbitrary fraction beats every repetition-only policy, then the
+   alternate is a better evaluator than the primary and the correct action is to replace
+   the primary, not to allocate between them. The candidate contribution only occupies the
+   band where the alternate is good enough to be worth escalating *to* and not so good that
+   it should be the default. **The alternate's sensitivity and false-positive rate must be
+   measured on a subset of the same cases before the comparison is scored.** Without that,
+   every fractional error count in the results is a restatement of an assumption. On the
+   synthetic data this criterion fires: on `judge_runs_noisy.yaml` the candidate policy is
+   dominated by the blind control, purely because the declared alternate (0.95/0.05) beats
+   the judge (0.672/0.087) outright.
+
+9. **The cost model does not change the answer.** If no plausible price vector changes
    which policy is preferred, the economics layer is decoration and should be deleted
    rather than maintained.
 
-9. **The reference labels are not stable.** If inter-annotator agreement is below 0.80,
-   nothing above is measurable and the study does not report a policy comparison.
+10. **The reference labels are not stable.** If inter-annotator agreement is below 0.80,
+    nothing above is measurable and the study does not report a policy comparison.
 
 ## 13. What the study cannot tell us
 

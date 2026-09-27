@@ -168,6 +168,12 @@ def _comparison(results: tuple[PolicyResult, ...]) -> list[str]:
             "were answered*.",
             "  'unres' is cases nobody answered; it is deliberately not folded into an "
             "accuracy figure.",
+            "  'blind_escalation_*' is a control, not a proposal. It escalates as many "
+            "cases as the most",
+            "  escalation-heavy policy above, chosen by a hash of the case id, so it "
+            "knows nothing about the",
+            "  case. If it matches a policy that targets its escalations, that targeting "
+            "is buying nothing.",
             "  'eval-time' is total evaluator occupancy. 'wall' is the slowest single "
             "case, assuming cases run",
             "  concurrently. Real elapsed time lies between them and depends on "

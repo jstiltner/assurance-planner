@@ -32,6 +32,7 @@ fold never saw.  ``stratified_folds`` is the mechanism and
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from math import sqrt
 
@@ -46,6 +47,10 @@ Z_90 = 1.6448536269514722
 #: What an escalation resolves to.
 HUMAN = "human"
 ALTERNATE = "alternate"
+
+#: Names the blind escalation control, which must be recognisable so that sizing a
+#: control against a set of results cannot accidentally size it against another control.
+BLIND_PREFIX = "blind_escalation_"
 
 
 # --------------------------------------------------------------------------------
@@ -498,6 +503,60 @@ class HeterogeneityTriage:
             )
 
         return EarlyStopMajority(self.n_max).decide(case, calibration)
+
+
+@dataclass(frozen=True, slots=True)
+class UntargetedEscalation:
+    """The control that candidate E has to beat, and the one most likely to kill it.
+
+    Escalate the same *volume* of cases as a triage policy does, but choose them with
+    no knowledge of anything: not the slice, not the observations, not the label.  Every
+    other case gets the standard early-stopping rule.
+
+    This exists because escalation to a stronger source is by far the most powerful
+    lever in the comparison, and a policy that merely escalates *more* will look like a
+    policy that escalates *better*.  Holding the volume fixed isolates the only thing
+    the candidate contribution actually claims -- that failure-slice behaviour tells you
+    which cases are worth escalating.  If this control matches the candidate policy, the
+    targeting is worth nothing and the slice machinery should be deleted.
+
+    Selection is a content hash of the case id, so it is arbitrary with respect to the
+    case's behaviour but reproducible without a random number generator.  It is not
+    uniform in the statistical sense and is not meant to be: it is meant to be a
+    selection rule that provably cannot have consulted the evidence.
+
+    ``rate`` is set by the caller to the escalation rate of the policy being controlled,
+    which is why the realised counts land close to but rarely exactly on the target.
+    The report prints both counts rather than asserting they matched.
+    """
+
+    n_max: int = 8
+    rate: float = 0.0
+    probe: int = 1
+    target: str = ALTERNATE
+
+    @property
+    def name(self) -> str:
+        return f"{BLIND_PREFIX}{self.rate:.2f}"
+
+    def selects(self, case_id: str) -> bool:
+        if self.rate <= 0.0:
+            return False
+        digest = hashlib.blake2b(case_id.encode("utf-8"), digest_size=8).digest()
+        return int.from_bytes(digest, "big") % 1_000_000 < self.rate * 1_000_000
+
+    def decide(self, case: CaseRun, calibration: Calibration) -> CaseOutcome:
+        if not self.selects(case.case_id):
+            return EarlyStopMajority(self.n_max).decide(case, calibration)
+        used = min(self.probe, case.runs)
+        return CaseOutcome(
+            case_id=case.case_id,
+            slice_id=case.slice_id,
+            reference_label=case.reference_label,
+            verdict=None,
+            judge_calls=used,
+            escalated_to=self.target,
+        )
 
 
 #: The comparison set. Ordered cheapest-looking first so the report reads as a ladder.
