@@ -19,6 +19,12 @@ deployment. **Everything below is descriptive.** The report says
 
 ## 1. Headline: the predeclaration cost us the flattering answer, and that is the point
 
+> **Narrowed by `docs/agent_reward_bench_directional.md` §6.** This section is correct on
+> pooled recovery and misleading as a summary. On the missed-failure stratum — the one the
+> escalation story is about — the same predeclared pair is **tied first of the eight**, and
+> post-hoc selection would have bought +0.216 of pooled recovery and *exactly zero* there.
+> The table below is left as published.
+
 Tier A was predeclared as `functional` → `aer` on independence and cost-measurability
 grounds. Scored against the other seven `HIGH`-independence pairs — same primary, same
 1,106 cases, same reference labels — it comes **last on every complementarity statistic**:
@@ -112,7 +118,10 @@ Three things follow, and the third is the one that matters:
    false alarms*, which is a different product.
 2. **The ranking reverses.** `nnetnav` is fourth-best on headline recovery and worst on
    missed failures. Ranking alternates by pooled recovery would pick a different judge
-   than ranking them by the quantity the planner actually needs.
+   than ranking them by the quantity the planner actually needs. *(Understated — narrowed
+   by `docs/agent_reward_bench_directional.md` §13.2. The two rankings do not merely
+   differ: the pooled ranking is a ranking on the false-alarm stratum, which supplies 80%
+   of its denominator, and shares almost no information with the directional one.)*
 3. **These are eight readings of the same 32 cases.** Same primary, same population, so
    the eight columns are not eight independent estimates and none of them gains
    credibility from the others agreeing. Nine successes out of 32 (`nnetnav`) to fifteen
@@ -168,6 +177,13 @@ and it is not tested by it.
 
 ## 6. Which of the six permitted outcomes this is
 
+> **Superseded for the Tier A arm by `docs/agent_reward_bench_directional.md` §11**, which
+> lands on *insufficient evidence* once the recovery rate is split by error direction. The
+> disposition below was correct on the evidence available to it and was computed on a
+> pooled statistic that `directional` §12.1 identifies as the wrong conditional: recovery
+> conditions on the reference label, and the rate a policy would actually run at is 20–30
+> points lower. Left as written.
+
 Of the six the brief allowed, this is closest to **"complementarity is real but weaker
 than the marginals suggest, and the evidence is not decision-sufficient."** Precisely:
 
@@ -206,6 +222,13 @@ judge and pooling them with these verdicts would manufacture variance out of ver
 drift. Any repetition study is a **new single-arm study**, not an extension.
 
 ### The smallest subset that would answer it
+
+> **Superseded by `docs/repetition_study_predeclaration.md`.** The design below names
+> Tier A's primary, which is a *deterministic* programmatic verifier and cannot be
+> repeated at all — repeating it R times returns R identical verdicts by construction.
+> The predeclared study runs on `aer` instead, at R = 5 rather than 3, over the full
+> corpus rather than the 324-case subset. The cost conclusion in the last paragraph of
+> this section survives unchanged and is the reason the subset was dropped.
 
 No API calls were made for this. The design, and the binding constraint:
 
