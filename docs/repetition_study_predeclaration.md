@@ -386,6 +386,14 @@ is not an independent draw. If the provider reports cache hits, they are recorde
 affected cases flagged. If cache control is available, caching is disabled and that is
 recorded in the run header.
 
+> **Wrong, and corrected by Amendment 2 §A2.1.** Prompt caching reuses processed
+> prompt-prefix state. It does **not** replay a previously generated completion. A cache
+> hit changes cost and latency and does not make the execution invalid; repeated requests
+> over a cached prefix can still produce different outputs. The sentence "a cached
+> completion is not an independent draw" describes a mechanism that does not exist, and
+> the instruction to disable caching was a mistake — caching is economically relevant and
+> is now a measurement rather than a threat. Left visible because it was committed.
+
 The three cost states of `docs/agent_reward_bench_findings.md` remain distinct: measured
 USD, structurally absent, and unpriced-because-self-hosted. This study should produce only
 the first, and any call that produces another is an anomaly to be reported, not smoothed.
@@ -480,6 +488,11 @@ label cannot be chosen after the numbers are known.
 | **E** | the shared-unresolved-errors cell exceeds half the missed-failure errors that are repetition-consistent | a floor exists that neither lever clears; the honest planner output on such cases is an admission, and the residual-error model needs a term for it |
 | **F** | fewer than 1,050 cases reach five verdicts, or a cache-hit rate above 5% is detected, or the `aer` prompt could not be reproduced | insufficient evidence; report what was collected and what failed, and draw no conclusion about repetition |
 
+> **The cache-hit clause is struck by Amendment 2 §A2.1.** It rested on the mechanism
+> error corrected there. A high cache-hit rate is the expected and economically desirable
+> outcome of sending an identical prompt repeatedly, not a validity failure, and it may
+> not trigger outcome F. The other two F conditions stand.
+
 A and B and D are not mutually exclusive and may fire together; C excludes A; F excludes
 all others and is checked first. Nothing here is a threshold for a decision — each is a
 threshold for which paragraph gets written.
@@ -509,3 +522,344 @@ And the two sentences that this amendment exists to enforce:
 
 > **Observed variability is not the same thing as recoverability. Observed consistency is
 > not the same thing as correctness.**
+
+---
+---
+
+# Amendment 2 — 2026-09-27, before inference
+
+**Everything above this line is left exactly as committed**, including Amendment 1 and
+the two claims this amendment marks as wrong. Nothing is rewritten to look obvious in
+retrospect. Where this amendment conflicts with §§0–6 or Amendment 1, it governs.
+
+## A2.0 Why there is a second amendment
+
+The chronology, in the order it actually happened:
+
+1. **The original study assumed meaningful stochastic sampling variance** under the
+   deployed judge configuration. §1 declared that sampling would be set to "the judge's
+   *deployed* sampling configuration, not to 0.0/0", and §5 built a threat model on the
+   premise that the deployed configuration differs from the archival one.
+2. **Gate verification showed it does not.** All 1,106 cached `aer` judgments carry
+   `{"max_completion_tokens": 1024, "seed": 0, "temperature": 0.0}` and
+   `gpt-4o-2024-11-20`, with no variation. `aer`'s deployed configuration *is* temperature
+   0, seed 0. The premise of §1 and §5 was false, and Amendment 1 inherited it without
+   noticing.
+3. **Raising the temperature would manufacture a configuration nobody deployed.** It
+   would produce a number, and the number would be about a system that does not exist.
+   It is not done.
+4. **The question therefore changed.** Not "how much sampling variance can repetition
+   average away" but **"does repeat execution under the actual deployed configuration
+   exhibit enough residual variability for repetition to be a production lever at all?"**
+   That is an empirical repeatability question, and it may well answer no.
+5. **The full R = 5 spend becomes conditional.** A cheaper R = 2 rejection screen can kill
+   repetition for roughly $23 without buying the remaining $35. Spending $58 to discover
+   that a temperature-0 judge repeats itself would be a bad trade that the design as
+   written would have made.
+6. **Prompt caching affects economics, not validity.** See §A2.1. Amendment 1 got the
+   mechanism wrong.
+7. **The caption stage is frozen and that narrows the scope.** See §A2.2.
+
+Two of these are corrections to documents committed hours earlier. Both are recorded as
+corrections rather than folded in.
+
+## A2.1 Correction — what prompt caching actually does
+
+Amendment 1 §A1.5 asserted that "a cached completion is not an independent draw" and
+instructed that caching be disabled. **That is wrong about the mechanism.**
+
+Prompt caching reuses processed **prompt-prefix state**. It does not replay a previously
+generated completion. Consequently:
+
+- a prompt cache hit does **not** mean the output was copied from a previous execution;
+- cached prompt tokens affect **cost and latency**;
+- repeated requests over a cached prefix **can still produce different outputs**;
+- `cached_tokens > 0` is **not** evidence that a repetition is invalid and may not be used
+  to discard one.
+
+The cache-hit clause in Amendment 1's outcome **F** is struck. A high cache-hit rate is
+the expected consequence of sending an identical prompt repeatedly and is economically
+desirable. The question it raises is a measurement, not a threat:
+
+> **Does repeated verification become materially cheaper or faster because the fixed
+> prompt benefits from caching?**
+
+**Terminology, binding from here.** Even with the mechanism corrected, these executions
+are not asserted to be IID draws from a sampling distribution. The correct phrase is
+**repeat executions under an identical deployed configuration**, and what is measured is
+**empirical repeatability**. "Sampling variance" may not be used as a description of the
+observations unless the observations turn out to support it. Amendment 1's policy names
+(majority-of-3, majority-of-5, sequential stopping) are unaffected; they are policies over
+executions and assume no sampling model.
+
+## A2.2 Scope — the caption stage is frozen, deliberately
+
+Upstream's `aer` is two stages:
+
+```
+screenshot -> captioner (gpt-4o-2024-11-20) -> caption -> judge
+```
+
+The caption is interpolated into the judge's user prompt and **upstream cached it**, so
+upstream's own judgments are already conditioned on one caption per case. The rendered
+judge input survives verbatim in `chat_messages` for **1,106 of 1,106** cases, verified.
+
+This study replays that stored judge input. **The captioner is not rerun.** The estimand
+is therefore:
+
+> **Judge repeatability conditional on fixed semantic evidence.**
+
+This is **not** full-pipeline repeatability, and no sentence in the analysis may imply that
+it is. The narrowing is intentional, not a defect: holding the caption fixed isolates the
+component being measured, and if judge repeatability turns out to be high, caption-stage
+variability becomes a separate and later question rather than a confound in this one.
+
+`docs/repetition_study_predeclaration.md` §1's claim that the prompt is "as transcribed in
+`scripts/arb_extract.py`" is also corrected here: that file contains the **parse rule**
+only. The prompt is not in this repository and is not re-rendered; it is replayed from the
+cached `chat_messages`.
+
+## A2.3 The deployed configuration, fixed and verified
+
+Every field below was read off all 1,106 cached judgments and found uniform. Any deviation
+at execution time stops the run.
+
+| field | value |
+| --- | --- |
+| model | `gpt-4o-2024-11-20` |
+| temperature | `0.0` |
+| seed | `0` |
+| `max_completion_tokens` | `1024` |
+| `judge_args` | `{"use_screenshot": false, "use_axtree": false}` |
+| messages | the stored `chat_messages.regular`, byte-identical, not re-rendered |
+| parser | `parse_verdict(judge="aer", ...)` in `scripts/arb_extract.py` — the `Status:` line, `numerize_success` vocabulary |
+| polarity | `reference_label` True = failure present; `outcomes` True = evaluator flagged failure. Re-derived from raw cached responses: **1,106 / 1,106 match** |
+
+**If `gpt-4o-2024-11-20` is no longer callable, the run stops.** No newer GPT-4o is
+substituted. A different snapshot is a different evaluator and needs its own
+predeclaration, not an inherited one.
+
+## A2.4 Stage 1 — the repeatability rejection screen
+
+**Two new current executions** of the configuration in §A2.3 over all 1,106 cases.
+`current_repeat_1` and `current_repeat_2`, `repetition_index` 0 and 1.
+
+**The historical 2025 judgment is not one of the two.** It is retained as descriptive
+context only; see §A2.7.
+
+Estimated cost 2 × $11.65 ≈ **$23**, before any caching discount, against the $58 the
+unconditional design would have committed.
+
+### Stage 1 measurements
+
+Reported separately for **reference-failure** and **reference-success** cases; no pooled
+figure may appear as the only headline.
+
+- verdict disagreement between repeat 1 and repeat 2, with Wilson interval
+- the **correctness transition table**: correct→correct, correct→wrong, wrong→correct,
+  wrong→wrong, per stratum
+- disagreement by benchmark slice (`assistantbench`, `visualwebarena`, `webarena`,
+  `workarena`), with the support flags the repository already uses
+- total cases with any observed variation
+- valid calls, transport failures, retries, per §A2.8
+- total input tokens, **cached** input tokens, **uncached** input tokens, output tokens
+- billed cost, per call and per case
+- wall-clock latency, mean and p95
+
+### Stage 1 primary question
+
+> Does this deployed judge exhibit enough repeat-execution variability for repeated
+> inference to be a plausible production lever?
+
+## A2.5 Stage 1 stopping and continuation rule, fixed before any call
+
+### The ceiling that makes this non-arbitrary
+
+A disagreement between two executions is the only observable at R = 2, and it bounds what
+R = 5 could ever do. For a case whose per-execution probability of the wrong verdict is
+`p`, the chance two executions disagree is `2p(1−p)`, and the error-rate reduction
+majority-of-5 delivers over a single execution is `p − P(Bin(5,p) ≥ 3)`. The ratio of the
+second to the first is bounded:
+
+> `sup over p in (0, 0.5) of  [ p − P(Bin(5,p) ≥ 3) ] / [ 2p(1−p) ]  =  0.5145`, at
+> `p ≈ 0.059`.
+
+For `p > 0.5` majority-of-5 is *worse* than a single execution, so the bound on net
+improvement is tighter still. Therefore, with `D` disagreeing cases observed out of `n`:
+
+> **The number of case-level decisions majority-of-5 could correct relative to a single
+> execution is at most `0.5145 × D`.**
+
+This holds for every mixture of per-case `p`, assumes only that repeat executions of a
+case are exchangeable, and involves no economic input. It is arithmetic, declared before
+collection, and it is the whole basis of the continuation rule.
+
+### The floor, and why 16
+
+The criterion is that an R = 5 study must be able to **resolve** what it purchases. The
+repository's `POINT_ESTIMATE_FLOOR = 16` derives from `k ≈ 1/s²` for relative precision
+`s = 0.25`: below sixteen events a point estimate cannot be reported at usable precision.
+`docs/architecture.md` §10.5 records that sixteen is **no longer a threshold this
+repository believes in as a success criterion**, and it is not used as one here. It is used
+as a *resolution* floor: if the ceiling is under sixteen corrected decisions, then even if
+every one of them landed, the resulting change could not be estimated well enough to say
+anything, and the $35 buys a number that cannot be read.
+
+### The rule
+
+Compute the Wilson 95% lower bound `L` on the disagreement proportion within a stratum,
+and the ceiling lower bound `0.5145 × L × n` in cases.
+
+> **Stage 2 proceeds only if the ceiling lower bound is ≥ 16 case-level decisions in the
+> reference-failure stratum.**
+
+At n = 811 that is **D ≥ 42 disagreeing reference-failure cases**. The threshold is 42
+disagreeing cases in essentially any stratum of this size range — 42 at n = 811, 42 at
+n = 295, 42 at n = 1,106 — because the criterion is on an absolute count and the Wilson
+lower bound on a small count is nearly independent of `n`. That coincidence is convenient
+and is not a result.
+
+Three dispositions, all fixed now:
+
+| observed | disposition |
+| --- | --- |
+| reference-failure ceiling lower bound **≥ 16** | **Stage 2 proceeds.** Purchase repetitions 3–5. |
+| reference-failure below, **reference-success ≥ 16** | **Stage 2 does not proceed automatically.** Outcome D. Report and escalate: whether false-alarm efficiency is worth $35 is an economic input this repository does not have, and inventing one here would be inventing an `r*`. |
+| both below | **Stop.** No R = 5. |
+
+**If `D = 0` across 1,106 cases**, report the one-sided 95% upper bound on the disagreement
+rate — `1 − 0.05^(1/1106) = 0.00271`, agreeing with the rule of three at `3/1106` — and the
+corresponding ceiling of **1.54 case-level decisions out of 1,106**. Conclude that repeated
+inference has not demonstrated enough variability to justify a deeper repetition study
+under this deployed configuration. That conclusion is about this configuration and this
+frozen input, and is not a claim that the judge is deterministic.
+
+**No `r*` is declared here and none is inferred.** These are thresholds for which paragraph
+gets written and whether $35 is spent, not thresholds for a production decision.
+
+### What Stage 1 cannot do
+
+> **A low disagreement rate can kill repetition cheaply. A nonzero disagreement rate does
+> not prove repetition is useful.** Variation that moves correct→wrong as often as
+> wrong→correct is noise a majority rule averages away to nothing. Stage 2 exists because
+> the transition table, not the disagreement count, is what decides whether repetition
+> helps — and Stage 1 is not powered to settle it.
+
+Stage 2 is **not** entered merely because some disagreement exists.
+
+## A2.6 Stage 2 — only if Stage 1 earns it
+
+Extend the same study to R = 5. **Reuse `current_repeat_1` and `current_repeat_2` as
+repetitions 1 and 2; purchase only repetitions 3, 4 and 5.** The study is not restarted.
+Estimated incremental cost ≈ $35.
+
+Everything in Amendment 1 §§A1.1–A1.4 governs unchanged: the full `0/5`–`5/5` count always
+stratified by reference label; the four policy estimands with their exact estimators;
+error-direction stratification; the demotion of `P(at least one correct | at least one
+wrong)` to a secondary variability statistic that may **not** be called recoverability.
+The bucket readings are unchanged, including the binding wording that `0/5` is not proof of
+deterministic or systematic error and `5/5` is not proof of determinism — they are
+finite-sample observations.
+
+Two threats created by the staging itself, declared now:
+
+**(a) Continuation selection.** Stage 2 happens *because* repeats 1 and 2 disagreed at
+least 42 times, and those same two executions then enter the `k` count. Conditional on
+continuing, they are selected for variability, which biases the five-execution `k`
+distribution toward variability. **Mitigation, fixed in advance:** every Stage 2 headline
+is reported twice — once on all five executions, flagged as conditionally selected, and
+once on **repetitions 3–5 only**, which are collected after the continuation decision and
+are free of it. Where the two disagree, the 3–5-only figure governs the conclusion.
+
+**(b) Temporal separation within the study.** Repetitions 1–2 and 3–5 are collected in
+different sessions, possibly on different days. Any drift between them sits inside the
+`k` count. Collection timestamps are recorded per call and the gap is reported; the
+order-free sequential-stopping estimator of §A1.2(d) removes the ordering artifact but not
+the drift.
+
+## A2.7 The historical judgment is context, not a repetition
+
+The 2025 `aer` judgment may be compared **descriptively** with the new executions. It may
+**not** be mixed into any same-configuration repeatability estimate unless all four of
+these are established and written down:
+
+- endpoint behaviour is meaningfully comparable;
+- the model snapshot is identical;
+- the prompting is identical;
+- provider-side implementation drift is irrelevant, or is explicitly part of the estimand.
+
+**Default interpretation, binding absent that establishment:**
+
+> Historical-versus-current differences may contain temporal and provider drift and are
+> **not** same-session repeat-execution variability.
+
+A historical-vs-current disagreement rate, if reported, is labelled as such and is never
+substituted for the Stage 1 statistic.
+
+## A2.8 Retry semantics
+
+> **A repetition exists only when a valid judge response is returned and parsed.**
+
+Transport and service failures are not judge repetitions. Retries caused by timeout, HTTP
+429, transport error, or a malformed provider response **belong to the same repetition
+identity** until a valid response is obtained or the retry budget is exhausted. Retry
+counts, causes and latencies are recorded separately from verdicts.
+
+A valid but inconvenient judgment is **never** rerun. If a case exhausts its retry budget
+it is reported as incomplete; it is not topped up and it is not replaced.
+
+Call identity is `(case_id, repetition_index)`, unique and append-only. Checkpointing is
+per call and written before the next is issued; resume is keyed on that identity so an
+existing record is never re-purchased. Nothing is overwritten. Raw provider responses are
+retained verbatim alongside the parsed verdict.
+
+## A2.9 Stage 1 outcomes, precommitted
+
+| outcome | fires when | interpretation and consequence |
+| --- | --- | --- |
+| **A** | zero or negligible repeat-execution variation (ceiling lower bound < 16 in both strata) | *Repetition has not demonstrated itself as a meaningful lever for this deployed judge.* **Stop before R = 5.** Future work goes to evaluator design, alternate evidence, failure-mode structure, or the shared unresolved errors of §A1.6 — not to more repetition. |
+| **B** | variation exists but rarely changes correctness (disagreements present; correct→wrong and wrong→correct roughly balanced) | *The judge is not perfectly repeatable, but additional executions may mostly create noise rather than useful recovery.* R = 5 proceeds **only** if §A2.5's criterion is met. |
+| **C** | variation frequently moves wrong→correct and correct→wrong | *Judge-stage variability is operationally meaningful.* Proceed to R = 5 to test whether executable repetition policies improve net correctness. |
+| **D** | variation is strongly direction-specific (e.g. false alarms fluctuate, missed failures stable) | *Repetition may be useful for operational efficiency without materially improving failure detection.* Proceed only if the relevant production question warrants it — escalated per §A2.5, not decided here. |
+| **E** | results vary sharply by benchmark slice | *Universal repetition may be inappropriate.* R = 5 may still proceed, but every primary conclusion must remain slice-aware and no corpus-wide headline may stand alone. |
+
+These are not mutually exclusive; B/C/D/E may co-occur and A excludes the rest.
+
+## A2.10 The gate before any money is spent
+
+Supersedes §A1.10. In order:
+
+1. This amendment is committed. Working tree clean. **The exact pre-inference commit hash
+   is printed.**
+2. The pinned snapshot `gpt-4o-2024-11-20` is verified still callable. **If it is not, stop.**
+   No newer model is substituted.
+3. The environment is verified to contain an authorized credential. **The secret value is
+   never requested, printed, or logged.** If credentials remain unavailable, **stop after
+   committing this amendment.**
+4. Reproducibility re-verified: stored `chat_messages` present for all 1,106; model,
+   temperature, seed and `judge_args` as §A2.3; parser matches the historical parser;
+   polarity re-derived from raw cached responses; caption stage frozen and out of scope;
+   retry semantics per §A2.8; call identity `(case_id, repetition_index)`; checkpoint and
+   resume verified unable to duplicate a paid call.
+5. A minimal single-case smoke test, **only if needed**, on a case **explicitly excluded
+   from the 1,106**, or treated as infrastructure validation and **never entered into any
+   statistic**.
+
+## A2.11 Not in scope
+
+Not done, at any stage: raising the temperature; changing the seed; re-rendering captions;
+substituting a newer model; modifying the planner; building routing; adding an economic
+optimizer; treating the 2025 outcomes as current repeats; treating prompt-cache hits as
+cached completions; describing the observations as "sampling variance" unless they support
+it; proceeding to R = 5 on the mere existence of a disagreement.
+
+The φ work of `docs/agent_reward_bench_conditional.md` stands and its corrections are
+preserved. **Pooled φ is not used as evidence of evaluator mechanism diversity in this
+study**, and no further φ work is undertaken unless Stage 1 produces evidence directly
+bearing on it.
+
+## A2.12 The governing rule
+
+> **Do not manufacture stochasticity to study stochasticity. Measure the repeatability of
+> the system as it is actually deployed, and purchase deeper repetition only if the cheaper
+> experiment shows there is something worth resolving.**
