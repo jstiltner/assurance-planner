@@ -641,6 +641,12 @@ predeclaration, not an inherited one.
 
 ## A2.4 Stage 1 — the repeatability rejection screen
 
+> **Superseded by Amendment 3 §A3.1.** There is no Stage 1 and no Stage 2; all five
+> executions are collected unconditionally. The measurement list below survives intact and
+> is computed over the full collection, and the two-execution comparison survives as a
+> retrospective analysis (§A3.3) rather than a screen. The $23-against-$58 saving argued
+> for here is withdrawn: §A3.2 records that the engineering cost of the gate exceeded it.
+
 **Two new current executions** of the configuration in §A2.3 over all 1,106 cases.
 `current_repeat_1` and `current_repeat_2`, `repetition_index` 0 and 1.
 
@@ -672,6 +678,14 @@ figure may appear as the only headline.
 > inference to be a plausible production lever?
 
 ## A2.5 Stage 1 stopping and continuation rule, fixed before any call
+
+> **Retracted in full by Amendment 3 §A3.1.** Two independent defects: the 0.5145 ceiling
+> below requires **conditionally IID** Bernoulli repetitions, not the exchangeability it
+> claims — and an IID-derived bound cannot gate the study that exists to measure whether
+> repeat executions are independent; and the resolution floor made `POINT_ESTIMATE_FLOOR
+> = 16` decision-bearing again, which `architecture.md` §10.5 disavows. The D ≥ 42
+> threshold, the three-row disposition table, and the staged purchase are all withdrawn.
+> **No constant replaces 42.** The text is kept as written, not corrected in place.
 
 ### The ceiling that makes this non-arbitrary
 
@@ -749,6 +763,13 @@ Stage 2 is **not** entered merely because some disagreement exists.
 
 ## A2.6 Stage 2 — only if Stage 1 earns it
 
+> **Superseded by Amendment 3 §§A3.1, A3.4.** R = 5 is unconditional, so nothing has to be
+> earned. The Amendment 1 §§A1.1–A1.4 inheritance asserted below still holds, as amended by
+> §A3.4. Both threats declared here were created by the staging and die with it: the
+> continuation-selection mitigation (a) is retired because there is no conditioning left to
+> bias the `k` distribution, and the deliberate temporal separation (b) is retired — repeats
+> are **not** spaced on purpose, though timestamps are still recorded.
+
 Extend the same study to R = 5. **Reuse `current_repeat_1` and `current_repeat_2` as
 repetitions 1 and 2; purchase only repetitions 3, 4 and 5.** The study is not restarted.
 Estimated incremental cost ≈ $35.
@@ -815,6 +836,13 @@ retained verbatim alongside the parsed verdict.
 
 ## A2.9 Stage 1 outcomes, precommitted
 
+> **Consequences struck by Amendment 3 §A3.1.** The *interpretations* in the right-hand
+> column survive and are read off the full five-execution collection; every clause that
+> stops, proceeds, escalates or conditions collection is void, as is outcome A's "ceiling
+> lower bound < 16" trigger. Read this table as a precommitted vocabulary for what the
+> result will mean, never as control flow. Amendment 1 §A1.9's outcomes A–F remain the
+> operative outcome set.
+
 | outcome | fires when | interpretation and consequence |
 | --- | --- | --- |
 | **A** | zero or negligible repeat-execution variation (ceiling lower bound < 16 in both strata) | *Repetition has not demonstrated itself as a meaningful lever for this deployed judge.* **Stop before R = 5.** Future work goes to evaluator design, alternate evidence, failure-mode structure, or the shared unresolved errors of §A1.6 — not to more repetition. |
@@ -863,3 +891,243 @@ bearing on it.
 > **Do not manufacture stochasticity to study stochasticity. Measure the repeatability of
 > the system as it is actually deployed, and purchase deeper repetition only if the cheaper
 > experiment shows there is something worth resolving.**
+
+---
+---
+
+# Amendment 3 — 2026-09-27, before inference
+
+**Everything above is left exactly as committed.** Amendment 2's continuation gate is
+retracted here rather than deleted there. This is a pre-inference methodological
+correction and **not** a response to observed results: no call has been made, no
+credential has been present, and the retraction is forced by two defects in the argument
+itself.
+
+Surviving unchanged from Amendment 2: the deployed configuration (§A2.3), the fixed-caption
+scope (§A2.2), the prompt-caching correction (§A2.1), retry semantics (§A2.8), and the
+R = 5 design of Amendment 1 §§A1.1–A1.4.
+
+## A3.1 Retraction — the D ≥ 42 continuation rule is withdrawn
+
+> **Retracted in full: Amendment 2 §A2.5, "Stage 2 proceeds only if the ceiling lower
+> bound is ≥ 16 case-level decisions in the reference-failure stratum", and with it the
+> threshold of 42 disagreeing cases, the three-row disposition table, and the staged
+> purchase it governed.**
+
+No data-dependent stopping rule of any kind applies to this study. **All five repeat
+executions are collected for all 1,106 cases**, unconditionally, once the credential and
+model gate of §A3.7 passes. Amendment 2 §§A2.4 and A2.6 are superseded: there is no
+Stage 1 and no Stage 2, only one collection.
+
+Two defects, either of which is sufficient.
+
+### Defect 1 — `16` was made decision-bearing again
+
+`docs/architecture.md` §10.5 records that sixteen errors is **no longer a threshold this
+repository believes in**. Amendment 2 acknowledged that in writing and then used sixteen
+anyway, relabelled from "success criterion" to "resolution floor". The relabelling did not
+change what it did: it decided whether $35 of evidence was purchased. A constant that
+decides whether an experiment runs is decision-bearing whatever it is called.
+
+`POINT_ESTIMATE_FLOOR = 16` is retained as a **presentation and support convention**,
+where labelled as such — that is what `thin_denominator` is for. It may not determine
+whether an experiment is worth running.
+
+**No other constant replaces it.** The correct response to "we cannot justify this
+threshold" is to drop the threshold, not to find a better-sounding number.
+
+### Defect 2 — the 0.5145 ceiling assumed conditional IID, not exchangeability
+
+Amendment 2 §A2.5 stated that the bound
+
+`sup over p in (0, 0.5) of [ p − P(Bin(5,p) ≥ 3) ] / [ 2p(1−p) ] = 0.5145`
+
+"holds for every mixture of per-case `p`, assumes only that repeat executions of a case
+are **exchangeable**". **That is wrong.** Writing the majority-of-5 error as
+`P(Bin(5, p) ≥ 3)` requires the five executions to be **conditionally independent**
+Bernoulli draws given the case. Exchangeability alone permits arbitrary positive
+dependence among the five, under which the vote distribution is not binomial, majority-of-5
+concentrates less than the formula says, and the ratio to `2p(1−p)` is not bounded by
+0.5145.
+
+Exchangeability is a weaker condition than independence and was used here as though it
+were the same thing. It is not, and "exchangeable" may not stand in for "independent"
+anywhere in this study.
+
+The circularity is the fatal part. This is a study of repeat executions at temperature 0
+and seed 0, a configuration under which **correlation among repeated outputs is plausible
+and is part of what is being measured**. An IID-derived bound was used to decide whether
+the experiment characterising repeat behaviour deserved to continue. The gate assumed the
+answer to its own question.
+
+## A3.2 The economic reason, which is also the project's thesis
+
+The full study is ≈ $58; after two passes the remaining purchase is ≈ $35. The engineering
+and methodological work to justify, implement, audit and — as it turned out — **correct** a
+data-dependent continuation gate has already exceeded the $35 it existed to conserve. This
+document is the evidence: two amendments and a retraction, against thirty-five dollars.
+
+> **Evaluation economics includes engineering time and experimental complexity, not merely
+> model API spend.**
+
+That is a claim this repository already makes about other people's evaluation strategies.
+It applies here. The cleaner experiment has the greater expected value.
+
+## A3.3 The two-execution screen survives as an analysis, never as a gate
+
+The predeclared two-execution screen is retained and **evaluated retrospectively on the
+complete five-execution collection**. It determines nothing about what is collected.
+
+Reported after collection: disagreement between executions 1 and 2, overall and separately
+for reference-success and reference-failure; the correctness transition table
+(correct→correct, correct→wrong, wrong→correct, wrong→wrong); slice-level disagreement;
+and the conclusion a two-pass production screen **would have** suggested.
+
+This answers something the gate could only have assumed:
+
+> **Would two passes have been sufficient to conclude that repetition was or was not
+> useful?**
+
+That is a genuine operational question about cheap screens, and it is worth more than the
+$35 the gate would have saved.
+
+## A3.4 Estimator changes
+
+**Majority-of-3 — the primary estimator changes.** Amendment 1 §A1.2(b) declared the
+symmetric average over all ten 3-subsets as primary. It is demoted. Two figures, labelled
+differently and never merged:
+
+| | estimator | status |
+| --- | --- | --- |
+| **production policy** | the **first three executions in collection order** | **primary.** This is the policy a system would actually run: buy three, take the majority. |
+| generic three-sample behaviour | the symmetric average over all ten 3-subsets, by the hypergeometric weights of §A1.2(b) | secondary, optional |
+
+The hypergeometric weights are exact combinatorics over the five observed executions and
+carry **no** independence assumption, so §A1.2(b) survives as a secondary — but it
+describes a generic three-sample property, not a runnable policy, and must not be reported
+as the majority-of-3 result. The binomial plug-in variant already declared secondary in
+§A1.2(b) is **withdrawn entirely**: it assumes IID.
+
+The precommitted identity `maj-3 − maj-5 = 0.3·[P(k=3) − P(k=2)]` is exact combinatorics
+and stands, but it relates the *secondary* symmetric estimator to majority-of-5, not the
+production-policy figure.
+
+**Sequential stopping — the order-free estimator is retired.** Amendment 1 §A1.2(d)
+declared both an as-collected and an exhaustive order-free version. Only the **as-collected
+replay** survives, and it is primary. The order-free version existed to remove any
+incentive to reorder; that guard is now unnecessary, because `repetition_index` is assigned
+at collection time and fixed before any statistic is computed. **Observations are not
+reordered, for any purpose.**
+
+The policy is a counterfactual replay of a fixed rule over fully collected observations:
+
+> Had we stopped according to this rule in production, how many calls, dollars and errors
+> would we have incurred?
+
+**Selection-effect mitigation retired.** Amendment 2 §A2.6(a) required every headline to be
+reported again on repetitions 3–5 alone, because Stage 2 would have been entered
+conditional on Stage 1. With the gate withdrawn there is no conditioning and no selection
+effect. The mitigation is retired, preserved in the chronology as attached to the
+superseded staged design. Amendment 2 §A2.6(b) is likewise retired: repetitions are **not**
+deliberately separated in time. Per-call timestamps are still recorded and any incidental
+gap is reported.
+
+## A3.5 Dependence assumptions — no IID anywhere
+
+**The five executions are not assumed to be IID.** They are empirical repeated executions.
+Where a calculation requires independence, exactly one of three is done, and which one is
+stated in the text:
+
+1. use a method whose assumptions are defensible on this data;
+2. state the assumption explicitly, in the sentence that uses it;
+3. report the directly observed quantity and add no inferential model.
+
+**"Exchangeable" may not be used as a substitute for "independent."**
+
+> **The complete observed vote distribution over `{0/5 … 5/5}` is primary evidence. It is
+> never inferred from, smoothed toward, or summarised by an assumed Binomial model.**
+
+**If repeat behaviour itself suggests dependence, that is recorded as a finding**, not as
+a nuisance — it is arguably the most interesting thing this study could return about a
+temperature-0 deployment.
+
+**Two consequences inside already-committed text, flagged now rather than discovered later:**
+
+- **§1's detection-probability table** — `1 − (p^R + (1−p)^R)`, which Amendment 1 §A1.1
+  requires be reprinted beside any `0/5` or `5/5` count — **is IID-derived**. It is
+  retained, because the caution it delivers is the right caution, but it must be labelled
+  in place as an IID illustration and **not** as an inference about these cases. Its
+  direction of error under positive dependence is stated here in advance: dependence makes
+  five executions *less* informative than the table says, so `5/5` is **weaker** evidence
+  of stability than the table implies, not stronger. The caution survives the correction;
+  the arithmetic does not transfer.
+- **Wilson intervals** across cases assume independence **between cases**, not between
+  repetitions of a case. That is the defensible use and is the only one made. No Wilson
+  interval is computed across the five executions of a single case.
+
+## A3.6 The experiment, in full
+
+Unconditional once §A3.7 passes:
+
+| | |
+| --- | --- |
+| evaluator | exact historical `aer` judge configuration |
+| model | `gpt-4o-2024-11-20` |
+| temperature / seed | `0` / `0` |
+| input | the stored `chat_messages`, byte-identical; caption stage frozen |
+| corpus | all 1,106 cases |
+| R | exactly **5 valid repeat executions per case** |
+| stopping | **none** |
+
+Estimand, unchanged:
+
+> **Judge-stage empirical repeatability conditional on fixed semantic evidence under the
+> deployed configuration.**
+
+Primary outputs, per case: the complete count `0/5 … 5/5`, always stratified by reference
+label. Then: expected single-execution error; majority-of-3 (first three, per §A3.4);
+majority-of-5; the sequential-stopping replay; **false-alarm rate and missed-failure rate
+separately under each**; calls consumed; actual API cost; cached versus uncached tokens;
+wall-clock latency; retry and failure behaviour.
+
+The §A1.1 bucket wording remains binding: `0/5` is not proof of deterministic or systematic
+error, `5/5` is not proof of determinism, and both are finite-sample observations.
+`P(at least one correct | at least one wrong)` remains secondary and may not be called
+recoverability.
+
+## A3.7 The gate, unchanged in substance
+
+1. This amendment is committed; working tree clean; **pre-inference commit hash printed**.
+2. An authorized credential is verified present. **The secret value is never requested,
+   printed or logged.**
+3. `gpt-4o-2024-11-20` is verified callable. **If it is not, stop.** No substitution.
+4. The §A2.10 item 4 reproducibility checks pass.
+5. Infrastructure smoke check only if needed, on a case **outside the 1,106**, never
+   entered into any statistic.
+6. Then execute all R = 5 observations.
+
+**If credentials remain absent, stop after committing this amendment.**
+
+## A3.8 Economic accounting, required in the final report
+
+Compared explicitly at the end:
+
+- API dollars consumed;
+- total execution wall-clock;
+- human and engineering work introduced by the experimental strategy itself — **qualitative
+  only. No fabricated hourly wage, no invented dollar figure.**
+
+One legitimate conclusion is precommitted here so that it cannot be avoided if it is true:
+
+> The attempt to avoid approximately $35 of additional inference would have introduced more
+> methodological and engineering complexity than simply collecting the evidence.
+
+If the record supports that, it is retained as a finding about evaluation economics rather
+than buried as process.
+
+## A3.9 Governing principles
+
+> **Do not spend more engineering complexity than the inference cost you are trying to
+> save.**
+
+> **Observe repeat behaviour directly before imposing a probabilistic model on it.**
