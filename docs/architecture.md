@@ -686,6 +686,11 @@ What was built in response is an instrument and not a result:
   joint error rate, both shared-error fractions, verdict disagreement, Pearson phi on the
   error association (`None`, never `0.0`, when a margin is degenerate — because "no data"
   must not render as "reassuringly independent"), and per-slice versions with support flags.
+  **A second way phi can render as reassuring independence when it is not:**
+  `docs/agent_reward_bench_conditional.md` measures it pooled across reference labels and
+  finds the pooled figure attenuated below the within-missed-failure figure in 8 of 8 real
+  pairs. The instrument is unchanged and correct for what it computes; the caution is that
+  a pooled phi near zero is not evidence of error independence.
 - `complementarity_report.py` — renders all of it and emits **no verdict**. The three
   decision rows (replace / route selectively / reject) are hard-coded to `UNMEASURED`; there
   is no code path that writes anything else into one.

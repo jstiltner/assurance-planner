@@ -389,6 +389,12 @@ middle in no lineage-related order. Backbone does no better: the two `gpt-4o-min
 variants are adjacent, but so are `gpt-4o` and `claude-3.7-sonnet`, and `llama-3.3-70b`
 appears at +0.202 and +0.048 depending only on which prompt it is wearing.
 
+> **The "opposite ends" evidence is a pooled artifact — narrowed by
+> `docs/agent_reward_bench_conditional.md` §4.** Conditional on the reference label the two
+> externally-authored lineages are *not* at opposite ends: `aer` ranks fourth of eight and
+> `nnetnav` sixth of eight on the missed-failure stratum. The conclusion below is
+> unaffected and in fact strengthened — see the note at the end of this section.
+
 The permitted conclusion, and no more than this:
 
 > **Structural or provenance diversity cannot be assumed to imply error diversity. In
@@ -415,6 +421,18 @@ and it may not be used to select or exclude a candidate. It is written down beca
 a falsifiable explanation of a negative result that would otherwise read as
 unexplained — and because, if it holds, "error association" is not the independence
 measurement the planner's argument has been treating it as.
+
+> **Narrowed by `docs/agent_reward_bench_conditional.md`.** The hypothesis above was
+> falsified in the direction stated and was wrong about the magnitude. Conditioning on
+> the reference label takes the phi/sensitivity correspondence from 6/8 positions to
+> **1/8** on the reference-failure stratum, confirming that the pooled correspondence is
+> an operating-point effect. But this section implies the true mechanism-level association
+> is some other number phi was standing in for. It is not: within the reference-failure
+> stratum **all eight alternates sit between odds ratio 5.08 and 11.11**, nearly constant
+> across five backbones and three prompt lineages. The defect is therefore not that phi
+> mismeasures diversity — it is that phi orders the alternates on the reference-success
+> stratum, which holds 80% of this primary's errors and on which the missed-failure
+> question does not arise at all. Left as written; see `conditional.md` §4 and §6.
 
 ---
 
@@ -589,6 +607,11 @@ repository currently makes.
    independence is measuring the wrong thing, and the "assuming independence overstates
    joint accuracy threefold" result in `agent_reward_bench_findings.md` §6 is a true
    statement about *this pair's operating points* rather than about evaluator diversity.
+   **No longer a "may be" — measured in `docs/agent_reward_bench_conditional.md`.** The
+   pooled odds ratio is attenuated below the reference-failure odds ratio in 8/8 pairs and
+   below *both* strata in 3/8, and pooled phi's ordering reproduces the reference-success
+   ordering on its top five positions while agreeing with the reference-failure ordering
+   on 1/8. The hedge is withdrawn; the conclusion in the sentence above stands.
 3. **The assurance-relevant denominator is chosen, not given.** §9. Gate 1's support check
    bound on the wrong quantity; the deeper issue is that the right quantity varies by a
    factor of three depending on which predeclared primary is used.
@@ -600,6 +623,10 @@ repository currently makes.
    distinguishes variance (attackable by repetition) from stable bias (attackable only by
    different evidence). This corpus shows a third category the thesis does not name:
    **error stable across different evidence too**, which neither lever reaches.
+   **Stronger than stated, per `docs/agent_reward_bench_conditional.md` §6.** The counts
+   above describe the intersection of the eight. The enrichment holds for every alternate
+   *individually*: a failure the primary missed is 2.8×–5.1× likelier to be missed by the
+   alternate than a failure the primary caught, for all eight.
 
 ---
 

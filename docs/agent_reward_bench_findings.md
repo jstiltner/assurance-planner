@@ -46,12 +46,27 @@ between those two numbers is the size of the bias that pair-shopping would have
 introduced into a report that would otherwise have looked identical, written in the same
 register, with the same intervals.
 
+> **"Look nearly unassociated" was exactly the illusion.** Narrowed by
+> `docs/agent_reward_bench_conditional.md` §6: conditional on the reference label, the
+> post-hoc pair's missed-failure odds ratio is 5.08 against the predeclared pair's 9.38 —
+> the same order of magnitude, neither near independence — while their pooled phis differ
+> fivefold. The sentence stands as written because the pooled phi is what a post-hoc
+> report would have quoted, which is the point being made.
+
 **A provenance argument for independence failed its one within-tier prediction.** Gate 1
 argued `aer` was the strongest alternate partly because its prompt is externally authored
 (Pan et al. 2024) rather than sharing this paper's template. Measured error association
 puts `aer` at the *most* correlated end of the eight. Whatever drives error overlap here,
 prompt lineage is not it, and the a priori reasoning that picked Tier A is not supported by
 the outcome it was used to predict. That is recorded as a miss, not reframed.
+
+> **Narrowed, and this one cuts in Gate 1's favour.** "Most correlated end of the eight"
+> is a pooled-phi statement. On the reference-failure stratum `aer` ranks **fourth of
+> eight** by both phi and odds ratio (`conditional.md` §4). The correct narrower statement
+> is that the provenance argument was *not supported* — it made no prediction that the
+> conditional evidence confirms — rather than that it ranked backwards. Recorded here
+> because the original sentence was harsher on the pre-outcome reasoning than the evidence
+> now supports, and correcting only in the flattering direction is not a correction.
 
 ## 2. Tier A in full — `functional` → `aer`, n = 1,106
 
@@ -193,6 +208,11 @@ than the marginals suggest, and the evidence is not decision-sufficient."** Prec
   two-source system that multiplied 0.146 by 0.166 would predict a joint error rate of
   0.024 and observe 0.067 — nearly three times higher. That is the specific arithmetic the
   planner would launder if it assumed independence, and here it is measured, not argued.
+  **Narrowed by `docs/agent_reward_bench_conditional.md`:** correct for this pair, and it
+  must not be read comparatively. A pair with a *lower* pooled phi is not closer to
+  independent — pooled phi is dominated by the reference-success stratum, which carries
+  80% of this primary's errors. On the missed-failure stratum all eight alternates run at
+  odds ratio 5.08–11.11 and are not distinguishable in this way.
 - It is **not decision-sufficient**, and not because the sample is small. No `r*` has been
   declared, so there is no statement of what would change a decision. The Wilson interval
   [0.466, 0.618] is narrow enough to settle many questions and settles none that has been
