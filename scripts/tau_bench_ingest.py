@@ -245,6 +245,20 @@ def _parse_trajectory(raw: dict, domain: str) -> TrajectoryRecord:
     )
 
 
+def _agent_from_filename(path: str) -> str:
+    """Infer agent label from file basename.
+
+    tau-bench file convention: <agent>-<domain>.json.
+    Only handles the four standard corpus files; returns "" for others.
+    """
+    base = os.path.basename(path).lower()
+    if base.startswith("gpt-4o"):
+        return "gpt-4o"
+    if base.startswith("sonnet-35-new"):
+        return "sonnet-3.5-new"
+    return ""
+
+
 def _agent_from_traj(traj: list) -> str:
     """Infer agent label from system prompt if not in record."""
     for msg in traj:
@@ -253,7 +267,7 @@ def _agent_from_traj(traj: list) -> str:
             if "gpt-4o" in c:
                 return "gpt-4o"
             if "sonnet" in c.lower():
-                return "sonnet-3.5"
+                return "sonnet-3.5-new"
     return "unknown"
 
 
@@ -275,6 +289,7 @@ def load_file(path: str) -> List[TrajectoryRecord]:
     Returns a list of TrajectoryRecord objects.
     """
     domain = _domain_from_files(path)
+    agent_hint = _agent_from_filename(path)   # "" if file name is non-standard
     with open(path, encoding="utf-8") as fh:
         raw_records = json.load(fh)
 
@@ -282,6 +297,9 @@ def load_file(path: str) -> List[TrajectoryRecord]:
     for raw in raw_records:
         # Strip known outcome fields first so _parse_trajectory never sees them.
         clean = {k: v for k, v in raw.items() if k not in OUTCOME_FIELDS}
+        # Inject agent hint so _parse_trajectory can prefer it over traj inference.
+        if agent_hint and "agent" not in clean:
+            clean["agent"] = agent_hint
         # Then assert that no OTHER outcome-like fields remain.
         assert_no_outcome_fields(clean, source_hint=os.path.basename(path))
         records.append(_parse_trajectory(clean, domain))
