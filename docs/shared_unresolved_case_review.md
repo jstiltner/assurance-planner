@@ -338,8 +338,9 @@ The minimal invariants, in ascending order of cost:
 
 1. **Abstention on a modification goal is not success.** If the goal is content-modifying and
    the trajectory contains no state-changing action, the verdict is failure regardless of what
-   the agent said. Fixes `webarena.723` and `.726` outright. Needs a task-type label the
-   benchmark already has.
+   the agent said. Fixes `webarena.723` and `.726` outright. ~~Needs a task-type label the
+   benchmark already has.~~ **[SUPERSEDED — see correction (b) above: no such label exists;
+   task type must be inferred from goal text, imperfectly.]**
 2. **Terminal route check.** For "navigate to / find the page of X", the final URL must match
    the detail route, not the search route. Fixes both `webarena.426` cases.
 3. **Infeasible-task contract.** For `infeasible-*` tasks: no submission event occurred AND the
@@ -502,8 +503,12 @@ that has been agreed.
 > the optimality tag up to 91%, against a 6.5% expert base rate. Items 2, 4 and 5 survive in
 > narrowed form.
 
-1. **A task-type and feasibility label on every case, carried into the judge's input.** Not a
-   model. A field. It makes invariants 1 and 3 possible and would have changed 3 of 15.
+1. ~~**A task-type and feasibility label on every case, carried into the judge's input.** Not a
+   model. A field. It makes invariants 1 and 3 possible and would have changed 3 of 15.~~
+   **[SUPERSEDED — see the correction above. Neither is a field: task type is class C,
+   inferred from goal text; the feasibility half is class D oracle leakage and its use as a
+   judge input is withdrawn. "Not a model, a field" was the load-bearing error — it is a
+   model, and that is where the cost reappears.]**
 2. **A small set of deterministic post-conditions keyed to task type** -- terminal route,
    post-submit state, no-unrequested-state-delta. Addresses 6 of 15 fully and 4 partially, at
    no per-case inference cost.

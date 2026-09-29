@@ -1,0 +1,1621 @@
+[
+  {
+    "case_num": 1,
+    "domain": "airline",
+    "task_id": 1,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi there! I need to change my return flight from Texas to Newark. It currently departs at 3pm, but I'd like to get on a later flight back the same day, or the earliest one the next day. ",
+      "I don\u2019t have the reservation ID with me, is it possible to look it up another way?",
+      "I must have left it somewhere else. If basic economy tickets can't be changed, would cancelling be an option since I'm feeling a bit unwell? I do have travel insurance.",
+      "I don't remember the reservation ID, but I can tell you that I'm feeling sick and have travel insurance. Is there any way to proceed with that information?",
+      "Okay, I'll try to find it and contact a human agent if needed. Thanks for your help!",
+      "Thank you! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "return flight",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 2,
+    "domain": "airline",
+    "task_id": 9,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi there! I'd like to know the total balance of my gift cards. Could you help me with that?",
+      "I see. Could you then tell me the sum of my certificate balances?",
+      "Alright, then. I'd like to change my recent reservation to the cheapest business round trip while keeping the same dates. Could you help with that?",
+      "I\u2019m sorry, but I don\u2019t have the reservation ID with me right now. Can anything be done without it?",
+      "I understand. I'll try to find that information. In the meantime, is there anything we can do to move forward with this request?",
+      "I found my reservation. Could you tell me if the flight I booked is eligible for changes, or would I need to cancel it?",
+      "I\u2019m still trying to locate the reservation ID, but could you check if it's possible to make changes if I originally booked under basic economy?",
+      "In that case, please go ahead and cancel the current reservation. I'll book a new business round trip while keeping the same dates. Could we proceed with that?",
+      "I\u2019ll provide the reservation ID shortly. Meanwhile, the reason is to rebook a business class option. Does that help?",
+      "I'll get that information for you. Once the reservation is cancelled, can you help me book the cheapest business round trip for the same dates?",
+      "Great, I'll do that as soon as I can. Once we book the new ticket, can we use my certificates and gift cards for payment and then charge the rest to my MasterCard?",
+      "Understood! When booking, please let me know how much will be charged to my MasterCard after utilizing the certificates and gift cards.",
+      "Got it, I'll work on getting the reservation ID. Thank you for your patience!",
+      "I have everything now. Please go ahead and cancel my current reservation so we can proceed with booking the new one.",
+      "Oh, I\u2019m sorry about that. I managed to find the reservation ID earlier, thanks to some digging. Let's move forward with cancellation and rebooking.",
+      "I noticed a potential policy where only one certificate might be used per reservation. How should we proceed if that is the case?",
+      "I think I have a plan to manage this. We can book three separate reservations and use each certificate for different passengers. Does that work within the system?",
+      "I understand. Could you go ahead and apply the $500 certificate and all gift cards to my booking, then? We\u2019ll use one certificate for Aarav and another for Evelyn, with the rest paid via the MasterCard. How does that sound?",
+      "Alright, I have the reservation ID here. Could you please proceed with the cancellation first? Thank you!",
+      "I have the reservation ID: [provide reservation ID]. Please go ahead with the cancellation.",
+      "I apologize for that. I don't actually have the reservation ID with me right now. Is there any other way we could identify and cancel my reservation?",
+      "I\u2019ll do that and reach out as soon as I find it. Thank you for your patience!",
+      "Thanks! I'll definitely be in touch as soon as I have it.",
+      "Thank you! You too have a great day!",
+      "I appreciate it! I'll get back to you if I need further help. Take care!",
+      "You too! Thanks again for your patience and assistance. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "reservation",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_reservation"
+        ],
+        "object_phrase": "reservation",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "book_reservation"
+        ],
+        "object_phrase": "ticket",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "send_certificate"
+        ],
+        "object_phrase": "certificate",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 3,
+    "domain": "airline",
+    "task_id": 17,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi there! I'd like to change my flight from IAH to SEA from May 23rd to May 24th and upgrade our tickets to business class. Could you assist with that?",
+      "I have my user ID: liam_khan_2521, but I don't recall the reservation ID at the moment. Is there another way we can look it up?",
+      "That's a bit higher than my budget. Is there a way to adjust the cost, perhaps by exploring other options?",
+      "Option 3 is close, but it's still above my budget. Are there any possibilities to combine flights or explore how to bring it under $1000?",
+      "Great! That works for me. Let's proceed with this option.",
+      "I'll use the credit card on file for the payment. Please go ahead with the update.",
+      "Yes, everything looks good. Please proceed with the update. Thank you!",
+      "Thank you for your help! Have a great day. \n\n###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      },
+      {
+        "name": "search_onestop_flight",
+        "succeeded": true
+      },
+      {
+        "name": "think",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "think",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "think",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "update_reservation_flights",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 4,
+    "domain": "airline",
+    "task_id": 21,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi, I was hoping to make a change to my upcoming flight from JFK.",
+      "I can provide my user ID, it's daiki_lee_6144. As for the reservation ID, I don't have it with me right now.",
+      "Sure, I want to change the reservation under DF89BM.",
+      "I really need to get back home sooner due to a family emergency. Is there a way to switch to a nonstop flight on May 17, even if it means paying a change fee?",
+      "Is it possible to check if there\u2019s any way to pay a fee to make this change, specifically up to $100? I really need to get home sooner.",
+      "I see, that's unfortunate. Can you help me look into any other flight options on May 17 that might be closer to my needs?",
+      "I'd prefer direct flights, please.",
+      "Could you help me book the direct flight on HAT088 with Economy class?",
+      "It's just me, so no additional passengers. I'll use the Gift Card with a $262 balance for the payment, and I do not need travel insurance, thanks.",
+      "Yes, everything looks correct. Please go ahead with the booking.",
+      "Thank you so much for your help. That's all I needed! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "book_reservation"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      },
+      {
+        "name": "search_direct_flight",
+        "succeeded": true
+      },
+      {
+        "name": "book_reservation",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 5,
+    "domain": "airline",
+    "task_id": 35,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hello, I need to cancel my flight immediately. It\u2019s an emergency situation in the family, and I\u2019d like a full refund, please. My reservation number is PEP4E0.",
+      "My user ID is sophia_taylor_9065, and as I mentioned, it's due to a family emergency. I'm really hoping for a full refund under these circumstances.",
+      "I understand the policy, but given the family emergency, I'm really hoping you can make an exception this time. If a refund isn't possible, could you at least help me change my flight to May 22nd instead?",
+      "No, I don't want to be transferred. Since I can't change the date either, is there any way you can help me add insurance to the flight now, given the circumstances?",
+      "I understand this is challenging, but I really need some assistance due to the emergency. If there's any other way or exception that can be considered here, please let me know.",
+      "Alright, thank you for your help. I appreciate it. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "cancel_reservation"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 6,
+    "domain": "airline",
+    "task_id": 42,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi! I'm hoping to cancel a flight and get a refund.",
+      "Sure! My user ID is anya_garcia_5901, and the reservation ID is 3RK2T9. Unfortunately, I'm sick and unable to make the flight.",
+      "Actually, I did purchase insurance for my flight, so I should be eligible for a refund.",
+      "Yes, please, as I'm sure I purchased insurance for this flight. Thank you!"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "cancel_reservation"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "book_reservation"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      },
+      {
+        "name": "transfer_to_human_agents",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.5"
+  },
+  {
+    "case_num": 7,
+    "domain": "airline",
+    "task_id": 43,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi, I need to change the passenger name on a flight reservation.",
+      "Sure, my user ID is anya_garcia_5901 and the flight reservation ID is 3RK2T9.",
+      "I want to change the name from Mei Lee to Mei Garcia. The date of birth remains the same.",
+      "Yes, please proceed with the change.",
+      "Thank you, that's all I needed.###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_passengers"
+        ],
+        "object_phrase": "passenger",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      },
+      {
+        "name": "update_reservation_passengers",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 8,
+    "domain": "airline",
+    "task_id": 48,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi there, I need to make some changes to a flight reservation I have.",
+      "Certainly, my user ID is lucas_brown_4047, and the reservation ID is EUJUY6.",
+      "I'd like to change the dates for the flights, specifically to move them out by two days. Is there any flexibility regarding the basic economy restriction due to a special circumstance?",
+      "Yes, please. I would appreciate speaking with someone who could help, as my wife passed away yesterday."
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "update_reservation_baggages",
+          "update_reservation_flights",
+          "update_reservation_passengers"
+        ],
+        "object_phrase": "flight",
+        "confidence": "low"
+      },
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "flights",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_reservation_details",
+        "succeeded": true
+      },
+      {
+        "name": "transfer_to_human_agents",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.5"
+  },
+  {
+    "case_num": 9,
+    "domain": "retail",
+    "task_id": 3,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi, I'm wondering how many t-shirt options are currently available in your online store.",
+      "Sure, it's Yusuf Rossi, and my zip code is 19122.",
+      "Thanks for the information. I have some pending orders for small, v-neck t-shirts. Could you help me change them all to purple in the same size, and if possible, I prefer polyester?",
+      "I don't remember the order ID, but if you can find any other pending orders with small, v-neck t-shirts, I'd like to update them to the purple, small, polyester option as well.",
+      "Yes, please go ahead and make that change.",
+      "Great, thank you for your help.###STOP###"
+    ],
+    "obligations_extracted": [],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "list_all_product_types",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "think",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.2"
+  },
+  {
+    "case_num": 10,
+    "domain": "retail",
+    "task_id": 5,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi! I need to exchange a couple of items I purchased. Could you assist me with that?",
+      "Sure! My name is Mei Kovacs, and my zip code is 8020.",
+      "Let me check... Okay, my email is mei_kovacs_8020@gmail.com.",
+      "Hmm, that's strange. Unfortunately, I can't think of another email or zip code combination. Perhaps transferring me to a human agent would be best."
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "items",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      },
+      {
+        "name": "transfer_to_human_agents",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.5"
+  },
+  {
+    "case_num": 11,
+    "domain": "retail",
+    "task_id": 6,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi! I'd like to exchange a couple of items I recently received.",
+      "Sure, my name is Mei Kovacs and my zip code is 8020.",
+      "Let me try with my email: mei.kovacs@example.com.",
+      "Oh, sorry about that. Can we try again with the name: Mei Kovacs and zip code: 8020?",
+      "Can you try searching with the email address again? It should be mei.kovacs@example.com.",
+      "Let me double-check and get back to you on that. Meanwhile, could we focus on exchanging the desk lamp first?",
+      "Alright, I'll get back to you with the correct details soon. Thanks for your patience.",
+      "Thanks! Talk to you soon.",
+      "###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "items",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 12,
+    "domain": "retail",
+    "task_id": 10,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Need a refund.",
+      "mia.garcia2723@example.com",
+      "Don't have the order ID handy. Everything returned.",
+      "No. Swap refund to other payment. Dislike this one.",
+      "No, not a gift card. Other payment method from other order.",
+      "Hmm... do opposite. Refund that order to Visa.",
+      "Yes, exactly that.",
+      "Damn it! This is stupid! Want a human. Quickly!"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "refund",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "transfer_to_human_agents",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.5"
+  },
+  {
+    "case_num": 13,
+    "domain": "retail",
+    "task_id": 15,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi, I'd like to change the boot size for my pending order.",
+      "I'd rather not share my email. Is there another way to confirm my identity?",
+      "My name is Fatima Johnson, and my zip code is 78712.",
+      "I don't have the order ID with me, but I'd like to change the boot size to 8.",
+      "Yes, please change the boots to size 8 in synthetic material. That's all I needed to modify.",
+      "Thank you, that's all I needed. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_items"
+        ],
+        "object_phrase": "boot",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 14,
+    "domain": "retail",
+    "task_id": 21,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi! I'd like to exchange my shoes, and I have their ID as 4107812777. Could you assist me with that?",
+      "I\u2019m sorry, but I\u2019d rather not share my email right now. Can we work without it?",
+      "Alright, my name is Ethan Garcia, and I live in Denver. The zip code is 80280.",
+      "I don\u2019t have the order ID with me right now. Is it possible for you to find out the details? I\u2019d like to use my gift card to cover any charges.",
+      "Hmm, if that's the case, I might have mixed up the numbers. Could you also help with changing product 1656367028 to 1421289881 while you're at it? ",
+      "Yes, please go ahead and make that change. I\u2019d like to use my gift card for any extra charges.",
+      "Thank you! Could you let me know what my gift card balance is now?",
+      "Thanks for your help. That's all I needed to know. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "shoes",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 15,
+    "domain": "retail",
+    "task_id": 24,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi there! I was looking to cancel an order I made for a grill. Can you assist me with that?",
+      "Sure thing! My name is Sofia Hernandez, and I live in Seattle, WA, 98193.",
+      "Oh no, I can't seem to find the order ID right now. It's been a bit hectic. Is there another way you can look up the order?",
+      "After thinking about it, I think I\u2019ll keep the grill after all. Sorry for the back and forth! But could you help me instead by telling me about the two t-shirts I ordered? I'm curious about the materials they're made from.",
+      "I don't remember the exact order ID for the t-shirts off the top of my head. Would you be able to check which order might have them?",
+      "Thanks! And what about the second t-shirt, do you have details on it too?",
+      "Thanks for the info! I appreciate your help. That's all I needed to know for now. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 16,
+    "domain": "retail",
+    "task_id": 36,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi, I just placed an order, but I realized my card only has $1131 credit left. The order total is $1160+. Can you help?",
+      "Sure, my name is Daiki Sanchez, ZIP 46236, and email is daikisanchez1479@example.com.",
+      "Can I split the payment between two cards?",
+      "Alright, then what's the most expensive item and its price? Can I cancel it?",
+      "Yes, please remove the \"Action Camera\" from the order.",
+      "Can we switch all items to their cheapest options and try to get the total under $1131?",
+      "Yes, please proceed with switching to the cheapest options.",
+      "Sure, let's go with the next available option for the \"Patio Umbrella.\"",
+      "Great, that works. Thanks for the help! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_payment"
+        ],
+        "object_phrase": "payment",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "items",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": false
+      },
+      {
+        "name": "list_all_product_types",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "think",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": false
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 17,
+    "domain": "retail",
+    "task_id": 38,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi, I just ordered something but my card only has $950 left. The order is over $1100. Can you help split with another card?",
+      "Sure! My name is Daiki Sanchez, and I live in 46236. Can you help with splitting the payment?",
+      "No, I can't do that. What's the most expensive item and its price? Can I cancel it?",
+      "Yes, please cancel the \"Action Camera.\" Reason: ordered by mistake.",
+      "Great, thanks for your help! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_payment"
+        ],
+        "object_phrase": "card",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "cancel_pending_order",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 18,
+    "domain": "retail",
+    "task_id": 44,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi, I need some help with an order I placed.",
+      "It's Aarav Anderson, 19031.",
+      "I want to change the Desk Lamp from my order.",
+      "The order ID is #W9300146.",
+      "I'm looking to replace it with the cheapest Desk Lamp available.",
+      "Yes, please proceed with the exchange. Any price difference should go to a gift card. Could you also let me know how much I would get back in total?",
+      "Yes, everything is correct. Please go ahead with the exchange.",
+      "That's all, thank you for your help. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "it",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "calculate",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 19,
+    "domain": "retail",
+    "task_id": 55,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi there. Thank you for helping me. I'm a bit overwhelmed right now. I recently faced some unexpected financial difficulties, and I'm trying to see if I can cancel or return any orders I've made to ease some of the pressure. I just don't know where to start.",
+      "Sure thing, I can provide my email. I have two: silva7872@example.com and amelia.silva7872@example.com. Should I give both, or is just one okay?",
+      "Oh, thank you for that. I really appreciate your patience. Honestly, I'm feeling a bit flustered, and I can't seem to find the order ID right now. I've been searching through my emails, but everything is all over the place. Could you help me figure things out without it, if possible?",
+      "Thank you for finding those! Let's see... I think order #W2597054 was a big one, and I really need to check if that's returnable. I'm just hoping it hasn't been too long since I received it. It's so hard when everything feels like it's happening all at once.",
+      "Thanks so much for detailing that out for me. I think I definitely need to return the Air Purifier and the Smart Watch. They were quite pricey, and I could really use the funds right now. Is it possible to process the return for those two?",
+      "Yes, please. I would like to proceed with returning the Air Purifier and the Smart Watch. Thank you so much for your help!",
+      "Thank you so much for your help! It's such a relief to have that part taken care of. I really appreciate it. If I have more questions, I'll definitely reach out. Have a good day!###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "orders",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "Purifier",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "return_delivered_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 20,
+    "domain": "retail",
+    "task_id": 56,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi! I'm wondering when my air purifier is arriving.",
+      "Sure, my name is Ivan Hernandez, and my zip code is 92133.",
+      "Thank you for checking. That's all for now.",
+      "Thank you, you too! ###STOP###"
+    ],
+    "obligations_extracted": [],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.2"
+  },
+  {
+    "case_num": 21,
+    "domain": "retail",
+    "task_id": 57,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hello! I would like to know the status of my order W4284542. When is it expected to arrive?",
+      "Certainly, it's ivan_hernandez_6923@example.com.",
+      "Of course. My name is Ivan Hernandez and my zip code is 92133.",
+      "Since the order hasn't been shipped yet, I would like to cancel the air purifier included in it. Is that possible?",
+      "I would like to cancel the entire order, please. Could the refund be issued to a gift card?",
+      "In that case, I will keep the order as it is without any changes. Thank you for the information.",
+      "Thank you! Have a great day too! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": false
+      },
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 22,
+    "domain": "retail",
+    "task_id": 65,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi, I'd like to exchange a bookshelf I ordered for a camera, please.",
+      "Sure, my name is James Kovacs, and I live in San Jose, CA 95190.",
+      "I don't remember the order ID at the moment. Can you help me find it using my recent order history instead?",
+      "Thanks for the update. Once it's delivered, I'll get back in touch. Is there anything else I need to keep in mind while exchanging items?",
+      "Got it, thank you! I'll be in touch once my order is delivered. Have a great day!",
+      "###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "bookshelf",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 23,
+    "domain": "retail",
+    "task_id": 75,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi! I'd like to exchange a pair of wireless earbuds I purchased.",
+      "Sure, my name is Liam Moore and my email is liam.moore6985@example.com.",
+      "I don't have the order ID on me right now, but I know the earbuds have blue color, an 8-hour battery life, and IPX4 water resistance.",
+      "I confirm the details, but the new pair I want has black color, a 4-hour battery life, and isn't water resistant at all.",
+      "I confirm that I'm okay with the price difference and details provided. Please proceed with the exchange.",
+      "Thanks for your help. That's all I needed for now. ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "earbuds",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "exchange_delivered_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 24,
+    "domain": "retail",
+    "task_id": 77,
+    "trial": 0,
+    "state": "UNRESOLVED",
+    "fires": false,
+    "user_turns": [
+      "Hi there! I recently received a perfume I ordered and I'm loving it. I want to get the largest size available. Can you help me with that?",
+      "Sure! My name is Ivan Johnson and my zip code is 94183.",
+      "Yes, I'd like to proceed with getting the 100ml size. Can you help me place a new order, or should I exchange my current one for this size?",
+      "This sounds good to me. I'm ready to proceed with the exchange.",
+      "Great, thank you for your help! ###STOP###"
+    ],
+    "obligations_extracted": [],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "exchange_delivered_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": "4.2"
+  },
+  {
+    "case_num": 25,
+    "domain": "retail",
+    "task_id": 78,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "I'd like to change the address on my order #W5056519.",
+      "Sure, my email is yara.muller9246@example.com.",
+      "I'd like it changed to the same address as my order #W8277957.",
+      "Yes, please go ahead and make that change.",
+      "I'd also like to exchange an item in that same order.",
+      "I want to exchange the Makeup Kit, currently for light skin tone and a professional kit size, from Brand B to one for dark skin tone from Brand A.",
+      "You can use the same payment method on file. Please proceed with the exchange.",
+      "Yes, please modify the item in the pending order.",
+      "I need to cancel order #W5995614. It was placed by mistake.",
+      "Yes, please go ahead and cancel it.",
+      "###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "address",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "item",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "modify_pending_order_items"
+        ],
+        "object_phrase": "item",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_address",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "exchange_delivered_order_items",
+        "succeeded": false
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "cancel_pending_order",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 26,
+    "domain": "retail",
+    "task_id": 85,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hello, um, I\u2019d like to exchange a fleece jacket I got.",
+      "Yes, sure. It's yusuf.hernandez8836@example.com.",
+      "I'm sorry, but I don't remember or have the order ID with me right now.",
+      "Yes, I would like to change the item options if possible.",
+      "I'd like a large red fleece jacket, please, with a half zipper.",
+      "Yes, please proceed with the modification. Can you refund it to the original payment method?",
+      "Yes, everything is correct. Please go ahead.",
+      "No, that's all. Thank you for your help. ",
+      "###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "jacket",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 27,
+    "domain": "retail",
+    "task_id": 87,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi. Um, I have a question about my orders.",
+      "Oh, okay. Um, my name is Yusuf Hernandez and my email is yusuf.hernandez8836@example.com.",
+      "I, uh, want to update the address for all my pending orders.",
+      "I'd like to change it to the Washington DC address I used in one of these orders.",
+      "Yes, that's the one. Please go ahead with that.",
+      "Um, can you also update my default address to this one?",
+      "Yes, that's correct. Please update it.",
+      "###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "address",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_email",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_address",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_address",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_address",
+        "succeeded": true
+      },
+      {
+        "name": "modify_user_address",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 28,
+    "domain": "retail",
+    "task_id": 89,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hey, I'm looking for the cheapest mechanical keyboard available right now. Can you help me with that?",
+      "I don't remember the order id, but I want to know if there's a cheaper mechanical keyboard available. Could you check if it's under $200?",
+      "Sure! My name is Raj Santos and my zip code is 98157.",
+      "I wish I could remember the order details, but unfortunately, I can't. Can you look it up and see if there's a mechanical keyboard option under $200 for me?",
+      "Thanks for checking that! Since it's not under $200, I'll go ahead and return the current one. Could you help me with the return process?",
+      "I don't have the order ID on hand, but yes, I'd like to return the mechanical keyboard. Could you refund it to the original payment method, PayPal?",
+      "Yes, everything looks correct. Please go ahead with the return. Thank you for your help!",
+      "Great, thanks for processing that. I appreciate your help! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "keyboard",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "return_delivered_order_items",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 29,
+    "domain": "retail",
+    "task_id": 100,
+    "trial": 0,
+    "state": "NEVER_ATTEMPTED",
+    "fires": true,
+    "user_turns": [
+      "Hi there! I need to make some exchanges on a couple of items I ordered for my kid. Could you help with that?",
+      "I actually don't remember my email associated with this order right now. Is there anything else we can do?",
+      "Sure thing! My name is Sofia Li and my zip code is 78260.",
+      "I don't have the order ID with me right now, but I would like to exchange the bicycle for a larger frame size for my kid. I also need to exchange the jigsaw puzzle for one with more pieces.",
+      "For the jigsaw puzzle, I'd like the same difficulty but with 1000 more pieces, and if there\u2019s an art-themed option, I\u2019d prefer that over animals. As for the bicycle, I need a larger frame size. For both items, I'd like to use a visa card for any payment or refund.",
+      "Yes, those options sound good. Please proceed with the exchanges using the visa card ending in 6791. Thank you!",
+      "Great, thanks for that! I also need to exchange my camera to one with slightly lower resolution, but I want to keep all the other features the same.",
+      "Got it, I can handle that separately then. One more thing, I need to cancel the skateboard order. Can you help with that?",
+      "Actually, I'll take care of cancelling this order myself on the website. Thanks for your help today!",
+      "Thank you! You too. Goodbye! ###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "bicycle",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "exchange_delivered_order_items",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      }
+    ],
+    "unresolved_clause": null
+  },
+  {
+    "case_num": 30,
+    "domain": "retail",
+    "task_id": 112,
+    "trial": 0,
+    "state": "SUCCESS_EVIDENCE_PRESENT",
+    "fires": false,
+    "user_turns": [
+      "Hi... I'd like to make some changes to a couple of orders, if possible.",
+      "My name is Yara Silva and my zip code is 77159.",
+      "I'm afraid I don't have the order IDs at the moment. But I want to update the shipping address for my laptop order to my NYC address and also make some changes to the laptop's specifications.",
+      "Yes, I'd like to change the laptop to an i5 processor, with 256GB SSD storage, and in space grey color, please. And yes, the shipping address should be the one in NYC.",
+      "Yes, I'd like to proceed with those changes, please. Can the refund go back to the original payment method?",
+      "Thank you. One more thing... I\u2019d like to exchange my watch for one with a black dial color, but I\u2019d like to keep the leather strap.",
+      "Yes, please, I'd like to proceed with the exchange. Can the refund also go back to the original payment method?",
+      "Alright, thank you... I guess that's all for now.###STOP###"
+    ],
+    "obligations_extracted": [
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "shipping address",
+        "confidence": "high"
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "find_user_id_by_name_zip",
+        "succeeded": true
+      },
+      {
+        "name": "get_user_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "get_order_details",
+        "succeeded": true
+      },
+      {
+        "name": "list_all_product_types",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_address",
+        "succeeded": true
+      },
+      {
+        "name": "modify_pending_order_items",
+        "succeeded": true
+      },
+      {
+        "name": "get_product_details",
+        "succeeded": true
+      },
+      {
+        "name": "exchange_delivered_order_items",
+        "succeeded": false
+      }
+    ],
+    "unresolved_clause": null
+  }
+]

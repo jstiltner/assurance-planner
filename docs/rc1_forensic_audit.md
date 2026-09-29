@@ -424,6 +424,7 @@ supports the construct's predictiveness, not any particular production implement
 | "28 cases are reference label errors" | §6 decomp doc | **NARROWED** — ambiguous; more likely conditional task paths or scope mismatch |
 | "RC1 rejected on three criteria" | §8 final report | **NARROWED** — rejected on two valid criteria; third is INVALID |
 | H2 (representation failure) | §7 decomp doc | **NARROWED TO H2a** — oracle shows existence, not deployability |
+| "Within-task lift 2.339× bounds the construct's value" | §10 this doc | **UPHELD, with a baseline attached** — see §16.1; a no-model null rule reaches only 1.171× on the same outcome, so the construct is real. RC1 itself (1.101×) falls below that null rule |
 
 ---
 
@@ -462,8 +463,41 @@ specified unless there is a specific production-visible detection approach that 
 invalidated by this audit. If one is proposed, it should survive adversarial challenge
 against the 12 hard cases from the original brief before being written.
 
+### 16.1 RESOLVED — no successor (`docs/rc1_successor_probe.md`)
+
+The probe was run. A production-visible corrective signal does exist: in 12/12 oracle-confirmed
+harm cases, a read response exposed the state field that determines which write class is legal,
+before the agent's first write. But that does not rescue the construct.
+
+A **null rule** carrying no obligation model at all — "no successful write anywhere in the
+trace" — was benchmarked against RC1 and against the construct. Computed in one code path on
+the deployable outcome (reference FAIL), within-task:
+
+| rule | volume | within-task lift |
+|---|---|---|
+| ORACLE construct | 17.0% | **2.339×** |
+| NULL rule (no successful write) | 24.1% | **1.171×** |
+| RC1 (production detector) | 25.3% | **1.101×** |
+
+**Consequence for §10: the 2.339× ceiling is UPHELD, not narrowed.** The construct is worth
+roughly twice the null rule on the same outcome, so it is not an artefact of trajectories that
+did nothing, and H2a stands. **The damaging result is for RC1 itself: it lands below the null
+rule (1.101× vs 1.171×).** The extractor also contributes only 0.2 precision points over the
+null rule (40.2% → 40.4%), so its measurable effect is volume suppression, not detection.
+Supporting evidence: the obligation-derived features (`n_obligations`, `n_unfired_obl`) are
+flat across the right-reason/wrong-reason partition, which is instead separated by agent
+identity (53.4% vs 33.4% gpt-4o) and is mostly between-task (15 of 127 tasks on both sides).
+
+Note the null rule is not new: `required_conjunct_scoping.md` §6.4 recorded pre-outcome and
+label-blind that 22.1% of trajectories contain no write call, and cited that volume as
+disqualifying. The probe confirms a preregistered objection.
+
+**Standing addition to the gate set:** any future rule of this family must beat the null
+rule on the deployable outcome before its machinery is credited. RC1 would have been rejected
+on that criterion alone, at zero inference cost, before A1 or A2 were computed.
+
 ---
 
 *Reproduce all quantitative claims: `scripts/rc1_validation.py` (join integrity) →
 `scripts/rc1_oracle_audit.py` (§1, §10, §11, §12) → `scripts/rc1_mechanism_audit.py`
-(§8) → `scripts/rc1_label_audit.py` (§12).*
+(§8) → `scripts/rc1_label_audit.py` (§12) → `scripts/rc1_successor_probe.py` (§16.1).*
