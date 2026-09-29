@@ -318,6 +318,24 @@ Nothing implemented. This records the shape of the solution only.
 
 The minimal invariants, in ascending order of cost:
 
+> **Correction (2026-09-29), in place.** Invariants 1 and 3 below are stated in terms of
+> information the benchmark holds rather than information a deployed evaluator could have.
+> The deployability audit in `docs/production_signal_audit.md` finds:
+> (a) **invariant 3 is oracle leakage and is withdrawn** -- `infeasible` exists only as a
+> substring of the benchmark task id, `annotations.csv` has no such column, and for that task
+> family the flag very nearly *is* the reference verdict. The production-valid replacement
+> needs no flag: the agent called `report_infeasible` while asserting the task was
+> "successfully completed", a self-contradiction visible from the agent's own tool call. It
+> also reaches the 57 `report_infeasible` sessions *outside* the infeasible family that a
+> flag-based rule could never see.
+> (b) **invariant 1 is narrowed.** No task-type label exists in the benchmark; task type must
+> be *inferred* from the goal text, imperfectly. And "no state-changing action occurred" is
+> not a sound failure test -- a modification goal can be legitimately satisfied with no action
+> when the desired state already holds (`visualwebarena.133`). The surviving rule keys on the
+> agent's explicit negative self-report instead.
+> Invariants 2, 4, 5 and 6 are unaffected in their diagnostic content; invariant 2 is
+> relabelled application-specific there.
+
 1. **Abstention on a modification goal is not success.** If the goal is content-modifying and
    the trajectory contains no state-changing action, the verdict is failure regardless of what
    the agent said. Fixes `webarena.723` and `.726` outright. Needs a task-type label the
@@ -435,6 +453,14 @@ invariants need no new observation channel and no model -- only a task-type labe
 infeasibility flag the benchmark already stores. The current architecture spends money on a
 second LLM opinion to adjudicate questions like "did the final URL change".
 
+> **Correction (2026-09-29), in place.** "only a task-type label and an infeasibility flag the
+> benchmark already stores" is wrong twice over: the benchmark stores neither as a field, and
+> the infeasibility flag would be oracle leakage if it did. See the correction above at the
+> invariant list and `docs/production_signal_audit.md` section 3. The claim that
+> deterministic-first matters more than expected is unaffected -- but the checks must be built
+> from the agent's own tool calls and the goal text, which is more work than "pass along a
+> label", and none of them is yet validated on held-out data.
+
 **Q5. Is "shared unresolved error" one phenomenon?** No. It is at least six, spanning four
 distinct pipeline layers, with different and non-overlapping fixes. Treating the cell as a
 single quantity -- which is what the 2x2 did, and what Outcome E would have tested -- was
@@ -465,6 +491,16 @@ further interpretation.
 
 Ordered by cost, cheapest first. This is a description of what the 15 cases imply, not a plan
 that has been agreed.
+
+> **Correction (2026-09-29), in place.** This section is superseded by
+> `docs/production_signal_audit.md` sections 8 and 11, and by the Commit 3 architecture gate.
+> Two defects: item 1 is **partly oracle leakage** (the feasibility half), and the whole list
+> was presented as "the architecture this evidence supports" when the evidence supported the
+> *diagnosis* only -- no component here has been validated on data outside the 15 cases it was
+> derived from. Item 3's side-effect half is now **dead**: the cached `<side>` tags answer a
+> different question ("unnecessary actions that *could lead to* side effects") and agree with
+> the optimality tag up to 91%, against a 6.5% expert base rate. Items 2, 4 and 5 survive in
+> narrowed form.
 
 1. **A task-type and feasibility label on every case, carried into the judge's input.** Not a
    model. A field. It makes invariants 1 and 3 possible and would have changed 3 of 15.
@@ -546,6 +582,15 @@ No quantitative result in any earlier document is altered by this review.
 
 **Add the task-type and infeasibility labels to the judge's input and implement invariants 1-3
 as a deterministic pre-check, then re-score the 1,106-case corpus offline.**
+
+> **Correction (2026-09-29), in place.** The first half of this recommendation is withdrawn:
+> the infeasibility label is oracle leakage and the task-type label does not exist as a field.
+> See `docs/production_signal_audit.md` section 3 and 11. The second half -- build
+> deterministic pre-checks and re-score the corpus offline -- survives and has been carried
+> out as a frozen rule set in `scripts/arb_production_signals.py`, but it must be scored on a
+> held-out split that excludes these 15 cases and their same-task siblings, which this
+> document was not in a position to specify. **This document may not be cited as evidence
+> that any pre-check works.** It is discovery data.
 
 It requires no new inference spend, no new evaluator, and no new observation channel; it uses
 fields the benchmark already stores; it is testable against the existing archive; and it is
