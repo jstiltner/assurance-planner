@@ -152,6 +152,118 @@ MECHANISM_DISPOSITIONS = {
 }
 
 # ---------------------------------------------------------------------------
+# RULE IDENTITIES
+#
+# What each rule actually fires on, in the words of its source document. This
+# block exists because FORBIDDEN cannot catch a fabricated *description*: a
+# paraphrase like "deterministic signal on agent output" contains no banned
+# token, cites no superseded number, and reads as competent summary. The
+# portfolio case-study page shipped exactly that for R1, R2 and R4 before an
+# audit caught it — every number on the page traced to source, but the prose
+# around four of them had been written from memory.
+#
+# The check is therefore positive, not prohibitive: a document that names a
+# rule must also contain one of its `discriminators` somewhere. A writer who
+# knows what R1 fires on will reach for `report_infeasible` unprompted; one
+# working from memory will not.
+#
+# `source` is authoritative. When a rule's description and this block
+# disagree, this block is wrong — fix it here rather than softening the page.
+# ---------------------------------------------------------------------------
+
+RULE_IDENTITIES = {
+    "R1": {
+        "name": "self-contradictory infeasibility claim",
+        "fires_on": (
+            "the agent calls `report_infeasible` while simultaneously asserting "
+            "the task was completed"
+        ),
+        "discriminators": ["report_infeasible", "infeasib"],
+        "fires": "27 of 1,259 (2.1%)",
+        "disposition": "evidence half REJECTED (0.51× lift, inverted); escalation half survives",
+        "care": (
+            "6 helped / 14 harmed is a *counterfactual* — R1 was never given veto "
+            "power. Say 'had it been a veto'. Its escalation half is real: 33.3% "
+            "evaluator error on firings vs 15.2% elsewhere."
+        ),
+        "source": "docs/repair_validation_results.md",
+    },
+    "R2": {
+        "name": "negative self-report on an imperative modification goal",
+        "fires_on": (
+            "the agent reports it did not accomplish a goal phrased as an "
+            "imperative modification"
+        ),
+        "discriminators": ["self-report", "self report", "imperative"],
+        "fires": "13 eligible of 1,259 (1.0%); 6 changed a verdict",
+        "disposition": "ACCEPTED and UNDERPOWERED-REGARDLESS, as preregistered",
+        "care": (
+            "13 eligible and 6 verdict changes are different numbers; n=6 is the "
+            "rule-of-three harm-bound denominator (39.3%), not the firing count. "
+            "On the other 7 the evaluator had already said FAIL."
+        ),
+        "source": "docs/repair_validation_results.md",
+    },
+    "R3": {
+        "name": "unverifiable image premise",
+        "fires_on": (
+            "the goal names an image and the evaluator's input contains no image — "
+            "structural and answer-independent"
+        ),
+        "discriminators": ["image"],
+        "fires": "133 of 1,259 (10.6%)",
+        "disposition": "ACCEPTED — both preregistered tests pass, both arms",
+        "care": (
+            "It concentrates error, it does not correct it: 99 of 133 escalated "
+            "cases were already right. The answer-independence of the firing "
+            "condition is what keeps the result from being circular — state it."
+        ),
+        "source": "docs/repair_validation_results.md",
+    },
+    "R4": {
+        "name": "terminal search-results route",
+        "fires_on": "the trajectory ends on a search-results page",
+        "discriminators": ["search-result", "search result", "search page"],
+        "fires": "118 of 1,259 (9.4%)",
+        "disposition": "REJECTED as an assurance signal",
+        "care": (
+            "The 1.20× enrichment for reference-fail is real. It is the "
+            "*evaluator*-level signal that is absent: 16.1% vs 15.5%. R4 tells you "
+            "about the agent, not the evaluation."
+        ),
+        "source": "docs/repair_validation_results.md",
+    },
+    "RC1": {
+        "name": "static required-conjunct matching",
+        "fires_on": (
+            "extract the observable actions a task obliges the agent to perform; "
+            "fire if any are absent from the trajectory"
+        ),
+        "discriminators": ["required-conjunct", "required conjunct", "conjunct", "obligation"],
+        "fires": "501 of 1,980 (25.3%)",
+        "disposition": "FAIL — A1 and A2-traj both failed on the fresh corpus; A3 passed",
+        "care": (
+            "The extractor passing (28/30) and the rule failing are separate facts. "
+            "The oracle's 2.339× shows the latent construct carries signal; it does "
+            "not show a production-valid detector of it exists."
+        ),
+        "source": "docs/rc1_successor_probe.md, docs/rc1_final_report.md",
+    },
+    "null rule": {
+        "name": "no successful write",
+        "fires_on": "the trajectory contains no successful write of any kind",
+        "discriminators": ["successful write", "write anything", "wrote anything"],
+        "fires": "24.1% volume — fails A1 by construction",
+        "disposition": "EXPLORATORY — preregistered as disqualified before computation",
+        "care": (
+            "It is a floor, not a competitor. Its 1.171× exceeding RC1's 1.101× is "
+            "a verdict on RC1, not a proposal to deploy the null rule."
+        ),
+        "source": "docs/rc1_successor_probe.md",
+    },
+}
+
+# ---------------------------------------------------------------------------
 # FORBIDDEN PHRASES
 # Each entry: (pattern, reason, severity)
 # severity: ERROR = must fix before publish, WARN = review carefully

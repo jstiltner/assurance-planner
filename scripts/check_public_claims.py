@@ -24,7 +24,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-from public_claim_ledger import FORBIDDEN, CANONICAL
+from public_claim_ledger import FORBIDDEN, CANONICAL, RULE_IDENTITIES
 
 # Public-facing artifacts: linted strictly
 PUBLIC_TARGETS = [
@@ -87,6 +87,46 @@ def _line_is_exempt(line: str, is_synthesis: bool = False) -> bool:
     return False
 
 
+def _check_rule_identities(path: pathlib.Path, text: str) -> list[dict]:
+    """A document that names a rule must also say what the rule fires on.
+
+    Document-level, not line-level: the discriminator may appear in a table cell,
+    a footnote, or three paragraphs away. The failure this catches is a document
+    that describes R1 without ever mentioning `report_infeasible` — which is what
+    writing from memory looks like, since a paraphrase keeps the label and drops
+    the only token that identifies the rule.
+    """
+    # Collapse whitespace before matching. Prose wraps mid-phrase — JSX especially,
+    # where "did the agent write / anything?" spans two source lines — and a
+    # discriminator split across a newline is still a discriminator to a reader.
+    low = re.sub(r"\s+", " ", text).lower()
+    # "R1–R4" refers to the rules collectively and carries no obligation to
+    # describe any one of them; only a document that singles a rule out has to
+    # say what it fires on. Mask ranges before looking for individual names.
+    searchable = re.sub(r"\bR\d\s*(?:[–\-—]|to|through)\s*R\d\b", " ", text, flags=re.I)
+
+    violations = []
+    for rule, ident in RULE_IDENTITIES.items():
+        # Word-bounded so "R1" does not match "R10" or a hex string.
+        if not re.search(rf"\b{re.escape(rule)}\b", searchable, re.I):
+            continue
+        if any(d.lower() in low for d in ident["discriminators"]):
+            continue
+        violations.append({
+            "file": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
+            "line": 0,
+            "severity": "ERROR",
+            "phrase": f"{rule} identity",
+            "message": (
+                f"Names {rule} but never says what it fires on. "
+                f"{rule} is {ident['name']}: {ident['fires_on']}. "
+                f"Expected one of {ident['discriminators']}. "
+                f"Source: {ident['source']}."
+            ),
+        })
+    return violations
+
+
 def _check_file(path: pathlib.Path, is_synthesis: bool = False,
                 include_warns: bool = False) -> list[dict]:
     if not path.exists():
@@ -95,7 +135,7 @@ def _check_file(path: pathlib.Path, is_synthesis: bool = False,
 
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
-    violations = []
+    violations = _check_rule_identities(path, text)
 
     for pattern, reason, severity in FORBIDDEN:
         if is_synthesis:
@@ -155,9 +195,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--warn-only", action="store_true",
                         help="Also report WARN-level items")
+    parser.add_argument("--page", nargs="+", metavar="FILE", default=[],
+                        help="Check an external page (e.g. portfolio .tsx components) for "
+                             "rule-identity violations. All FILEs are concatenated and "
+                             "checked as one document, since a page is one document to a "
+                             "reader even when it is many files on disk.")
     args = parser.parse_args()
 
     all_violations = []
+
+    if args.page:
+        paths = [pathlib.Path(p).resolve() for p in args.page]
+        missing = [p for p in paths if not p.exists()]
+        if missing:
+            print(f"ERROR: no such file: {missing[0]}")
+            return 1
+        joined = "\n".join(p.read_text(encoding="utf-8") for p in paths)
+        all_violations.extend(_check_rule_identities(paths[0].parent, joined))
+
     for path in PUBLIC_TARGETS:
         vios = _check_file(path, is_synthesis=False, include_warns=args.warn_only)
         all_violations.extend(vios)
