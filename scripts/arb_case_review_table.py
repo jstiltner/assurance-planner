@@ -163,7 +163,8 @@ JUDGMENTS = {
         deterministic_verifiability="UNKNOWN",
         minimal_invariant="none -- the disagreement is about whether a true negative answer counts as completion",
         prompt_fix_candidate="no",
-        richer_representation_candidate="no",
+        richer_representation_candidate="no -- AER's caption contains the full text of both "
+                                        "reviews, so its verdict was well supported by its input",
         alternate_judge_candidate="no -- 7 of 8 wrong, and the 1 'correct' verdict argued from "
                                   "optimality, not from the success criterion",
         human_review_needed="yes -- reference adjudication, not evaluator qualification",
@@ -183,7 +184,9 @@ JUDGMENTS = {
         deterministic_verifiability="DETERMINISTICALLY VERIFIABLE",
         minimal_invariant="final URL matches the place/detail route, not the search route",
         prompt_fix_candidate="yes -- for navigation goals, require terminal URL evidence",
-        richer_representation_candidate="partial -- 1 of 5 axtree judges caught it",
+        richer_representation_candidate="no -- the caption already contained the final search "
+                                        "URL and a left panel headed 'Search Results'; the axtree "
+                                        "judges were not better informed, only better reasoned",
         alternate_judge_candidate="weak -- 1 of 8 correct",
         human_review_needed="no",
         confidence="high",
@@ -281,7 +284,8 @@ JUDGMENTS = {
         deterministic_verifiability="DETERMINISTICALLY VERIFIABLE",
         minimal_invariant="final URL matches the place/detail route, not the search route",
         prompt_fix_candidate="yes",
-        richer_representation_candidate="partial -- 2 of 5 axtree judges caught it",
+        richer_representation_candidate="no -- same as #9; the discriminating evidence was in "
+                                        "AER's own caption and final URL",
         alternate_judge_candidate="weak -- 2 of 8 correct",
         human_review_needed="no",
         confidence="high",
