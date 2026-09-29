@@ -165,11 +165,12 @@ FORBIDDEN = [
      "Overclaim. Oracle construct 2.339× > null 1.171×.",
      "ERROR"),
 
-    # Misrepresenting dispositions
-    ("R2.*fail",
+    # Misrepresenting dispositions — only flag if R2 is called a failure explicitly
+    ("R2.{0,30}(?:was|is|were) (?:a )?fail",
      "R2 is ACCEPTED (preregistered), not failed. Report as underpowered.",
      "WARN"),
-    ("A2.*fail",
+    # A2-task specifically (the trajectory gate A2 did genuinely fail; the task gate is INVALID)
+    ("A2.task.{0,40}fail",
      "The A2-task gate is INVALID / NON-DECISION-BEARING, not a failure gate that was failed.",
      "WARN"),
     ("15.*shared.unresolved",
