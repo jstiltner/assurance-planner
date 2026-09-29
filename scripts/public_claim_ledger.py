@@ -365,6 +365,15 @@ FORBIDDEN = [
     ("semantic machinery is useless",
      "Overclaim. Oracle construct 2.339× > null 1.171×.",
      "ERROR"),
+    (r"representation failure,? not (?:an )?(?:empty )?abstraction",
+     "Struck at canonical freeze. The oracle establishes that the latent construct carries "
+     "signal; it does not establish that a production-valid representation of it exists. "
+     "The original phrasing lets a reader conclude the abstraction was proven and only the "
+     "engineering was unfinished. It was not. See docs/canonical_copy.md.",
+     "ERROR"),
+    (r"not an empty abstraction",
+     "Struck at canonical freeze. See 'representation failure, not abstraction failure'.",
+     "ERROR"),
 
     # Compressing heterogeneous dispositions to a single positive
     ("one positive result",

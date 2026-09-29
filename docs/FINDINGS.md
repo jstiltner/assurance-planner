@@ -114,9 +114,10 @@ non-decision-bearing and not treated as a failure gate.
 | Null rule (no successful write; no model) | 1.171× | **[EXP]** — exploratory, preregistered as disqualified |
 | RC1 (production detector) | **1.101×** | **[PRE/FRESH]** |
 
-The target construct contained real signal that RC1 failed to recover (representation
-failure, not abstraction failure). RC1 also fell below a null baseline requiring no
-obligation model. The oracle is not a forecast; the null rule fails the volume gate at
+The target construct contained real signal that RC1 failed to recover. The oracle
+establishes that the latent construct carries signal; it does not establish that a
+production-valid representation of it exists. RC1 also fell below a null baseline
+requiring no obligation model. The oracle is not a forecast; the null rule fails the volume gate at
 24.1% and was preregistered as disqualified before any computation.
 
 ![Figure 3](figures/fig3_lift_comparison.png)
@@ -136,9 +137,14 @@ below the reference-conditioned figure. Blanket FAIL adjudication non-positive f
 alternates ordered by pooled φ the same way as their own sensitivity; the a-priori
 independence argument did not predict measured correlation.
 
-**F4 — A generic deterministic pre-check architecture.** *Not supported at n=4.* R1: rejected
-(0.51× inverted signal; counterfactual veto 6 helped / 14 harmed). R4: rejected (0.6-point
-evaluator-error difference; tells you about the agent, not the evaluation).
+**F4 — A generic deterministic pre-check architecture.** *Not supported at n=4.* R1 (fires when
+the agent calls `report_infeasible` while asserting the task was completed): rejected as
+evidence against success — 0.51× lift, inverted, and 17 of 27 firings are true successes. Had
+it been given veto power it would have helped 6 and harmed 14; it never was. Its escalation
+half survives, narrowly: 33.3% evaluator error on firings against 15.2% elsewhere. R4 (fires
+when the trajectory ends on a search-results page): rejected — the 1.20× enrichment for
+reference-fail is real, but evaluator error is 16.1% on firings against 15.5% elsewhere, a
+0.6-point difference. R4 tells you about the agent, not the evaluation.
 
 **F5 — Static required-conjunct/tool-class matching.** *Rejected cross-corpus.* RC1 failed
 both binding gates on fresh τ-bench data while its extractor passed 28/30 — the rule, not
@@ -174,7 +180,7 @@ a verdict.
 | C3 | Predeclaration changed the headline | 0.543 vs 0.759 | **[PRE vs EXP]** | One corpus, 8 pairs | Post-hoc figure is oracle selection | "The predeclared pair ranked last of eight (0.543); post-hoc selection would have reported 0.759 in an identical report." |
 | C4 | Reference-conditioned recovery ≠ deployable | 0.543 vs 0.366/0.465 | **[EXP]** | One pair, one corpus | Exploratory | "P(alt correct \| primary wrong) = 0.543; operational overturn precision 0.366 / 0.465." |
 | C5 | Error directions must be separated | 32 vs 130; pooled φ 6.7×→1.6× | **[EXP]** | One corpus | Exploratory | "False alarms outnumbered missed failures 130 to 32; pooled metrics were dominated by the false-alarm stratum." |
-| C6 | Deterministic pre-checks: mixed results | R1–R4 on 1,260 held-out | **[HO]** | 4 rules, one corpus | n=4; R2 underpowered | "Two of four failed held-out evaluation; one passed but is underpowered (rule-of-three harm bound 39.3% at n=6); one passed as an escalation signal." |
+| C6 | Deterministic pre-checks: mixed results | R1–R4 on 1,260 held-out (1,259 scored) | **[HO]** | 4 rules, one corpus | n=4; R2 (negative self-report on an imperative modification goal) had 13 eligible cases and 6 verdict changes — its 39.3% harm bound is rule-of-three at n=6, not a firing count | "Two of four failed held-out evaluation; one passed but is underpowered (rule-of-three harm bound 39.3% at n=6); one passed as an escalation signal." |
 | C7 | Evidence-gap escalation has held-out support | R3: 25.6% vs 14.4% | **[HO]** | One rule | 99/133 already correct; corrects nothing | "R3 identified a 133-case subset with 25.6% evaluator error vs 14.4% elsewhere; 99 of 133 were already correct." |
 | C8 | RC1 failed fresh-corpus validation | 25.3% vol, 1.165× lift, 28/30 extractor | **[PRE/FRESH]** | One rule, two domains | 1.4% reference noise floor | "RC1 failed both binding gates on τ-bench while its extractor passed at 28/30 — rule failure, not parsing failure." |
 | C9 | The construct was not empty | Oracle 2.339× vs RC1 1.101× | **[ORA + PRE]** | τ-bench | Oracle is undeployable; oracle itself fails volume gate | "Reconstructed with benchmark-authoritative actions, the construct carried 2.339× lift; the production detector recovered it at 33.1% precision / 49.3% recall." |

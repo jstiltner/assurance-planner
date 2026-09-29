@@ -289,8 +289,9 @@ def fig3_lift_comparison(out_path):
     # Baseline = 1.0
     ax.axhline(1.0, color="#333333", linewidth=1.0, linestyle="--", label="No lift (1.0×)")
 
-    # Volume gate annotation
-    ax.text(2.5, 1.03, "A1 volume gate: <15%\n(all three fail at 17–25%)",
+    # Volume gate annotation. Sits in the empty upper-right quadrant: at y=1.03 it
+    # collided with RC1's multi-line value label.
+    ax.text(2.45, 2.15, "A1 volume gate: <15%\n(all three fail at 17–25%)",
             fontsize=7.5, color="#888888", ha="right")
 
     for i, (lift, evd) in enumerate(zip(lifts, evidence)):
@@ -308,12 +309,14 @@ def fig3_lift_comparison(out_path):
     )
     ax.legend(fontsize=9)
     ax.tick_params(labelsize=8)
+    # The x tick labels are three lines tall; -0.04 put this on top of them.
     fig.text(
-        0.5, -0.04,
+        0.5, -0.20,
         "The oracle construct is not deployable (benchmark-authoritative actions, class D). "
         "The null rule fails the volume gate and was preregistered as disqualified.\n"
         "RC1 is the production-visible detector: it fell below the null rule on the deployable outcome.\n"
-        "The gap 2.339× → 1.101× shows a representation failure, not an empty abstraction. "
+        "The gap 2.339× → 1.101× shows the latent construct carries signal RC1 did not recover. "
+        "It does not show a production-valid representation exists.\n"
         "Does not support 'build a more semantic RC1.'",
         ha="center", fontsize=7.5, style="italic", color="#444444"
     )

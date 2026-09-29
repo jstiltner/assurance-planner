@@ -55,10 +55,15 @@ RC1 failed two binding preregistered gates on τ-bench (1,980 records, 165 tasks
 25.3% against a <15% ceiling; trajectory lift 1.165× against a ≥1.50× bar. The extractor
 passed its label-blind audit at 28/30. On the deployable outcome, within-task: oracle
 construct 2.339×, null rule requiring no model 1.171×, RC1 1.101×. The detector fell
-below a no-model baseline — a representation failure, not an empty abstraction.
+below a no-model baseline. The oracle establishes that the latent construct carries signal;
+it does not establish that a production-valid representation of it exists.
 
 **What survived (R3):** An explicit "required evidence is absent" state had held-out support
-as an escalation signal (25.6% vs 14.4% evaluator error on a 133-case subset). It corrects
+as an escalation signal (25.6% vs 14.4% evaluator error on a 133-case subset). R3 fires on a
+structural, answer-independent condition — the goal names an image and the evaluator's input
+contains none — and that condition was fixed before its error rate was known. That is what
+keeps the result from being circular: any rule that escalates cases a judge finds hard will
+pass a test of the form "is the judge worse on the escalated subset". It corrects
 nothing itself; 99 of 133 escalated cases were already correct. Its value depends entirely
 on review cost.
 
