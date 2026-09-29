@@ -20,15 +20,27 @@ DEFAULT_FILES = [
 records = load_corpus(TRAJ_DIR)
 
 # Load raw to extract reward (first reward read in this pipeline)
+#
+# The join key MUST include agent.  task_id/trial/domain collide across the two
+# agents: both agent files cover the same task_ids, and gpt-4o's trials 0-3 are a
+# subset of sonnet's 0-7.  Keying without agent silently overwrote all 660 gpt-4o
+# rewards with sonnet's.  The collision assertion below makes a recurrence loud.
 raw_by_key = {}
+n_raw = 0
 for fname in DEFAULT_FILES:
     path = f"{TRAJ_DIR}/{fname}"
     with open(path, encoding="utf-8") as f:
         raw_data = json.load(f)
     domain = "airline" if "airline" in fname else "retail"
+    agent = "gpt-4o" if fname.startswith("gpt-4o") else "sonnet-3.5-new"
     for raw in raw_data:
-        key = (int(raw["task_id"]), int(raw["trial"]), domain)
+        key = (int(raw["task_id"]), int(raw["trial"]), domain, agent)
+        assert key not in raw_by_key, f"duplicate reward key: {key}"
         raw_by_key[key] = float(raw.get("reward", float("nan")))
+        n_raw += 1
+assert len(raw_by_key) == n_raw == len(records), (
+    f"join key is not 1:1 -- keys={len(raw_by_key)} raw={n_raw} records={len(records)}"
+)
 
 # RC1 (no reward)
 results = run_corpus(records)
@@ -36,8 +48,9 @@ results = run_corpus(records)
 # Join
 joined = []
 for r, res in zip(records, results):
-    key = (r.task_id, r.trial, r.domain)
-    reward = raw_by_key.get(key, float("nan"))
+    key = (r.task_id, r.trial, r.domain, r.agent)
+    assert key in raw_by_key, f"unmatched record: {key}"
+    reward = raw_by_key[key]
     joined.append({
         "task_id": r.task_id,
         "trial": r.trial,

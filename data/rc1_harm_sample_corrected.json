@@ -1,0 +1,695 @@
+[
+  {
+    "key": [
+      64,
+      0,
+      "retail",
+      "gpt-4o"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "camera",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "modify_pending_order_items"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_product_details",
+      "modify_pending_order_items"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'camera' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      "Hi there! I was hoping to exchange my camera for one with higher resolution and that is waterproof.",
+      "Sure, my name is James Sanchez, and I live in Chicago, 60623.",
+      "I'm sorry, but I don't have the order ID with me at the moment.",
+      "I would like to exchange it for the camera with the highest resolution that is also waterproof. Can you let me know what's available within the same price range?",
+      "I'll go for the 4K Resolution, Waterproof option in Black.",
+      "Yes, please proceed with the exchange.",
+      "No, that covers everything. Thanks for your help! ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      111,
+      5,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "delivery address",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "tablet",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      1
+    ],
+    "called_write_tools": [
+      "modify_pending_order_address",
+      "modify_pending_order_items",
+      "modify_user_address"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "modify_pending_order_address",
+      "modify_user_address",
+      "get_product_details",
+      "modify_pending_order_items"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'tablet' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      " Hi there! I need to update a delivery address for my order - I just moved to a new house on the same street and realized one of my orders is still going to my old place.",
+      " Sure, it's sophia.martin4832@example.com",
+      " Oh, you should be able to see my order details there. I want to change the address for the one that's not the tablet. And while we're at it, I'd also like to update my default address in the system to my new home.",
+      " I would really prefer not to share my address over chat. Can't you see it in my recent tablet order? That one has the correct address - please just use that one to update both my default address and the luggage order.",
+      " Yes, that's correct! Please update both. And actually, since moving has been quite expensive, I was hoping to exchange my tablet for the cheapest model you have available.",
+      " Yes please, that would be great! Please go ahead with both the address changes and the tablet exchange.",
+      " No, that's all I needed. Thank you so much for your help!",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      56,
+      2,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "modify_pending_order_items"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_product_details",
+      "modify_pending_order_items"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'order' (needs ['cancel_pending_order'])",
+    "user_turns": [
+      " Hello, I'd like to check when my air purifier order will be delivered to my address in San Diego.",
+      " Sure, my email is ivan_hernandez_6923@email.com",
+      " My name is Ivan Hernandez and my zip code is 92133.",
+      " Actually, since it hasn't shipped yet, I'd like to cancel just the air purifier from the order. Is that possible?",
+      " In that case, can I modify the air purifier to a cheaper model and have the price difference refunded to my gift card?",
+      " Yes, please proceed with the modification and refund to my gift card.",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      86,
+      0,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "it",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "shipping address",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "modify_pending_order_items",
+      "modify_user_address"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_product_details",
+      "modify_pending_order_items",
+      "modify_user_address"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'it' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      " Hi... I bought a Fleece Jacket recently and I wanted to see if I could exchange it for a different style...",
+      " Um... my email is yusuf.hernandez8836@example.com",
+      " I'd like the L size in red with half zipper please... that's number 5.",
+      " Yes, that's fine... Oh, and I also wanted to change my default shipping address to the one from my Washington DC order.",
+      " Yes, that would be great... thank you.",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      24,
+      3,
+      "retail",
+      "gpt-4o"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'order' (needs ['cancel_pending_order'])",
+    "user_turns": [
+      "Hello! I was hoping to cancel an order I placed recently. It's for a grill.",
+      "Of course! My email is sofia.hernandez@example.com.",
+      "Sure! My name is Sofia Hernandez, and my zip code is 98193.",
+      "You know, now that I think about it, I might want to keep the grill. Maybe it'll come in handy for some fall grilling. Could you check on another order for me, though?",
+      "I don't have the order ID with me right now, but I remember it included a couple of t-shirts. Can you look that up for me?",
+      "Thanks for that. There should be another t-shirt that I ordered separately. Could you check what t-shirts I ordered and what materials they are made of?",
+      "Perfect, that's exactly what I needed. Thanks for your help!",
+      "###STOP###"
+    ]
+  },
+  {
+    "key": [
+      69,
+      6,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "it",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "cancel_pending_order"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "cancel_pending_order"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'it' (needs ['return_delivered_order_items'])",
+    "user_turns": [
+      " Hi there! I recently received a laptop that I ordered a few months ago, and I was hoping to return it since I found a better deal elsewhere. Can you help me with that?",
+      " Sure! My email is emma_smith_8564@email.com",
+      " Of course! My name is Emma Smith and my zip code is 10192.",
+      " I'm sorry, but I don't have the order number handy right now. I think I ordered it around April 2023, if that helps?",
+      " Oh, I apologize for the confusion. If the order is still pending and hasn't been delivered yet, could we just cancel it instead? That would actually work better for me since I found a better deal elsewhere.",
+      " Yes, please proceed with the cancellation. Thank you for helping me with this!",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      38,
+      2,
+      "retail",
+      "gpt-4o"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "modify_pending_order_payment"
+        ],
+        "object_phrase": "payment",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "cancel_pending_order",
+      "modify_pending_order_items"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "think",
+      "modify_pending_order_items",
+      "cancel_pending_order"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'payment' (needs ['modify_pending_order_payment'])",
+    "user_turns": [
+      "Hi, I just placed an order, but I realized my card has only $950 credit left, and the order total is over $1100. Can I split the payment with another card?",
+      "Sure, my email is daikisanchez1479@example.com, and I live in 46236.",
+      "I don't remember the order ID. Can we still proceed?",
+      "Can you tell me the most expensive item and its price? Maybe I can just cancel that.",
+      "Yes, please cancel the Action Camera.",
+      "Yes, please go ahead and cancel it. I'll keep the current card for any price difference or refund.",
+      "Please cancel the entire order so I can place a new one.",
+      "Ordered by mistake.",
+      "Thanks for your help. I'll place a new order now. ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      63,
+      0,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "modify_pending_order_items"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_product_details",
+      "think",
+      "modify_pending_order_items"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'order' (needs ['cancel_pending_order'])",
+    "user_turns": [
+      " \"Two roads diverged in a yellow wood...\" Does this ring a bell? Can you guess the poem?",
+      " Ah yes, sorry about that! I actually wanted to check about a bluetooth speaker I recently ordered. Could you tell me how much it cost and what's the battery life on it?",
+      " Of course! My email address is chen.johnson@email.com. I'm from Houston, Texas if that helps.",
+      " Sure! My name is Chen Johnson and my ZIP code is 77004.",
+      " I'm sorry, I actually don't remember when exactly I placed the order or the order number. Could you please check my recent orders for the bluetooth speaker purchase?",
+      " Oh wow, that's more expensive than I thought it would be! Since it's over $300, I'd like to cancel just the speaker from my order. Do you have any bluetooth speakers available for less than $300?",
+      " Yes, please add the cheapest option to my order - that would be the Blue speaker with 20 hours battery life at $271.89. Could you tell me what the total price of my order will be after this change?",
+      " Yes, please proceed with the change. The new total sounds good.",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      86,
+      7,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "it",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "modify_pending_order_address",
+          "modify_user_address"
+        ],
+        "object_phrase": "shipping address",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "modify_pending_order_items",
+      "modify_user_address"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "get_product_details",
+      "modify_pending_order_items",
+      "modify_user_address"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'it' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      " Hi... I bought a Fleece Jacket recently and I wanted to see if I could exchange it for a different style...",
+      " Um... my email is yusuf.hernandez8836@example.com",
+      " The red one with half zipper in L size sounds good... if that's okay...",
+      " Yes, that's what I want... Oh, and I also wanted to change my default shipping address to my DC address...",
+      " Yes, that's the correct address... please make it my default...",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      20,
+      7,
+      "airline",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "update_reservation_baggages",
+          "update_reservation_flights",
+          "update_reservation_passengers"
+        ],
+        "object_phrase": "flight",
+        "confidence": "low"
+      },
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "update_reservation_baggages"
+        ],
+        "object_phrase": "checked bag",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      2
+    ],
+    "called_write_tools": [
+      "update_reservation_flights"
+    ],
+    "all_tools_in_order": [
+      "get_reservation_details",
+      "search_direct_flight",
+      "get_user_details",
+      "update_reservation_flights",
+      "update_reservation_flights"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'checked bag' (needs ['update_reservation_baggages'])",
+    "user_turns": [
+      " Hi there! I need to make some changes to my flight booking from Las Vegas to Houston.",
+      " Sure! My reservation ID is 1N99U6 and my user ID is james_taylor_7043.",
+      " I'd like to change my flight to a nonstop option instead of the current one-stop flight. Also, I want to remove the checked bag I had added and get a refund for it.",
+      " I'll take the HAT266 flight that departs at 13:00. You can use the credit card saved in my profile for any price difference.",
+      " Yes, I'll use the travel certificate. Please let me know the total cost including the refund for removing the checked bag.",
+      " I thought the checked bag could be removed. In that case, I'll just take the flight change. Yes, please proceed with changing to the nonstop flight.",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      106,
+      7,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "kettles",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [],
+    "all_tools_in_order": [
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_product_details",
+      "think"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'kettles' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      " Hello there. I'd like to return a couple of tea kettles I purchased recently. I'm Aarav Anderson.",
+      " Yes, my zip code is 19031. I want to make sure this is done correctly - I'm quite particular about these things.",
+      " Yes, the order number is W4316152. I want to exchange the glass tea kettles for different ones. I'm a bit hesitant about using glass kettles on my stovetop.",
+      " I appreciate the suggestion, but I actually want to exchange them for specific ones. For one of the kettles, I'd like a ceramic one that works with gas stoves. And for the other one, I'd like a 1.5-liter kettle that's also compatible with gas stoves. I hope I'm being clear - I can be quite rigid about what I want.",
+      " Um... I need to be really specific here. For the second kettle, I don't want a glass one - you just mentioned material when I didn't specify that. I just want the 1.5-liter one that works with gas stoves. I'm quite particular about following my exact requirements. Could you please check again?",
+      " *sigh* This is quite frustrating. Let me think about this for a moment... I suppose I'll wait until you have more options available that match exactly what I'm looking for. I don't want to settle for something different. Could you cancel this exchange request for now? I'll come back when there's better stock.",
+      " No, that's all for now. I'll keep checking back until I find exactly what I'm looking for. Thank you for your time.",
+      " Thank you. Good day.\n\n###STOP###"
+    ]
+  },
+  {
+    "key": [
+      1,
+      5,
+      "airline",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "update_reservation_flights"
+        ],
+        "object_phrase": "return flight",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_reservation"
+        ],
+        "object_phrase": "flight",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "cancel_reservation"
+    ],
+    "all_tools_in_order": [
+      "get_user_details",
+      "get_user_details",
+      "get_reservation_details",
+      "get_reservation_details",
+      "get_reservation_details",
+      "cancel_reservation"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'return flight' (needs ['update_reservation_flights'])",
+    "user_turns": [
+      " Hi, I need help with my flight reservation for today. I have a round trip booked from Newark to Texas but I need to change my return flight time.",
+      " I'm Olivia Gonzalez, but I actually don't have my reservation ID with me right now. I just know I'm flying back from Dallas today at 3pm to Newark.",
+      " Oh, my user ID is olivia_gonzalez_2305. Sorry about that!",
+      " Oh, I might have confused the dates. Yes, my flight is for May 28th. That's the reservation I need to change.",
+      " I actually haven't been feeling well, so I'd like to use the travel insurance to cancel the flight. Could you help me with that process?",
+      " No, that's all I needed. Thank you for your help!",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      57,
+      3,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "refund",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0,
+      1
+    ],
+    "called_write_tools": [],
+    "all_tools_in_order": [
+      "find_user_id_by_name_zip",
+      "get_order_details"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'order' (needs ['cancel_pending_order']); 'refund' (needs ['return_delivered_order_items'])",
+    "user_turns": [
+      " Hello, I'd like to check when my order W4284542 will arrive.",
+      " I live in San Diego, ZIP code 92133, my name is Ivan Hernandez.",
+      " Since it hasn't shipped yet, I'd like to cancel just the air purifier from my order. Is that possible?",
+      " Yes, please cancel the entire order and refund it to my gift card.",
+      " In that case, I'll keep the order as is since I can't get the refund on a gift card. Thank you for your help.",
+      " ###STOP###"
+    ]
+  },
+  {
+    "key": [
+      106,
+      0,
+      "retail",
+      "gpt-4o"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "exchange_delivered_order_items"
+        ],
+        "object_phrase": "kettles",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [],
+    "all_tools_in_order": [
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "list_all_product_types",
+      "get_product_details"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'kettles' (needs ['exchange_delivered_order_items'])",
+    "user_turns": [
+      "Hey, I'm looking to exchange a couple of tea kettles I ordered recently.",
+      "Sure, my name is Aarav Anderson, and my zip code is 19031.",
+      "I don't quite remember the order ID, but I know the kettles I want to exchange.",
+      "Yes, I'd like to exchange both. For the first one, I'd prefer a ceramic kettle that's compatible with a gas stovetop.",
+      "Yes, let's proceed with that for the first kettle. For the second one, I'd like a kettle with a capacity of 1.5 liters that's also compatible with a gas stovetop.",
+      "Yes, let's go ahead with that exchange for the second kettle as well. I will use my credit card for any price difference.###STOP###"
+    ]
+  },
+  {
+    "key": [
+      69,
+      0,
+      "retail",
+      "sonnet-3.5-new"
+    ],
+    "obligations": [
+      {
+        "action_class": [
+          "return_delivered_order_items"
+        ],
+        "object_phrase": "it",
+        "confidence": "high"
+      },
+      {
+        "action_class": [
+          "cancel_pending_order"
+        ],
+        "object_phrase": "order",
+        "confidence": "high"
+      }
+    ],
+    "never_attempted_indices": [
+      0
+    ],
+    "called_write_tools": [
+      "cancel_pending_order"
+    ],
+    "all_tools_in_order": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details",
+      "get_order_details",
+      "get_order_details",
+      "get_order_details",
+      "cancel_pending_order"
+    ],
+    "reason": "obligation(s) with no matching write-tool call: 'it' (needs ['return_delivered_order_items'])",
+    "user_turns": [
+      " Hi there! I recently received a laptop that I ordered a few months ago, and I was hoping to return it since I found a better deal elsewhere. Can you help me with that?",
+      " Sure! My email is emma_smith_8564@gmail.com",
+      " Oh, of course! My name is Emma Smith and my zip code is 10192.",
+      " Oh, I apologize for the confusion. I must have mixed something up. If the laptop order is still pending, is it possible to just cancel the order instead? That would be even better since I found a better deal elsewhere.",
+      " Yes, please go ahead and cancel the order. That would be perfect!",
+      " ###STOP###"
+    ]
+  }
+]

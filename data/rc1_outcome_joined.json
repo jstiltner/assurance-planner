@@ -17,9 +17,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 2,
@@ -28,9 +28,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 3,
@@ -50,9 +50,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 5,
@@ -61,9 +61,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 6,
@@ -72,9 +72,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 7,
@@ -105,9 +105,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 10,
@@ -116,9 +116,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 11,
@@ -127,9 +127,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 12,
@@ -149,9 +149,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 14,
@@ -160,9 +160,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 15,
@@ -171,9 +171,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 16,
@@ -182,9 +182,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 17,
@@ -292,9 +292,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 27,
@@ -325,9 +325,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 30,
@@ -347,9 +347,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 32,
@@ -413,9 +413,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 38,
@@ -501,9 +501,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 46,
@@ -534,9 +534,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 49,
@@ -567,9 +567,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 2,
@@ -578,9 +578,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 3,
@@ -600,9 +600,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 5,
@@ -611,9 +611,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 6,
@@ -655,9 +655,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 10,
@@ -699,9 +699,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 14,
@@ -710,9 +710,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 15,
@@ -721,9 +721,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 16,
@@ -853,9 +853,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 28,
@@ -875,9 +875,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 30,
@@ -930,9 +930,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 35,
@@ -941,9 +941,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 36,
@@ -1007,9 +1007,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 42,
@@ -1029,9 +1029,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 44,
@@ -1040,9 +1040,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 45,
@@ -1062,9 +1062,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 47,
@@ -1073,9 +1073,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 48,
@@ -1084,9 +1084,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 49,
@@ -1161,9 +1161,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 6,
@@ -1172,9 +1172,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 7,
@@ -1183,9 +1183,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 8,
@@ -1205,9 +1205,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 10,
@@ -1260,9 +1260,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 15,
@@ -1271,9 +1271,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 16,
@@ -1282,9 +1282,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 17,
@@ -1326,9 +1326,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 21,
@@ -1337,9 +1337,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 22,
@@ -1392,9 +1392,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 27,
@@ -1403,9 +1403,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 28,
@@ -1447,9 +1447,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 32,
@@ -1480,9 +1480,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 35,
@@ -1513,9 +1513,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 38,
@@ -1535,9 +1535,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 40,
@@ -1546,9 +1546,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 41,
@@ -1579,9 +1579,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 44,
@@ -1612,9 +1612,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 47,
@@ -1623,9 +1623,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 48,
@@ -1634,9 +1634,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 49,
@@ -1667,9 +1667,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 2,
@@ -1678,9 +1678,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 3,
@@ -1711,9 +1711,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 6,
@@ -1733,9 +1733,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 8,
@@ -1876,9 +1876,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 21,
@@ -1986,9 +1986,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 31,
@@ -1997,9 +1997,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 32,
@@ -2008,9 +2008,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 33,
@@ -2063,9 +2063,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 38,
@@ -2085,9 +2085,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 40,
@@ -2096,9 +2096,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 41,
@@ -2129,9 +2129,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 44,
@@ -2140,9 +2140,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 45,
@@ -2151,9 +2151,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 46,
@@ -2173,9 +2173,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 48,
@@ -2239,9 +2239,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 4,
@@ -2272,9 +2272,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 7,
@@ -2305,9 +2305,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 10,
@@ -2349,9 +2349,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 14,
@@ -2382,9 +2382,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 17,
@@ -2415,9 +2415,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 20,
@@ -2492,9 +2492,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 27,
@@ -2514,9 +2514,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 29,
@@ -2558,9 +2558,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 33,
@@ -2569,9 +2569,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 34,
@@ -2701,9 +2701,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 46,
@@ -2734,9 +2734,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 49,
@@ -2800,9 +2800,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 55,
@@ -2822,9 +2822,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 57,
@@ -2866,9 +2866,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 61,
@@ -2932,9 +2932,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 67,
@@ -2987,9 +2987,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 72,
@@ -2998,9 +2998,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 73,
@@ -3108,9 +3108,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 83,
@@ -3119,9 +3119,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 84,
@@ -3152,9 +3152,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 87,
@@ -3218,9 +3218,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 93,
@@ -3229,9 +3229,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 94,
@@ -3251,9 +3251,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 96,
@@ -3262,9 +3262,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 97,
@@ -3273,9 +3273,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 98,
@@ -3284,9 +3284,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 99,
@@ -3405,9 +3405,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 110,
@@ -3427,9 +3427,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 112,
@@ -3438,9 +3438,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 113,
@@ -3449,9 +3449,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 114,
@@ -3471,9 +3471,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 1,
@@ -3493,9 +3493,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 3,
@@ -3537,9 +3537,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 7,
@@ -3548,9 +3548,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 8,
@@ -3570,9 +3570,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 10,
@@ -3647,9 +3647,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 17,
@@ -3691,9 +3691,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 21,
@@ -3713,9 +3713,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 23,
@@ -3768,9 +3768,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 28,
@@ -3779,9 +3779,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 29,
@@ -3966,9 +3966,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 46,
@@ -3977,9 +3977,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 47,
@@ -4087,9 +4087,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 57,
@@ -4197,9 +4197,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 67,
@@ -4252,9 +4252,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 72,
@@ -4263,9 +4263,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 73,
@@ -4329,9 +4329,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 79,
@@ -4362,9 +4362,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 82,
@@ -4428,9 +4428,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 88,
@@ -4483,9 +4483,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 93,
@@ -4505,9 +4505,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 95,
@@ -4527,9 +4527,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 97,
@@ -4538,9 +4538,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 98,
@@ -4593,9 +4593,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 103,
@@ -4615,9 +4615,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 105,
@@ -4637,9 +4637,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 107,
@@ -4659,9 +4659,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 109,
@@ -4670,9 +4670,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 110,
@@ -4692,9 +4692,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 112,
@@ -4703,9 +4703,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 113,
@@ -4736,9 +4736,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 1,
@@ -4758,9 +4758,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 3,
@@ -4769,9 +4769,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 4,
@@ -4780,9 +4780,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 5,
@@ -4791,9 +4791,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 6,
@@ -4802,9 +4802,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 7,
@@ -4813,9 +4813,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 8,
@@ -4890,9 +4890,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 15,
@@ -4912,9 +4912,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 17,
@@ -4945,9 +4945,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 20,
@@ -5000,9 +5000,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 25,
@@ -5033,9 +5033,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 28,
@@ -5044,9 +5044,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 29,
@@ -5066,9 +5066,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 31,
@@ -5099,9 +5099,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 34,
@@ -5198,9 +5198,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 43,
@@ -5275,9 +5275,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 50,
@@ -5352,9 +5352,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 57,
@@ -5363,9 +5363,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 58,
@@ -5396,9 +5396,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 61,
@@ -5440,9 +5440,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 65,
@@ -5462,9 +5462,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 67,
@@ -5517,9 +5517,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 72,
@@ -5528,9 +5528,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 73,
@@ -5561,9 +5561,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 76,
@@ -5572,9 +5572,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 77,
@@ -5616,9 +5616,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 81,
@@ -5627,9 +5627,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 82,
@@ -5638,9 +5638,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 83,
@@ -5649,9 +5649,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 84,
@@ -5671,9 +5671,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 86,
@@ -5693,9 +5693,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 88,
@@ -5704,9 +5704,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 89,
@@ -5715,9 +5715,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 90,
@@ -5748,9 +5748,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 93,
@@ -5759,9 +5759,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 94,
@@ -5781,9 +5781,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 96,
@@ -5792,9 +5792,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 97,
@@ -5814,9 +5814,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 99,
@@ -5858,9 +5858,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 103,
@@ -5924,9 +5924,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 109,
@@ -5946,9 +5946,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 111,
@@ -5968,9 +5968,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 113,
@@ -5979,9 +5979,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 114,
@@ -6001,9 +6001,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 1,
@@ -6045,9 +6045,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 5,
@@ -6155,9 +6155,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 15,
@@ -6210,9 +6210,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 20,
@@ -6243,9 +6243,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 23,
@@ -6298,9 +6298,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 28,
@@ -6309,9 +6309,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 29,
@@ -6353,9 +6353,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 33,
@@ -6606,9 +6606,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 56,
@@ -6782,9 +6782,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 72,
@@ -6793,9 +6793,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 73,
@@ -6837,9 +6837,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 77,
@@ -6914,9 +6914,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 84,
@@ -6936,9 +6936,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 86,
@@ -6980,9 +6980,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 90,
@@ -7002,9 +7002,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 92,
@@ -7035,9 +7035,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 95,
@@ -7057,9 +7057,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 97,
@@ -7079,9 +7079,9 @@
     "agent": "gpt-4o",
     "state": "ATTEMPTED_BUT_SUCCESS_UNKNOWN",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 99,
@@ -7156,9 +7156,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 106,
@@ -7178,9 +7178,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 108,
@@ -7189,9 +7189,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 0.0,
-    "reference_pass": false,
-    "reference_fail": true
+    "reward": 1.0,
+    "reference_pass": true,
+    "reference_fail": false
   },
   {
     "task_id": 109,
@@ -7200,9 +7200,9 @@
     "agent": "gpt-4o",
     "state": "SUCCESS_EVIDENCE_PRESENT",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 110,
@@ -7222,9 +7222,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 112,
@@ -7233,9 +7233,9 @@
     "agent": "gpt-4o",
     "state": "UNRESOLVED",
     "fires": false,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 113,
@@ -7244,9 +7244,9 @@
     "agent": "gpt-4o",
     "state": "NEVER_ATTEMPTED",
     "fires": true,
-    "reward": 1.0,
-    "reference_pass": true,
-    "reference_fail": false
+    "reward": 0.0,
+    "reference_pass": false,
+    "reference_fail": true
   },
   {
     "task_id": 114,

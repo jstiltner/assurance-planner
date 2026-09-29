@@ -1,3 +1,7 @@
+# Upstream tau-bench trajectory corpus (~50MB, MIT), fetched from
+# sierra-research/tau-bench historical_trajectories/ -- not vendored.
+data/tau_bench_trajectories/
+
 __pycache__/
 *.egg-info/
 .pytest_cache/
