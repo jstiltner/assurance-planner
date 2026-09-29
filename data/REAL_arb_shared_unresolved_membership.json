@@ -1,0 +1,1189 @@
+{
+  "missed_failure": {
+    "loose": [
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.14",
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.569",
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.598",
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.730",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.332",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.598",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.601",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.24",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.426",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.491",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.599",
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.723",
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.726",
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.426",
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.infeasible-navigate-and-order-loaner-laptop-l2"
+    ],
+    "strict": [
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.598",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.332",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.598",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.491",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.599"
+    ],
+    "matrix": {
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.14": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.569": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.598": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.730": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen-noaxtree"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.332": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.598": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.601": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen-noaxtree"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.24": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.426": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.491": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.599": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.723": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.726": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.426": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.infeasible-navigate-and-order-loaner-laptop-l2": {
+        "reference_label": "fail",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      }
+    }
+  },
+  "false_alarm": {
+    "loose": [
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.0",
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.30",
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.141",
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.426",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.141",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.302",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.464",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.512",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.141",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.159",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.292",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.351",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.372",
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.453",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.263",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.266",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.642",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.738",
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.263",
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.642",
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.696",
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.386",
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.701",
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.263",
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.386",
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2",
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.navigate-and-sort-change-request-list-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.create-hardware-asset",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-create-change-request-with-reason-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-create-user-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-filter-change-request-list-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-l2",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.multi-chart-value-retrieval",
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.navigate-and-sort-change-request-list-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.filter-trivial-expenses-and-select-investments-medium-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-create-change-request-with-reason-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-create-user-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-watch-with-reason-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-with-reason-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.navigate-and-sort-change-request-list-l2",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.navigate-and-sort-hardware-list-l2",
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-l2",
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2",
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2",
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-watch-with-reason-l2"
+    ],
+    "strict": [
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.141",
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.302",
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.738",
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.263",
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.navigate-and-sort-hardware-list-l2",
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2"
+    ],
+    "matrix": {
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.0": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "assistantbench/GenericAgent-gpt-4o-2024-11-20/assistantbench.improved.validation.30": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.141": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.426": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.141": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.302": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.464": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.512": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.141": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.159": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.292": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.351": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.372": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "visualwebarena/GenericAgent-gpt-4o-2024-11-20/visualwebarena.453": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.263": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.266": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.642": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.738": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.263": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.642": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-anthropic_claude-3.7-sonnet/webarena.696": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen"
+        ],
+        "alternates_correct": [
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.386": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-gpt-4o-2024-11-20/webarena.701": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.263": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "webarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/webarena.386": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/workarena.servicenow.navigate-and-sort-change-request-list-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.create-hardware-asset": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-create-change-request-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-create-user-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [
+          "claude-3.7-sonnet-noscreen"
+        ],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-filter-change-request-list-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.multi-chart-value-retrieval": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-anthropic_claude-3.7-sonnet/workarena.servicenow.navigate-and-sort-change-request-list-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.filter-trivial-expenses-and-select-investments-medium-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-create-change-request-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-create-user-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav"
+        ],
+        "alternates_correct": [
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-apple-watch-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.infeasible-navigate-and-order-development-laptop-p-c-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "gpt-4o-mini-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.navigate-and-sort-change-request-list-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-gpt-4o-2024-11-20/workarena.servicenow.navigate-and-sort-hardware-list-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-mac-book-pro15-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen"
+        ],
+        "alternates_correct": [
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-watch-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "nnetnav",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      },
+      "workarena/GenericAgent-meta-llama_Llama-3.3-70B-Instruct/workarena.servicenow.infeasible-navigate-and-order-apple-watch-with-reason-l2": {
+        "reference_label": "pass",
+        "alternates_wrong": [
+          "aer",
+          "claude-3.7-sonnet-noscreen",
+          "gpt-4o-mini-noscreen",
+          "gpt-4o-mini-noscreen-noaxtree",
+          "gpt-4o-noscreen",
+          "llama-3.3-70b-noscreen",
+          "qwen-2.5-vl-noscreen"
+        ],
+        "alternates_correct": [
+          "nnetnav"
+        ],
+        "alternates_unparsed": [],
+        "k_of_5": 0
+      }
+    }
+  }
+}

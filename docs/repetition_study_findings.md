@@ -299,16 +299,36 @@ of error into independent sources.
 | cross-eval recovered (AER hist. correct) | 1 | 14 | 15 |
 | total | 16 | 16 | 32 |
 
-**Shared unresolved errors (cell: unresolved x consistent):** 15 cases.
+**Two-evaluator unresolved errors (cell: unresolved x consistent):** 15 cases.
 
 These are cases where: (1) the functional primary missed the failure, (2) the AER alternate in
 the March 2025 archive also called it a success (cross-evaluator unresolved), and (3) all five
-current AER repetitions also called it a success (repetition-consistent wrong). They are
-labeled "shared unresolved errors" per §A1.6 and nothing else. They are not "irreducible",
-"ground-truth errors", or "a floor" — each of those is a hypothesis about a cause, and 15
-cases is not evidence for any of them.
+current AER repetitions also called it a success (repetition-consistent wrong). They are not
+"irreducible", "ground-truth errors", or "a floor" — each of those is a hypothesis about a
+cause, and 15 cases is not evidence for any of them.
 
-Outcome E check: 15 shared unresolved vs half of 97 (all AER k=0 on ref=fail) = 48.5.
+> **Correction (2026-09-29), in place.** This cell was originally labeled "shared unresolved
+> errors per §A1.6". That label was wrong and is withdrawn. Predeclaration §A1.6 defines
+> shared unresolved errors as cases wrong under the primary and **unresolved by all eight
+> cached alternates** and repetition-consistent. The 2x2 above consults only *one* alternate
+> (historical `aer`), so it implements a weaker two-evaluator criterion. Scoring all eight
+> cached alternates on these 15 cases (`scripts/arb_shared_unresolved_membership.py`):
+> **only 5 of the 15 meet the §A1.6 criterion.** In 10 of the 15 at least one cached
+> alternate returned the correct verdict, and in two of them (`visualwebarena.resized.569`
+> under Qwen, `webarena.723` under claude-3.7-sonnet) six of the eight alternates were
+> correct. The 15-case cell is retained as the review set and the counts in the table are
+> unchanged and correct for what they measure; only the *name* was overclaimed. The
+> §A1.6 term applies only to these 5 cases:
+>
+> - `visualwebarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/visualwebarena.resized.598`
+> - `visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.332`
+> - `visualwebarena/GenericAgent-anthropic_claude-3.7-sonnet/visualwebarena.resized.598`
+> - `webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.491`
+> - `webarena/GenericAgent-Qwen_Qwen2.5-VL-72B-Instruct/webarena.599`
+>
+> Full per-case judge matrix: `data/REAL_arb_shared_unresolved_membership.json`.
+
+Outcome E check: 15 two-evaluator unresolved vs half of 97 (all AER k=0 on ref=fail) = 48.5.
 **15 < 48.5 → Outcome E does not fire.**
 
 Note: within the 32-case primary-fn subset, 15/16 rep-consistent cases are also cross-eval
@@ -326,7 +346,11 @@ in this dataset.
 | cross-eval recovered (AER hist. correct) | 0 | 73 | 73 |
 | total | 50 | 80 | 130 |
 
-**Shared unresolved errors (false-alarm stratum):** 50 cases.
+**Two-evaluator unresolved errors (false-alarm stratum):** 50 cases.
+
+> **Correction (2026-09-29), in place.** Same relabeling as above. Under the §A1.6 criterion
+> (all eight cached alternates wrong), this cell is **6 cases, not 50**. The table counts are
+> unchanged; the name was overclaimed.
 
 Among primary-fp cases, all 50 rep-consistent wrong cases are also cross-eval unresolved.
 The 73 cross-eval-recovered cases are all rep-variable: AER historically agreed with the
@@ -390,8 +414,10 @@ unconditionally — was also the simpler and cheaper design once engineering cos
 - Sequential stopping terminates at 3 calls for 99.4% of cases, confirming the near-determinism
   directly. It achieves a ~40% call-count saving at no improvement in error rate.
 - The residual within-case variability is concentrated in the webarena slice (13 of 20 variable cases).
-- 15 cases in the missed-failure stratum and 50 in the false-alarm stratum qualify as
-  shared unresolved errors under the §A1.6 vocabulary.
+- 15 cases in the missed-failure stratum and 50 in the false-alarm stratum are wrong under
+  the primary, wrong under the historical AER alternate, and repetition-consistent wrong over
+  R=5. Under the full §A1.6 criterion (all *eight* cached alternates wrong) the counts are
+  **5 and 6** respectively — see the corrections in §10.
 
 **Claims this data does not support:**
 
@@ -450,7 +476,7 @@ configuration, absent a declared `r*`, remains `NOT DECISION-SUFFICIENT`.
 
 The highest-value next step is **not** to run more repetitions or try different configurations.
 The honest next step is the admission that `conditional.md` §6 predicted: characterize the
-15 shared unresolved errors in the missed-failure stratum individually. If those 15 cases are
+15 two-evaluator unresolved errors in the missed-failure stratum individually. If those 15 cases are
 inspectable, the question is whether their shared feature is a prompt defect, a label ambiguity,
 or a task type that the AER evaluator structurally cannot judge. That question does not require
 more API spend; it requires reading 15 cases.
@@ -468,10 +494,43 @@ are in strong disagreement (5/5 on the wrong side), and it is the most tractable
 
 *Per repo convention: corrections noted here and as in-place blockquotes in the source documents.*
 
-None required. The predeclaration's self-corrections (Amendments 1–3) are already committed
-in-place in `docs/repetition_study_predeclaration.md`. This findings document reports
-observations consistent with the corrected predeclaration and introduces no new claims that
-contradict committed text.
+### C1. "Shared unresolved errors" was applied to a criterion weaker than §A1.6 defines
+
+**Withdrawn:** the §10 labeling of the 15-case (missed-failure) and 50-case (false-alarm)
+cells as "shared unresolved errors per §A1.6".
+
+Predeclaration §A1.6 reserves that term for cases wrong under the primary, **unresolved by
+all eight cached alternates**, and repetition-consistent over five draws. The 2x2 in §10
+joins only the historical `aer` alternate, which is a two-evaluator criterion, not an
+eight-evaluator one. This document applied the eight-evaluator *name* to the two-evaluator
+*quantity*.
+
+Verified by scoring all eight cached alternates on the affected cases
+(`scripts/arb_shared_unresolved_membership.py`, parsing via `scripts/arb_extract.parse_verdict`):
+
+| stratum | two-evaluator criterion (as reported) | §A1.6 eight-evaluator criterion |
+| --- | --- | --- |
+| missed-failure | 15 | **5** |
+| false-alarm | 50 | **6** |
+
+Ten of the 15 missed-failure cases had at least one cached alternate return the correct
+verdict; two had six of eight correct. The overclaim is material: it asserted cross-judge
+consensus that the archive does not show.
+
+**What is unaffected:** every count in the §10 tables, every policy estimand, the Outcome
+classification, and the Outcome E check (5 < 48.5 under the strict criterion, as 15 < 48.5
+under the loose one — E does not fire either way). Nothing quantitative changes; the error
+was in naming, and the name carried an unearned claim about evaluator agreement.
+
+**In-place narrowing applied** to §10 and §13. The original counts and wording are retained
+with blockquote corrections attached, per repo convention; nothing was deleted.
+
+This is the second instance in this project of a defect found in one document being
+reintroduced in the next: the predeclaration's own §A1.6 exists precisely to stop the
+vocabulary from outrunning the evidence, and the findings document broke it within the same
+session it was written to satisfy.
+
+### C2. Outcome E denominator (pre-commit, no published claim affected)
 
 The one exception is the Outcome E check in `scripts/arb_repetition_analysis.py`: the initial
 implementation used the 2x2-restricted denominator (16 cases) rather than the full AER k=0

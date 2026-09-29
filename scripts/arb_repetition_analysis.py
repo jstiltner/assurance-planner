@@ -325,7 +325,17 @@ def numerize_verdict(verdict):
 
 
 def cross_evaluator_2x2(case_data):
-    """Build 2x2 cross-tabs for missed-failure and false-alarm primary error strata."""
+    """Build 2x2 cross-tabs for missed-failure and false-alarm primary error strata.
+
+    CORRECTION (2026-09-29): the "unresolved x consistent" cell this produces is NOT the
+    "shared unresolved errors" of predeclaration A1.6. It consults one alternate (the
+    historical `aer` verdict in the pair YAML), so it is a two-evaluator criterion; A1.6
+    requires all EIGHT cached alternates to be wrong. Scoring all eight gives 5 (not 15)
+    in the missed-failure stratum and 6 (not 50) in the false-alarm stratum. See
+    `scripts/arb_shared_unresolved_membership.py` and the corrections section of
+    `docs/repetition_study_findings.md`. The counts printed below are correct for what
+    they measure; only the A1.6 label was misapplied, and it has been withdrawn.
+    """
     with open(PAIR_FILE, encoding="utf-8") as f:
         pair_data = yaml.safe_load(f)
     yaml_cases = {c["case_id"]: c for c in pair_data["cases"]}
@@ -558,7 +568,7 @@ def main():
         outcomes_fired.append("F")
     print(f"  Outcomes fired: {outcomes_fired or ['(none)']}")
 
-    # Outcome E: shared unresolved > half of repetition-consistent missed-failure errors
+    # Outcome E: two-evaluator unresolved > half of repetition-consistent missed-failure errors
     # Computed below in cross-evaluator section.
 
     # --- 7. A3.3: Two-execution retrospective ---
@@ -612,10 +622,11 @@ def main():
     # Outcome E denominator: ALL AER rep-consistent missed-failure errors (k=0 in ref=fail)
     # not restricted to primary-wrong cases.  Computed from case_data.
     rep_consistent_mf_all = sum(1 for d in case_data.values() if d["ref_success"] == 0 and d["k"] == 0)
-    print(f"    Shared unresolved errors (cell): {su_mf}  (primary-fn wrong AND AER historical wrong AND k=0)")
+    print(f"    Two-evaluator unresolved (cell): {su_mf}  (primary-fn wrong AND AER historical wrong AND k=0)")
+    print("      NOT the A1.6 shared-unresolved criterion; see arb_shared_unresolved_membership.py")
     print(f"    Rep-consistent missed-failure errors (within 2x2): {rep_consistent_mf_2x2}")
     print(f"    Rep-consistent missed-failure errors (all AER k=0 on ref=fail): {rep_consistent_mf_all}")
-    print(f"    Outcome E (A1.9): shared ({su_mf}) > half of AER k=0 on ref=fail ({rep_consistent_mf_all/2:.0f})? {su_mf > rep_consistent_mf_all/2}")
+    print(f"    Outcome E (A1.9): two-evaluator ({su_mf}) > half of AER k=0 on ref=fail ({rep_consistent_mf_all/2:.0f})? {su_mf > rep_consistent_mf_all/2}")
 
     print()
     print("  False-alarm stratum (primary functional wrong, n=130):")
@@ -624,7 +635,7 @@ def main():
     print(f"    cross-eval-recovered  x rep-consistent: {fa_2x2['recovered_consistent']}")
     print(f"    cross-eval-recovered  x rep-variable:   {fa_2x2['recovered_variable']}")
     su_fa = fa_2x2["unresolved_consistent"]
-    print(f"    Shared unresolved errors: {su_fa}")
+    print(f"    Two-evaluator unresolved (cell): {su_fa}")
 
     # --- 10. Slice breakdown ---
     print("\n--- 10. Slice Breakdown ---")
