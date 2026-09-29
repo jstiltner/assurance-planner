@@ -79,6 +79,79 @@ CANONICAL = {
 }
 
 # ---------------------------------------------------------------------------
+# MECHANISM DISPOSITIONS  (machine-readable; use for programmatic validation)
+# Fields: prereg, frozen_threshold, evaluation_surface, disposition
+# disposition values: FAIL | PASS | ACCEPTED_UNDERPOWERED | WEAKENED | INVALID | EXPLORATORY
+# ---------------------------------------------------------------------------
+
+MECHANISM_DISPOSITIONS = {
+    "M1_repetition": {
+        "label": "Repeated execution (R=5)",
+        "prereg": True,
+        "frozen_threshold": False,   # outcome taxonomy A–F, not a numeric gate
+        "evaluation_surface": "fresh_inference",
+        "disposition": "FAIL",       # Outcome C; deployed config only
+        "scope": "one judge, one config (gpt-4o-2024-11-20, temp 0.0, seed 0), one corpus",
+    },
+    "M2_pairing": {
+        "label": "Alt-evaluator pairing",
+        "prereg": True,              # pair selection predeclared; no recovery threshold
+        "frozen_threshold": False,
+        "evaluation_surface": "same_corpus",
+        "disposition": "WEAKENED",   # no binary gate; 20–30pt operational gap
+        "scope": "AER corpus; operational precision 0.366/0.465 vs reference-conditioned 0.543",
+    },
+    "M3_R1": {
+        "label": "R1 (deterministic pre-check)",
+        "prereg": True,
+        "frozen_threshold": True,
+        "evaluation_surface": "held_out",
+        "disposition": "FAIL",       # 0.51× inverted; 6 helped / 14 harmed
+        "scope": "1,260-case held-out arm",
+    },
+    "M4_R2": {
+        "label": "R2 (deterministic pre-check)",
+        "prereg": True,
+        "frozen_threshold": True,
+        "evaluation_surface": "held_out",
+        "disposition": "ACCEPTED_UNDERPOWERED",  # n=6; harm bound 39.3%
+        "scope": "1,260-case held-out arm; rule-of-three harm bound 39.3% at n=6",
+    },
+    "M5_R3": {
+        "label": "R3 (evidence-gap escalation)",
+        "prereg": True,
+        "frozen_threshold": True,
+        "evaluation_surface": "held_out",
+        "disposition": "PASS",       # 25.6% vs 14.4%; clearest positive result
+        "scope": "1,260-case held-out arm; 133 fires; 99/133 already correct",
+    },
+    "M6_R4": {
+        "label": "R4 (deterministic pre-check)",
+        "prereg": True,
+        "frozen_threshold": True,
+        "evaluation_surface": "held_out",
+        "disposition": "FAIL",       # 0.6-pt difference; tells about agent not evaluation
+        "scope": "1,260-case held-out arm",
+    },
+    "M7_RC1": {
+        "label": "RC1 (static obligation matching)",
+        "prereg": True,
+        "frozen_threshold": True,    # A1 <15% / A2-traj ≥1.50× / A3 ≥28/30
+        "evaluation_surface": "fresh_corpus",
+        "disposition": "FAIL",       # A1 FAIL (25.3%), A2-traj FAIL (1.165×), A3 PASS
+        "scope": "τ-bench fresh corpus; A2-task gate INVALID (unpassable by construction)",
+    },
+    "M8_null_rule": {
+        "label": "Null rule (no successful write)",
+        "prereg": False,             # preregistered as disqualified; never gated
+        "frozen_threshold": False,
+        "evaluation_surface": "exploratory_recut",
+        "disposition": "EXPLORATORY",
+        "scope": "τ-bench; 24.1% volume fails A1; exploratory floor only",
+    },
+}
+
+# ---------------------------------------------------------------------------
 # FORBIDDEN PHRASES
 # Each entry: (pattern, reason, severity)
 # severity: ERROR = must fix before publish, WARN = review carefully
@@ -146,6 +219,22 @@ FORBIDDEN = [
     ("nine.*before",
      "Wrong process-error count. Corrected to six before.",
      "ERROR"),
+
+    # Repetition framed as failing a numeric threshold (it had none)
+    (r"repetition.{0,40}fail.{0,30}threshold",
+     "Overclaim. Repetition study used an outcome taxonomy (A–F), not a numeric pass/fail gate.",
+     "ERROR"),
+    (r"repetition.{0,40}threshold.{0,40}fail",
+     "Overclaim. See 'repetition failed a threshold'.",
+     "ERROR"),
+
+    # Evaluator pairing framed as binary fail (it had no recovery threshold)
+    (r"evaluator pairing.{0,30}fail",
+     "Overclaim. Pairing had no numeric recovery threshold; disposition is WEAKENED, not FAIL.",
+     "WARN"),
+    (r"alternate.{0,20}judge.{0,30}fail",
+     "Overclaim. Alternate-judge pairing has no binary gate; use 'weakened' or name the operational gap.",
+     "WARN"),
 
     # Overclaims
     ("repetition does not work",
