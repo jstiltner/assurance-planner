@@ -165,6 +165,20 @@ FORBIDDEN = [
      "Overclaim. Oracle construct 2.339× > null 1.171×.",
      "ERROR"),
 
+    # Compressing heterogeneous dispositions to a single positive
+    ("one positive result",
+     "Overclaim. R2 is also ACCEPTED (underpowered); R3 is the clearest pass, not the only positive.",
+     "ERROR"),
+    ("only positive result",
+     "Overclaim. See 'one positive result'.",
+     "ERROR"),
+    (r"only mechanism.{0,30}surviv",
+     "Overclaim. R2 also survived (accepted, underpowered). Use 'clearest pass' or 'cleanest pass'.",
+     "ERROR"),
+    (r"only mechanism.{0,30}work",
+     "Overclaim. See 'only mechanism that survived'.",
+     "ERROR"),
+
     # Misrepresenting dispositions — only flag if R2 is called a failure explicitly
     ("R2.{0,30}(?:was|is|were) (?:a )?fail",
      "R2 is ACCEPTED (preregistered), not failed. Report as underpowered.",

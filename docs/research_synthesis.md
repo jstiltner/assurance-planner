@@ -375,10 +375,11 @@ metric undermined it. The oracle construct was upheld today against a null rule 
 cherry-picking author would have let win. The dispositions were frozen before outcomes.
 
 **Attack 3 — Did any sophisticated method actually help?** *No — and that is a problem for
-the thesis, not support for it.* The only mechanism that survived (R3) is also the simplest:
-two conditions and a configuration lookup. So the dataset contains **no instance of a
-sophisticated method helping**, which means the project never observed the contrast its
-thesis asserts. It observed only that several mechanisms failed.
+the thesis, not support for it.* R3, which had the cleanest pass, is also the simplest:
+two conditions and a configuration lookup. (R2 was accepted but remains underpowered.)
+So the dataset contains **no instance of a sophisticated method helping**, which means
+the project never observed the contrast its thesis asserts. It observed only that
+several mechanisms failed and the simplest held-out rule cleared its threshold.
 
 **Attack 4 — Is "complexity" defined after the fact?** *Yes. This is the fatal objection to
 the thesis as worded.* Nothing in the repo operationalises complexity. R1, R3 and R4 are
