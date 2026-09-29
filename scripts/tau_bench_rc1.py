@@ -133,16 +133,26 @@ _A_VAGUE_UPDATE = frozenset({
 })
 
 AIRLINE_PATTERNS: List[Tuple[re.Pattern, frozenset, str]] = [
-    # send / issue certificate before generic "book" to avoid false matches
+    # send / issue certificate before generic "book" to avoid false matches.
+    # "apply" is excluded: "apply the certificate to my booking" means payment
+    # routing (using an existing certificate), not requesting a new one.
     (re.compile(
-        r"\b(?:send|issue|apply|give|add|provide)\b"
+        r"\b(?:send|issue|give|add|provide)\b"
         r"[^.!?]*?\b(certificate|voucher|travel credit|compensation)\b",
         re.I), _A_CERT, "high"),
 
-    # book a flight / reservation
+    # book a flight / reservation.
+    # "purchase" is excluded from the short-form to prevent "purchase insurance
+    # for my flight" from matching: the insurance noun intervenes between the
+    # verb and the flight noun and the intent is insurance, not booking.
     (re.compile(
-        r"\b(?:book|reserve|purchase|buy)\b"
+        r"\b(?:book|reserve|buy)\b"
         r"[^.!?]*?\b(flight|reservation|ticket|seat)\b",
+        re.I), _A_BOOK, "high"),
+    # "purchase [a] ticket/seat/reservation" -- kept separate so "purchase
+    # insurance for my flight" doesn't match (insurance is not a flight noun).
+    (re.compile(
+        r"\bpurchase\b[^.!?]*?\b(ticket|seat|reservation)\b",
         re.I), _A_BOOK, "high"),
 
     # cancel flight / reservation (handles singular and plural)
@@ -225,6 +235,15 @@ RETAIL_PATTERNS: List[Tuple[re.Pattern, frozenset, str]] = [
     # bare "need a refund" / "want a refund"
     (re.compile(r"\b(?:need|want|get|requesting|looking for)\b"
                 r"[^.!?]*?\b(refund)\b", re.I), _R_RETURN, "high"),
+
+    # "switch/change all items to their cheapest/cheaper/lower options" means
+    # spec modification in a pending order, not an exchange of delivered items.
+    # This must appear BEFORE the exchange pattern so it wins for this phrasing.
+    (re.compile(
+        r"\b(?:switch|change|adjust)\b"
+        r"[^.!?]*?\b(items?|products?)\b"
+        r"[^.!?]*?\bto\b[^.!?]*?\b(?:cheapest|cheaper|lower|affordable)\b",
+        re.I), _R_ITEMS, "high"),
 
     # exchange / swap / replace items (handle plurals for specific product nouns)
     (re.compile(
