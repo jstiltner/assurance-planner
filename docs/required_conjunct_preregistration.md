@@ -229,6 +229,17 @@ Declared now so that no threshold can be chosen after seeing a number.
   1.50x anchor is not free-standing: R4 was rejected at 1.20x, R2 turned out to carry
   1.06x, and R3 was accepted at 1.78x. The bar is set strictly between this project's
   own rejected and accepted precedents.
+
+  > **Correction 2026-09-29 (forensic audit, commit following c43cdea):**
+  > The A2-task (≥1.25×) component is **INVALID / NON-DECISION-BEARING** on this corpus.
+  > 135 of 165 tasks (81.8%) contain at least one failing trial. The any-fail indicator
+  > used for the task-level lift is capped at 100%, so the maximum achievable lift was
+  > 1.0 / 0.818 = 1.222× — below the 1.25× threshold. No rule of any design could have
+  > passed this gate. It is a preregistration design defect: the threshold was applied to
+  > a quantity whose denominator was already saturated. The gate is retired, not reported as
+  > FAIL or near-pass. RC1 is rejected on A1 and A2-traj only. The A2-task criterion is
+  > preserved in the historical record and marked invalid here. Do not replace it with a
+  > new post-hoc threshold.
 - **A3 -- extractor validity.** The label-blind precision audit in metric 8 finds at least
   27 of 30 extracted obligations correct. Below that, RC1's firings cannot be attributed
   to the rule rather than to the extractor, and the result is void rather than negative.

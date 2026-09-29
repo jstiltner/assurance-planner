@@ -189,53 +189,85 @@ Two conclusions, and the second constrains the first:
 
 ## 5. Where the wrong-reason firings come from
 
-The 383 wrong-reason firings fall into three mechanisms. The harm sample (§18 of the final
-report, 15 cases re-drawn at seed `20260929` against the corrected index) gives the
-qualitative reading; the oracle comparison gives the counts.
+> **Narrowed 2026-09-29 (forensic audit).** The §5 claim that stood here attributed the
+> harm-sample F4/F6 distribution as F4=9/15 dominant, F6=5/15. **That claim is withdrawn.**
+> It was itself an overcorrection from the first correction pass (commit c43cdea), which
+> fixed the collided-key sample but introduced a new error by classifying "user revised
+> their stated request" as F4 revocation. Oracle-grounded reclassification
+> (`scripts/rc1_mechanism_audit.py`, `data/rc1_mechanism_audit.json`) shows F6 is dominant.
+>
+> The full corrected mechanism analysis is in `docs/rc1_forensic_audit.md` §§8–9.
+> Summary below.
 
-**(a) The reference required no write at all — 93 firings (19 TP + 74 harm).**
-Qualitatively this is **F4: the obligation stops being owed mid-conversation** — 9 of the 15
-sampled harms. Three sub-patterns: forbidden by domain policy (user asks to split payment /
-refund to gift card / remove a checked bag; the agent correctly refuses; the user accepts),
-false premise (user says they "received" an item that is still pending, so `return` is
-inapplicable), and plain change of mind ("now that I think about it, I might want to keep
-the grill"). RC1 extracts the obligation from an early user turn and never revisits it. The
-frozen retraction list (exception 4.4) fired on 20 cases corpus-wide — far too narrow.
+The 383 wrong-reason firings fall into three mechanisms. Oracle-grounded counts use
+`info.task.actions` (oracle, undeployable). Harm-sample (15 cases) provides the
+qualitative reading.
 
-**Correcting the original report's headline: F4 is the dominant harm mode (9/15), not F6
-(5/15).** The original sample put F4 at 3/15 and declared F6 dominant; that was read through
-the collided key. The consequence matters, because F6-dominance implied the fix was reading
-tool *arguments* for order-state disambiguation. On the corrected sample that remedy
-addresses a third of the harms. The larger share is conversational revocation, whose
-evidence is in dialogue text the rule **already reads** and simply never re-examines.
+**(a) Oracle GT fully performed under a different action class — ~242 firings,
+F6_alt_tool — 10/15 sampled harms.**
 
-**(b) Every required write was performed, under a different name — 242 firings (86 TP + 156
-harm).** This is **F6**, and it is real: in tau-bench retail an "exchange" on a *pending*
-order is `modify_pending_order_items`, while `exchange_delivered_order_items` applies to
-delivered orders. The verb table maps "exchange" → the delivered tool regardless of state.
-One variant is scope rather than state — "cancel just the speaker from my order" is an
-item-level modification, not an order cancellation.
+This is **F6**, and it is the dominant mechanism. "Every required write was performed;
+RC1 extracted the wrong action class." Two sub-patterns:
 
-**(c) Something was missing, but not what RC1 named — 48 firings (34 TP + 14 harm).**
+- *Order-state mismatch:* "exchange" on a pending order is `modify_pending_order_items`;
+  `exchange_delivered_order_items` applies to delivered orders. RC1 maps "exchange" → the
+  delivered tool regardless of conversation context.
+- *Conversation-evolved action class:* user initially states X ("return this received
+  item"), conversation reveals Y is appropriate ("actually still pending, cancel instead"),
+  agent correctly executes Y per oracle GT — but RC1 extracted X from turn 1 and never
+  updated it.
+
+The second sub-pattern is the larger one and the more diagnostic: **RC1 is locked to the
+first-stated action class; the oracle grades the resolved one.** Reading tool arguments
+addresses the first sub-pattern (order state). Neither argument-reading nor dialogue-state
+tracking alone addresses the second — the full conversation trajectory is required to know
+what action class was actually resolved.
+
+**This changes the implied remedy relative to the c43cdea decomposition doc.** That doc
+concluded "fix is off 'read tool arguments' and onto dialogue text." The corrected
+conclusion is: the fix requires action-class resolution from the full conversation —
+substantially broader than either tool arguments or a retraction list.
+
+**(b) Oracle GT empty — ~93 firings, F4_true_revoc — 2/15 sampled harms.**
+
+The reference solution required no write at all. RC1 extracted an obligation from an early
+user turn that was never actually owed — plain change of mind (retail 24/3: user keeps
+grill) or policy block accepted (retail 57/3: refund to gift card forbidden, user accepts).
+F4 is real but rare in the oracle-grounded count, not dominant.
+
+**(c) Something was missing, but not what RC1 named — ~48 firings.**
 Partial credit: a genuine gap exists and RC1 pointed at the wrong one.
+
+**(d) 28 ambiguous (traj-incomplete or conditional task path)** — see §6 and §12 of the
+forensic audit. These contribute to the harm count; their mechanism is ambiguous.
 
 ---
 
-## 6. Reference-label reliability
+## 6. The 28 ambiguous write/reward cases
 
-Found while inspecting harm case retail 106/0: the reference *requires*
-`exchange_delivered_order_items`, the agent called no write tool whatsoever, and reward is
-nonetheless 1.0.
-
-Corpus-wide, **reference requires a write ∧ agent performed none ∧ reward = 1.0** occurs
+Corpus-wide, `info.task.actions` requires a write ∧ traj shows none ∧ reward = 1.0 occurs
 **28 times (1.4% of records, 12 distinct tasks, retail only). RC1 fires on 16 of them.**
-So ~6% of RC1's 266 counted harms are reference errors, not RC1 errors.
 
-**Reported as a bound, not applied as a correction.** Crediting all 16 moves trajectory lift
-1.165× → 1.202×; A1 is untouched at 25.3%. The verdict does not move, and removing cases to
-improve a headline is exactly what a rejected rule's post-mortem must not do. The figure's
-real use is as a noise floor: any future result on tau-bench claiming a lift improvement
-smaller than ~1.4 points of harm rate is inside the reference's own error.
+> **Narrowed 2026-09-29 (forensic audit).** The c43cdea decomposition doc initially called
+> these "reference label errors." **That characterisation is withdrawn.** Deeper investigation
+> (`scripts/rc1_label_audit.py`) shows all 28 have the write action recorded in
+> `reward_info.actions` — but whether `reward_info.actions` is the agent's actual execution
+> log or the reference solution's path used for state checking is ambiguous without access
+> to tau-bench's scoring source. The `reward_info.actions` vs `traj` divergence is 339
+> records (not just 28), confirming a systematic structural difference, not simple traj
+> incompleteness.
+
+**Correct characterisation:** These 28 cases are **ambiguous — likely conditional task
+paths.** The oracle GT (`info.task.actions`) records the primary resolution; when the
+conversation takes a valid alternative path (e.g., agent correctly explains an impossibility
+and the benchmark accepts the outcome), reward=1.0 is awarded without the primary action
+being executed. The `info.task.actions` construct does not capture all acceptable
+resolutions, and the 28 cases are at the boundary of the construct's scope.
+
+**Conservative treatment:** Report as a noise floor / construct-scope boundary.
+Do NOT subtract from any metric. Do NOT relabel. Report the noise floor: any future
+tau-bench result claiming a lift improvement smaller than ~1–2 percentage points in harm
+rate may be within the corpus's own measurement uncertainty.
 
 ---
 
@@ -246,19 +278,25 @@ The scoping document offered three readings of the R3↔RC1 relationship.
 - **H1 — isolated modality phenomenon.** Not supported. The construct carries 2.339×
   within-task on tau-bench, a different corpus, different modality, and different agents
   from R3's. It is not modality-bound.
-- **H2 — same principle, wrong granularity.** **Supported, and this is the verdict.** RC1
-  and R3 both ask "is there evidence the required thing happened?"; RC1 answered it at
+- **H2a — RC1's representation is falsified; the broader construct remains plausible but
+  its deployability is unestablished.** **Supported, and this is the corrected verdict.**
+  RC1 and R3 both ask "is there evidence the required thing happened?"; RC1 answered it at
   Level 0 (tool name only) and recovered the underlying construct at 33.1% precision. The
-  principle survives; the granularity was the defect.
+  construct is strongly predictive (2.339× within-task on oracle). But the oracle ceiling
+  uses `info.task.actions` — entity-specific, path-specific reference data that no
+  production system holds. Whether any production-visible representation closes the gap from
+  1.101× to something useful is an open question, not a promising lead.
 - **H3 — the abstraction is too unconstrained to be a rule.** Not supported *as stated*, but
-  it lands a blow that H2 must absorb: even perfectly detected, the construct fires on 17.0%
+  it lands a blow that H2a must absorb: even perfectly detected, the construct fires on 17.0%
   of trajectories and **fails A1**. So the abstraction is not too unconstrained to be
   *predictive*; it may well be too unconstrained to be *affordable*.
+- **H2b — a production-valid mechanism is supported.** **Not supported.** Oracle association
+  establishes existence of signal, not deployability. Do not advance to H2b without a
+  production-visible detector frozen and validated on a fresh corpus.
 
-H2 is retained because the evidence supports it, not because it is the architecturally
-tidy answer. Its cost is stated plainly in §4.2 and in H3's residue: H2 being right does not
-imply a successor is worth building, because the measured headroom was measured with oracle
-data and even the oracle is unaffordable.
+H2a is retained because the evidence supports it. Its cost is stated plainly: H2a being
+right does not imply a successor is worth building, because the measured headroom was
+measured with oracle data and even the oracle fails the volume gate.
 
 ---
 

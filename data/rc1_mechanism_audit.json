@@ -1,0 +1,314 @@
+{
+  "counts": {
+    "F6_alt_tool": 10,
+    "F4_true_revoc": 2,
+    "construct_mismatch": 3
+  },
+  "cards": [
+    {
+      "key": [
+        64,
+        0,
+        "retail",
+        "gpt-4o"
+      ],
+      "mech": "construct_mismatch",
+      "rationale": "oracle GT=['exchange_delivered_order_items', 'modify_pending_order_items'], none performed, reward=1.0. Reference required an action that was not performed, yet the task passed. Possible explanations: reward not conditioned on this action, state already satisfied, or benchmark scoring inconsistency.",
+      "oracle_gt": [
+        "exchange_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "oracle_did": [
+        "modify_pending_order_items"
+      ],
+      "oracle_missing": [
+        "exchange_delivered_order_items"
+      ],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        111,
+        5,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['modify_pending_order_address', 'modify_pending_order_items', 'modify_user_address'] vs GT ['modify_pending_order_address', 'modify_pending_order_items', 'modify_user_address']). RC1 claimed ['exchange_delivered_order_items'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_did": [
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        56,
+        2,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['modify_pending_order_items'] vs GT ['modify_pending_order_items']). RC1 claimed ['cancel_pending_order'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "modify_pending_order_items"
+      ],
+      "oracle_did": [
+        "modify_pending_order_items"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "cancel_pending_order"
+      ]
+    },
+    {
+      "key": [
+        86,
+        0,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['modify_pending_order_items', 'modify_user_address'] vs GT ['modify_pending_order_items', 'modify_user_address']). RC1 claimed ['exchange_delivered_order_items'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_did": [
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        24,
+        3,
+        "retail",
+        "gpt-4o"
+      ],
+      "mech": "F4_true_revoc",
+      "rationale": "oracle GT empty: reference solution required no write. RC1 extracted an obligation from an early user turn that was never actually owed -- the conversation concluded without any write being needed.",
+      "oracle_gt": [],
+      "oracle_did": [],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "cancel_pending_order"
+      ]
+    },
+    {
+      "key": [
+        69,
+        6,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['cancel_pending_order'] vs GT ['cancel_pending_order']). RC1 claimed ['return_delivered_order_items'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "cancel_pending_order"
+      ],
+      "oracle_did": [
+        "cancel_pending_order"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "return_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        38,
+        2,
+        "retail",
+        "gpt-4o"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['cancel_pending_order', 'modify_pending_order_items'] vs GT ['cancel_pending_order']). RC1 claimed ['modify_pending_order_payment'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "cancel_pending_order"
+      ],
+      "oracle_did": [
+        "cancel_pending_order",
+        "modify_pending_order_items"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "modify_pending_order_payment"
+      ]
+    },
+    {
+      "key": [
+        63,
+        0,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['modify_pending_order_items'] vs GT ['modify_pending_order_items']). RC1 claimed ['cancel_pending_order'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "modify_pending_order_items"
+      ],
+      "oracle_did": [
+        "modify_pending_order_items"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "cancel_pending_order"
+      ]
+    },
+    {
+      "key": [
+        86,
+        7,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['modify_pending_order_items', 'modify_user_address'] vs GT ['modify_pending_order_items', 'modify_user_address']). RC1 claimed ['exchange_delivered_order_items'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_did": [
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        20,
+        7,
+        "airline",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['update_reservation_flights'] vs GT ['update_reservation_flights']). RC1 claimed ['update_reservation_baggages'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "update_reservation_flights"
+      ],
+      "oracle_did": [
+        "update_reservation_flights"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "update_reservation_baggages"
+      ]
+    },
+    {
+      "key": [
+        106,
+        7,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "construct_mismatch",
+      "rationale": "oracle GT=['exchange_delivered_order_items'], none performed, reward=1.0. Reference required an action that was not performed, yet the task passed. Possible explanations: reward not conditioned on this action, state already satisfied, or benchmark scoring inconsistency.",
+      "oracle_gt": [
+        "exchange_delivered_order_items"
+      ],
+      "oracle_did": [],
+      "oracle_missing": [
+        "exchange_delivered_order_items"
+      ],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        1,
+        5,
+        "airline",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['cancel_reservation'] vs GT ['cancel_reservation']). RC1 claimed ['update_reservation_flights'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "cancel_reservation"
+      ],
+      "oracle_did": [
+        "cancel_reservation"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "update_reservation_flights"
+      ]
+    },
+    {
+      "key": [
+        57,
+        3,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F4_true_revoc",
+      "rationale": "oracle GT empty: reference solution required no write. RC1 extracted an obligation from an early user turn that was never actually owed -- the conversation concluded without any write being needed.",
+      "oracle_gt": [],
+      "oracle_did": [],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        106,
+        0,
+        "retail",
+        "gpt-4o"
+      ],
+      "mech": "construct_mismatch",
+      "rationale": "oracle GT=['exchange_delivered_order_items'], none performed, reward=1.0. Reference required an action that was not performed, yet the task passed. Possible explanations: reward not conditioned on this action, state already satisfied, or benchmark scoring inconsistency.",
+      "oracle_gt": [
+        "exchange_delivered_order_items"
+      ],
+      "oracle_did": [],
+      "oracle_missing": [
+        "exchange_delivered_order_items"
+      ],
+      "rc1_claimed_not_called": [
+        "exchange_delivered_order_items"
+      ]
+    },
+    {
+      "key": [
+        69,
+        0,
+        "retail",
+        "sonnet-3.5-new"
+      ],
+      "mech": "F6_alt_tool",
+      "rationale": "oracle GT fully performed (['cancel_pending_order'] vs GT ['cancel_pending_order']). RC1 claimed ['return_delivered_order_items'] was never called. The agent resolved the task correctly under a different action class than RC1 extracted from the initial user statement.",
+      "oracle_gt": [
+        "cancel_pending_order"
+      ],
+      "oracle_did": [
+        "cancel_pending_order"
+      ],
+      "oracle_missing": [],
+      "rc1_claimed_not_called": [
+        "return_delivered_order_items"
+      ]
+    }
+  ]
+}
