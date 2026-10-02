@@ -137,7 +137,7 @@ siblings). Strict arm 1180.
 |---|---|---|---|
 | **R1** self-contradictory infeasibility claim | 27 (2.1%) | lift **0.51×** — *inverted*; counterfactual veto **6 helped / 14 harmed, net −8** | evidence half **REJECTED**; escalation half survives |
 | **R2** negative self-report on imperative goal | 13 eligible, 6 changed | **6 helped / 0 harmed**; but firing precision **1.06×** and rule-of-three harm bound **39.3%** at n=6 | **ACCEPTED**, simultaneously UNDERPOWERED-REGARDLESS |
-| **R3** unverifiable image premise | 133 (10.6%), **all visualwebarena** | evaluator error **25.6%** on escalated vs **14.4%** on remainder (p = 0.0015) — but **25.6% vs 19.7% within visualwebarena, p = 0.26**; removes 22 E1 + 12 E2 from authority; **99 of 133 escalated were already correct** | ~~ACCEPTED~~ **CONFOUNDED** — see §3.3.1 |
+| **R3** unverifiable image premise | 133 (10.6%), **all visualwebarena** | evaluator error **25.6%** on escalated vs **14.4%** on remainder (p = 0.0015) — but **25.6% vs 19.7% within visualwebarena, p = 0.26**; removes 22 E1 + 12 E2 from authority; **99 of 133 escalated were already correct** | **ACCEPTED** — disposition stands; the *reading* is withdrawn, see §3.3.1 |
 | **R4** terminal search-results route | 118 (9.4%) | lift 1.20× on the *agent's* outcome, but evaluator wrong on **16.1%** of firings vs **15.5%** elsewhere — 0.6 pt | **REJECTED** — tells you about the agent, not the evaluation; also application-specific |
 
 #### 3.3.1 R3 conditioned on slice — correction of 2026-10-02
@@ -158,10 +158,18 @@ benchmark leaves **25.6% vs 19.7% (34/133 vs 31/157), Fisher p = 0.26** — +5.8
 +11.2 pp pooled separation, with +5.4 pp attributable to slice identity.
 Reproduce: `scripts/arb_r3_slice_check.py`.
 
-**Disposition.** CONFOUNDED, not REJECTED. The residual runs in the direction R3 predicts
-and n=133 vs 157 is underpowered; the evidence does not show the rule fails, it fails to
-show the rule works. Settling it needs a corpus where the evidence gap occurs outside one
-benchmark.
+**Disposition: unchanged, ACCEPTED.** R3 met its preregistered criterion and the test ran as
+specified. Re-labelling a disposition after the fact, on the strength of an analysis the
+preregistration did not name, is the post-hoc move this project exists to catch — it was
+briefly done here on 2026-10-02 (a `CONFOUNDED` value was added to the ledger) and reverted
+the same day. The disposition records what the test returned; it is not a score.
+
+**What is withdrawn is the reading.** R3 passed a test that, as specified, could not
+distinguish it from a proxy for the hardest environment. The within-environment effect is
++5.8 pts and unresolved: the residual runs in the direction R3 predicts, and n=133 vs 157 is
+underpowered, so the evidence does not show the rule fails — it fails to show the rule works.
+R3 is no longer quotable as a positive result of this study. Settling it needs a corpus where
+the evidence gap occurs outside one benchmark.
 
 **On how it was missed.** §22 of this document already recorded "visualwebarena-only
 firings" in a scope column, and the preregistration already contained the sentence "any rule
@@ -192,8 +200,10 @@ whose pooled contrast can be a slice artefact — the defect is specific, not pe
 escalation half, the other claim on the project's "weak claims validate more easily" argument,
 fires across three benchmarks and keeps a positive residual inside each one; its weakness is
 power (every within-slice arm is n < 20), not confounding. R4's within-slice residuals change
-sign across slices, which is what a rule carrying no information about evaluator reliability
-should look like, and is consistent with the FAIL it already had.
+sign across slices (−2.3, −8.8, +8.7 pp), which is what a rule carrying no information about
+evaluator reliability should look like. That is a statement about R4's evaluator-error
+contrast only; R4's preregistered criterion was firing enrichment against base rate, which it
+met at 1.20×, and nothing here changes that.
 
 This sweep does not rescue R3 and is not offered as doing so. It establishes the scope of the
 2026-10-02 correction: one rule, not the rule set.

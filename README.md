@@ -79,10 +79,13 @@ that escalates hard cases passes this test* — and `docs/research_synthesis.md`
 "visualwebarena-only firings" in a scope column. Both facts were on paper; nobody joined
 them.
 
-R3 is not refuted. A +5.8 pp within-slice residual in the predicted direction at n=133 vs
-157 is underpowered, not absent, and settling it needs a corpus where the evidence gap
-occurs outside one benchmark. It corrects nothing itself; 99 of 133 escalated cases were
-already correct. It should not be cited as a positive result in the meantime.
+R3 is not refuted, and its preregistered disposition does not move — it met its criterion and
+the test ran as specified, so relabelling it now on an analysis the preregistration never
+named would be the same post-hoc move criticised two sections above. What is withdrawn is the
+reading. A +5.8 pp within-slice residual in the predicted direction at n=133 vs 157 is
+underpowered, not absent, and settling it needs a corpus where the evidence gap occurs outside
+one benchmark. It corrects nothing itself; 99 of 133 escalated cases were already correct. It
+should not be cited as a positive result in the meantime.
 
 ---
 

@@ -183,6 +183,14 @@ Not a refutation. The residual runs in the predicted direction and the test is u
 at n=133 vs 157, so this is a rule left unproven, not one shown not to work. Settling it
 needs a corpus where the evidence gap occurs outside a single benchmark.
 
+**The disposition does not move; the reading does.** R3's preregistered disposition stays
+ACCEPTED, because it met its criterion and the test ran as specified. Downgrading a
+disposition after the fact on the strength of an analysis the preregistration never named
+would be the same post-hoc move this document criticises elsewhere. What is withdrawn is what
+the pass was taken to mean: R3 passed a test that, as specified, could not distinguish it from
+a proxy for the hardest environment, so it is no longer quotable as a positive result of this
+study.
+
 R3 remains an escalation signal rather than a corrector, and its value remains a function of
 human review cost. Both were true before and are unaffected.
 

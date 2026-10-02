@@ -107,13 +107,13 @@ CANONICAL = {
 # MECHANISM DISPOSITIONS  (machine-readable; use for programmatic validation)
 # Fields: prereg, frozen_threshold, evaluation_surface, disposition
 # disposition values: FAIL | PASS | ACCEPTED_UNDERPOWERED | WEAKENED | INVALID | EXPLORATORY
-#                   | CONFOUNDED
 #
-# CONFOUNDED is distinct from FAIL and from WEAKENED: the mechanism met its preregistered
-# threshold, but a covariate the test did not control for accounts for most of the effect,
-# so the test cannot tell whether the mechanism works. Added 2026-10-02 for R3. A mechanism
-# here is not retired — it is unproven by the evidence collected, and the scope field must
-# say what would settle it.
+# These record what the preregistered test returned, not what the result is worth. A
+# disposition is therefore fixed once the test has run: re-labelling it later with the benefit
+# of an analysis the preregistration did not specify is exactly the post-hoc move this project
+# exists to catch. A CONFOUNDED value was briefly added here for R3 on 2026-10-02 and reverted
+# the same day for that reason — R3 passed its test, and what the slice check changes is the
+# *reading*, which belongs in the `scope` field and in the prose. See §3.3.1 of the synthesis.
 # ---------------------------------------------------------------------------
 
 MECHANISM_DISPOSITIONS = {
@@ -154,15 +154,19 @@ MECHANISM_DISPOSITIONS = {
         "prereg": True,
         "frozen_threshold": True,
         "evaluation_surface": "held_out",
-        # Was PASS, "clearest positive result", until the slice check on 2026-10-02.
-        # R3 passes the preregistered test as written, but the test cannot separate the
-        # rule's signal from the difficulty of the one slice it fires in. The preregistration
-        # named this risk ("any rule that escalates hard cases passes this test") and the
-        # check was never run. Not FAIL: a +5.8 pp within-slice residual in the predicted
-        # direction at n=133 vs 157 is underpowered, not absent.
-        "disposition": "CONFOUNDED",  # 25.6% vs 14.4% pooled, but 25.6% vs 19.7% within slice
-        "scope": "1,260-case held-out arm; 133 fires, all visualwebarena; within-slice "
-                 "25.6% vs 19.7%, Fisher p = 0.26 — not separable from slice difficulty",
+        # The disposition stands: R3 met its preregistered criterion and the test ran as
+        # specified. What changed on 2026-10-02 is the reading, and only the reading. The
+        # test as specified could not distinguish R3 from a proxy for the hardest benchmark,
+        # because all 133 firings are visualwebarena. The preregistration named this risk
+        # ("any rule that escalates hard cases passes this test") and the check was never run.
+        # The old gloss on this line — "clearest positive result" — is withdrawn; the rule is
+        # no longer quotable as a positive result of the study.
+        "disposition": "PASS",       # 25.6% vs 14.4%; reading withdrawn 2026-10-02, see scope
+        "scope": "1,260-case held-out arm; 133 fires, ALL visualwebarena; within-benchmark "
+                 "25.6% vs 19.7%, Fisher p = 0.26 (+5.8 pp of the +11.2 pp pooled gap). "
+                 "Passed a test that, as specified, could not distinguish the rule from a "
+                 "proxy for the hardest environment; within-environment effect unresolved. "
+                 "99/133 escalated were already correct",
     },
     "M6_R4": {
         "label": "R4 (deterministic pre-check)",

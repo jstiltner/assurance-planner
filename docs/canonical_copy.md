@@ -40,10 +40,11 @@ despite a 28/30 label-blind extractor audit.
   the slice with the highest judge error, so the pooled test compares one hard
   benchmark against three easier ones. Within visualwebarena: **25.6% versus
   19.7%, Fisher p = 0.26.** Never quote the pooled pair without the within-slice
-  pair beside it. R3 is unproven rather than refuted — the residual runs in the
-  predicted direction but is underpowered at n=133 vs 157 — and it was always an
-  escalation signal rather than a correction mechanism: 99 of the 133 escalated
-  cases were already correct.
+  pair beside it. R3's preregistered disposition is unchanged (ACCEPTED) — it met its
+  criterion and the test ran as specified; what is withdrawn is the reading. R3 is
+  unproven rather than refuted: the residual runs in the predicted direction but is
+  underpowered at n=133 vs 157. It was always an escalation signal rather than a
+  correction mechanism: 99 of the 133 escalated cases were already correct.
 
 - **Required-conjunct matching (RC1):** On the fresh τ-bench corpus, RC1 failed
   both binding gates: 25.3% firing volume versus a <15% ceiling and 1.165×
@@ -88,6 +89,12 @@ found by someone outside the project. It is a withdrawal, not a retraction: the
 within-slice residual runs in the predicted direction and is underpowered rather
 than absent, so R3 is unproven. Settling it requires a corpus where the evidence
 gap occurs outside a single benchmark.
+
+It withdraws a reading, not a disposition. R3's disposition stays ACCEPTED: it met
+its preregistered criterion and the test ran as specified. A `CONFOUNDED` disposition
+was briefly introduced for it on 2026-10-02 and reverted the same day — downgrading a
+disposition on the strength of an analysis the preregistration never named is the
+post-hoc move this project exists to catch, whichever direction it points.
 
 The hazard was already written down. `docs/repair_validation_preregistration.md`
 says "any rule that escalates hard cases passes this test", and
