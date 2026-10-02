@@ -173,6 +173,31 @@ not control for a covariate the test omits. This is the clearest instance in the
 the failure mode the project is about: a preregistered test that measures something other
 than what it is read as measuring.
 
+#### 3.3.2 The same check applied to R1, R2 and R4 — class sweep, 2026-10-02
+
+Correcting one instance of a defect and not sweeping for the rest of its class is how the R3
+confound reached publication in the first place. R1's escalation half and R4's comparison are
+the same kind of pooled error-rate claim, computed the same way. All four rules therefore got
+the same treatment: `scripts/arb_rule_slice_audit.py`.
+
+| rule | firings | slices it fires in | pooled error contrast | within-slice |
+|---|---|---|---|---|
+| R1 contradictory infeasibility | 27 | **3** (vwa 7, wa 10, work 10) | 33.3% vs 15.2%, p = 0.026 | +6.3, +10.4, +29.5 pp — positive in all three |
+| R2 negative self-report | 13 | 2 (vwa 2, wa 11) | 69.2% vs 15.0% (n too small to test) | +27.8, +54.5 pp |
+| **R3 unverifiable image premise** | 133 | **1** (vwa 133) | 25.6% vs 14.4%, p = 0.0015 | **+5.8 pp, p = 0.26** |
+| R4 terminal search route | 118 | **3** (ab 42, vwa 21, wa 55) | 16.1% vs 15.5%, p = 0.89 | −2.3, −8.8, +8.7 pp |
+
+**R3 is the only one of the four whose firings sit in a single slice**, so it is the only one
+whose pooled contrast can be a slice artefact — the defect is specific, not pervasive. R1's
+escalation half, the other claim on the project's "weak claims validate more easily" argument,
+fires across three benchmarks and keeps a positive residual inside each one; its weakness is
+power (every within-slice arm is n < 20), not confounding. R4's within-slice residuals change
+sign across slices, which is what a rule carrying no information about evaluator reliability
+should look like, and is consistent with the FAIL it already had.
+
+This sweep does not rescue R3 and is not offered as doing so. It establishes the scope of the
+2026-10-02 correction: one rule, not the rule set.
+
 ### 3.4 τ-bench RC1 — class A/FRESH, corrected values only
 
 | gate / quantity | value | verdict |

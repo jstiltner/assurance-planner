@@ -67,6 +67,20 @@ CANONICAL = {
     "r3_pooled_separation_pp": 11.2,
     "r3_within_slice_separation_pp": 5.8,
     "r4_lift": 1.20,
+    # Class sweep, added 2026-10-02 (scripts/arb_rule_slice_audit.py). Finding the R3 confound
+    # and not checking the rest of its class is how the R3 confound got published, so every rule
+    # got the same treatment. R3 is the only one of the four whose firings sit in a single slice.
+    # R1's escalation half, which makes the same kind of pooled claim, fires across three slices
+    # and keeps a positive residual within each — so it is underpowered, not confounded.
+    "r1_fires": 27,
+    "r1_slices_firing": 3,
+    "r1_escalation_error_fired": 0.333,     # 9/27 pooled
+    "r1_escalation_error_unfired": 0.152,   # 187/1232 pooled
+    "r1_escalation_pooled_p": 0.0262,
+    "r2_slices_firing": 2,
+    "r3_slices_firing": 1,                  # the defect
+    "r4_fires": 118,
+    "r4_slices_firing": 3,
 
     # RC1 tau-bench — class A/FRESH (corrected)
     "rc1_volume": 0.253,       # 501/1980
