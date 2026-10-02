@@ -137,8 +137,41 @@ siblings). Strict arm 1180.
 |---|---|---|---|
 | **R1** self-contradictory infeasibility claim | 27 (2.1%) | lift **0.51×** — *inverted*; counterfactual veto **6 helped / 14 harmed, net −8** | evidence half **REJECTED**; escalation half survives |
 | **R2** negative self-report on imperative goal | 13 eligible, 6 changed | **6 helped / 0 harmed**; but firing precision **1.06×** and rule-of-three harm bound **39.3%** at n=6 | **ACCEPTED**, simultaneously UNDERPOWERED-REGARDLESS |
-| **R3** unverifiable image premise | 133 (10.6%) | evaluator error **25.6%** on escalated vs **14.4%** on remainder; removes 22 E1 + 12 E2 from authority; **99 of 133 escalated were already correct** | **ACCEPTED** |
+| **R3** unverifiable image premise | 133 (10.6%), **all visualwebarena** | evaluator error **25.6%** on escalated vs **14.4%** on remainder (p = 0.0015) — but **25.6% vs 19.7% within visualwebarena, p = 0.26**; removes 22 E1 + 12 E2 from authority; **99 of 133 escalated were already correct** | ~~ACCEPTED~~ **CONFOUNDED** — see §3.3.1 |
 | **R4** terminal search-results route | 118 (9.4%) | lift 1.20× on the *agent's* outcome, but evaluator wrong on **16.1%** of firings vs **15.5%** elsewhere — 0.6 pt | **REJECTED** — tells you about the agent, not the evaluation; also application-specific |
+
+#### 3.3.1 R3 conditioned on slice — correction of 2026-10-02
+
+Found by external reproduction, after the canonical freeze. R3 fires 133 times and every
+firing is visualwebarena; the other three benchmarks produce none. visualwebarena is also
+where the judge is weakest:
+
+| benchmark | R3 fires | cases | judge error, R3 ignored |
+|---|---|---|---|
+| visualwebarena | **133** | 290 | 22.4% |
+| assistantbench | 0 | 128 | 3.9% |
+| webarena | 0 | 373 | 19.8% |
+| workarena | 0 | 468 | 11.1% |
+
+So the preregistered test contrasted one hard slice with three easier ones. Conditioning on
+benchmark leaves **25.6% vs 19.7% (34/133 vs 31/157), Fisher p = 0.26** — +5.8 pp of the
++11.2 pp pooled separation, with +5.4 pp attributable to slice identity.
+Reproduce: `scripts/arb_r3_slice_check.py`.
+
+**Disposition.** CONFOUNDED, not REJECTED. The residual runs in the direction R3 predicts
+and n=133 vs 157 is underpowered; the evidence does not show the rule fails, it fails to
+show the rule works. Settling it needs a corpus where the evidence gap occurs outside one
+benchmark.
+
+**On how it was missed.** §22 of this document already recorded "visualwebarena-only
+firings" in a scope column, and the preregistration already contained the sentence "any rule
+that escalates hard cases passes this test". The hazard and the fact that triggers it were
+both on paper, one document apart, and the conditioning was never run. The defence recorded
+at the time — that R3's condition is structural, answer-independent, and frozen before its
+error rate was known — is true of the rule and silent on the confound. Freezing a rule does
+not control for a covariate the test omits. This is the clearest instance in the project of
+the failure mode the project is about: a preregistered test that measures something other
+than what it is read as measuring.
 
 ### 3.4 τ-bench RC1 — class A/FRESH, corrected values only
 
@@ -568,6 +601,19 @@ too cute, and it overclaims by implying a general programme. The defensible vers
 > already been published: a join-key collision that scored a third of the records against
 > the wrong agent. The mechanisms that caught them are the ordinary ones: predeclaration,
 > quarantine, negative controls, and recomputing a comparison in a single code path.
+
+**Update, 2026-10-02.** A fourteenth error was found after the canonical freeze, by an
+external reproduction rather than by any mechanism above: R3's preregistered test pooled
+across benchmarks when every one of its firings is in a single benchmark (§3.3.1). It
+belongs in the "caught afterwards" column, and it had been published — as the project's one
+positive result.
+
+It is the first error here found by someone outside the project, which is the part worth
+keeping. Every internal mechanism that caught the other thirteen had already run over R3 and
+passed it, including a preregistration that names this exact hazard in a sentence. The
+honest reading is not that the process worked; it is that a process can only catch the
+confounds it thought to test for, and the step that caught this one was a stranger asking
+which slice the rule fires in.
 
 The ratio is itself a finding, and it is not flattering: **fewer than half the process errors
 were caught by the safeguards that ran ahead of the data.** The majority were caught by

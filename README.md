@@ -58,14 +58,31 @@ construct 2.339×, null rule requiring no model 1.171×, RC1 1.101×. The detect
 below a no-model baseline. The oracle establishes that the latent construct carries signal;
 it does not establish that a production-valid representation of it exists.
 
-**What survived (R3):** An explicit "required evidence is absent" state had held-out support
-as an escalation signal (25.6% vs 14.4% evaluator error on a 133-case subset). R3 fires on a
-structural, answer-independent condition — the goal names an image and the evaluator's input
-contains none — and that condition was fixed before its error rate was known. That is what
-keeps the result from being circular: any rule that escalates cases a judge finds hard will
-pass a test of the form "is the judge worse on the escalated subset". It corrects
-nothing itself; 99 of 133 escalated cases were already correct. Its value depends entirely
-on review cost.
+**What did not survive reproduction (R3):** An explicit "required evidence is absent" state
+passed its preregistered test as an escalation signal — 25.6% vs 14.4% evaluator error on a
+133-case subset, Fisher p = 0.0015 — and this README called it the project's one clearly
+positive result until 2026-10-02.
+
+It does not hold up conditioned on benchmark. All 133 firings are visualwebarena, the slice
+where the judge is weakest (22.4% error, against 3.9% on assistantbench and 11.1% on
+workarena), so the pooled test compares one hard slice against three easier ones. Within
+visualwebarena the contrast is **25.6% vs 19.7%, Fisher p = 0.26** — about half the
+separation, and not significant. Reproduce with `scripts/arb_r3_slice_check.py`.
+
+The paragraph this replaces argued R3 escaped circularity because its condition is
+structural, answer-independent, and frozen before its error rate was known. All three are
+still true and none of them help: "the goal names an image the evaluator cannot see" is
+near-perfectly correlated with the benchmark built out of image-grounded tasks.
+Preregistering a rule does not control for a covariate the test never measured.
+`docs/repair_validation_preregistration.md` had already written the risk down — *any rule
+that escalates hard cases passes this test* — and `docs/research_synthesis.md` recorded
+"visualwebarena-only firings" in a scope column. Both facts were on paper; nobody joined
+them.
+
+R3 is not refuted. A +5.8 pp within-slice residual in the predicted direction at n=133 vs
+157 is underpowered, not absent, and settling it needs a corpus where the evidence gap
+occurs outside one benchmark. It corrects nothing itself; 99 of 133 escalated cases were
+already correct. It should not be cited as a positive result in the meantime.
 
 ---
 

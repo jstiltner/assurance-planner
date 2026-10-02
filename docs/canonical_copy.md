@@ -15,10 +15,11 @@ process-failure audit.
 ## Headline
 
 Repeated execution failed for the deployed configuration; two of four held-out
-deterministic rules failed, one passed as an evidence-gap escalation signal, and
-one was accepted but underpowered; alternate-judge pairing weakened substantially
-under operational analysis; and the static required-conjunct rule failed
-fresh-corpus validation despite a 28/30 label-blind extractor audit.
+deterministic rules failed, one was accepted but underpowered, and the one that
+passed as an evidence-gap escalation signal did not survive conditioning on
+benchmark slice; alternate-judge pairing weakened substantially under operational
+analysis; and the static required-conjunct rule failed fresh-corpus validation
+despite a 28/30 label-blind extractor audit.
 
 ## Quantitative bullets
 
@@ -33,10 +34,16 @@ fresh-corpus validation despite a 28/30 label-blind extractor audit.
   0.366 / 0.465 — a 20–30 point gap because the reference-conditioned quantity
   conditions on a label unavailable to the runtime policy.
 
-- **Evidence-gap escalation (R3):** Evaluator error was 25.6% on the 133 fired
-  cases versus 14.4% elsewhere in the 1,260-case held-out arm. This was the
-  clearest positive result, but it was an escalation signal rather than a
-  correction mechanism: 99 of the 133 escalated cases were already correct.
+- **Evidence-gap escalation (R3) — withdrawn as a positive result 2026-10-02:**
+  Evaluator error was 25.6% on the 133 fired cases versus 14.4% elsewhere in the
+  1,260-case held-out arm (Fisher p = 0.0015). All 133 firings are visualwebarena,
+  the slice with the highest judge error, so the pooled test compares one hard
+  benchmark against three easier ones. Within visualwebarena: **25.6% versus
+  19.7%, Fisher p = 0.26.** Never quote the pooled pair without the within-slice
+  pair beside it. R3 is unproven rather than refuted — the residual runs in the
+  predicted direction but is underpowered at n=133 vs 157 — and it was always an
+  escalation signal rather than a correction mechanism: 99 of the 133 escalated
+  cases were already correct.
 
 - **Required-conjunct matching (RC1):** On the fresh τ-bench corpus, RC1 failed
   both binding gates: 25.3% firing volume versus a <15% ceiling and 1.165×
@@ -61,3 +68,31 @@ fresh-corpus validation despite a 28/30 label-blind extractor audit.
    production-valid representation of it exists (H2a from the forensic audit).
    The sentence now reports what was demonstrated: the construct carried signal
    that RC1 failed to recover, not that a deployable detector of it exists.
+
+**2026-10-02 — R3 withdrawn as the positive result (post-freeze, external
+reproduction):**
+
+An independent reproduction audit asked which benchmarks R3 fires in. All 133
+firings are visualwebarena, which is also the slice where the judge is weakest
+(22.4% error, against 3.9% on assistantbench and 11.1% on workarena). The
+preregistered test pooled across benchmarks, so it compared one hard slice against
+three easier ones rather than escalated cases against unescalated ones.
+
+Conditioned on slice: **25.6% vs 19.7%, Fisher p = 0.26**, against **25.6% vs
+14.4%, p = 0.0015** pooled. Of +11.2 pp separation, +5.8 pp survives and +5.4 pp
+is slice identity. Reproduce with `scripts/arb_r3_slice_check.py`, added in the
+same change.
+
+This is the first correction to land after the canonical freeze, and the first
+found by someone outside the project. It is a withdrawal, not a retraction: the
+within-slice residual runs in the predicted direction and is underpowered rather
+than absent, so R3 is unproven. Settling it requires a corpus where the evidence
+gap occurs outside a single benchmark.
+
+The hazard was already written down. `docs/repair_validation_preregistration.md`
+says "any rule that escalates hard cases passes this test", and
+`docs/research_synthesis.md` records "visualwebarena-only firings" in a scope
+column. The two facts sat in different documents and were never joined. The
+defence offered at the time — that R3's condition is structural and was frozen
+before its error rate was known — is true and does not address the confound:
+freezing a rule does not control for a covariate the test never measured.

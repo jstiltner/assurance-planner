@@ -55,6 +55,17 @@ CANONICAL = {
     "r3_error_unfired": 0.144,
     "r3_fires": 133,
     "r3_already_correct": 99,
+    # Slice conditioning, added 2026-10-02 (scripts/arb_r3_slice_check.py). All 133 firings
+    # are visualwebarena, which is also the judge's weakest slice. The pooled pair above is
+    # therefore mostly a slice contrast. Quote the pooled numbers ONLY with these beside them.
+    "r3_fires_visualwebarena": 133,
+    "r3_fires_other_slices": 0,
+    "r3_within_slice_error_fired": 0.256,    # 34/133
+    "r3_within_slice_error_unfired": 0.197,  # 31/157, visualwebarena only
+    "r3_within_slice_p": 0.26,               # Fisher exact, two-sided
+    "r3_pooled_p": 0.0015,
+    "r3_pooled_separation_pp": 11.2,
+    "r3_within_slice_separation_pp": 5.8,
     "r4_lift": 1.20,
 
     # RC1 tau-bench — class A/FRESH (corrected)
@@ -82,6 +93,13 @@ CANONICAL = {
 # MECHANISM DISPOSITIONS  (machine-readable; use for programmatic validation)
 # Fields: prereg, frozen_threshold, evaluation_surface, disposition
 # disposition values: FAIL | PASS | ACCEPTED_UNDERPOWERED | WEAKENED | INVALID | EXPLORATORY
+#                   | CONFOUNDED
+#
+# CONFOUNDED is distinct from FAIL and from WEAKENED: the mechanism met its preregistered
+# threshold, but a covariate the test did not control for accounts for most of the effect,
+# so the test cannot tell whether the mechanism works. Added 2026-10-02 for R3. A mechanism
+# here is not retired — it is unproven by the evidence collected, and the scope field must
+# say what would settle it.
 # ---------------------------------------------------------------------------
 
 MECHANISM_DISPOSITIONS = {
@@ -122,8 +140,15 @@ MECHANISM_DISPOSITIONS = {
         "prereg": True,
         "frozen_threshold": True,
         "evaluation_surface": "held_out",
-        "disposition": "PASS",       # 25.6% vs 14.4%; clearest positive result
-        "scope": "1,260-case held-out arm; 133 fires; 99/133 already correct",
+        # Was PASS, "clearest positive result", until the slice check on 2026-10-02.
+        # R3 passes the preregistered test as written, but the test cannot separate the
+        # rule's signal from the difficulty of the one slice it fires in. The preregistration
+        # named this risk ("any rule that escalates hard cases passes this test") and the
+        # check was never run. Not FAIL: a +5.8 pp within-slice residual in the predicted
+        # direction at n=133 vs 157 is underpowered, not absent.
+        "disposition": "CONFOUNDED",  # 25.6% vs 14.4% pooled, but 25.6% vs 19.7% within slice
+        "scope": "1,260-case held-out arm; 133 fires, all visualwebarena; within-slice "
+                 "25.6% vs 19.7%, Fisher p = 0.26 — not separable from slice difficulty",
     },
     "M6_R4": {
         "label": "R4 (deterministic pre-check)",

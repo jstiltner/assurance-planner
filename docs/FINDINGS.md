@@ -152,20 +152,46 @@ parsing, failed.
 
 ---
 
-## 4. Positive result
+## 4. The result that passed its test and then failed reproduction
 
-**S4 — Evidence-gap escalation has held-out support (R3). [HO]**
+**S4 — Evidence-gap escalation (R3): confounded with benchmark slice. [HO]**
 
 R3 fires when the evaluator received a goal that references an image it cannot observe.
-On the 1,260-case held-out arm:
+On the 1,260-case held-out arm it passed its preregistered test:
 
-- Evaluator error: **25.6%** on R3-fired cases vs **14.4%** elsewhere
+- Evaluator error: **25.6%** on R3-fired cases vs **14.4%** elsewhere (Fisher p = 0.0015)
 - Fires on: 133 cases (10.6% of the validation arm)
 - Already-correct escalations: **99 of 133**
 
-R3 is an escalation signal, not a corrector. Its value is a function of human review cost.
-It survived because its claim is the weakest of the four: it asserts an evidence gap, not
-a verdict.
+This section called that the project's positive result until 2026-10-02, when an external
+reproduction audit asked which benchmarks R3 fires in. The answer is one:
+
+| benchmark | R3 fires | cases | judge error (R3 ignored) |
+|---|---|---|---|
+| visualwebarena | **133** | 290 | 22.4% |
+| assistantbench | 0 | 128 | 3.9% |
+| webarena | 0 | 373 | 19.8% |
+| workarena | 0 | 468 | 11.1% |
+
+The pooled comparison is therefore visualwebarena against three slices the judge finds
+easier. Conditioned on slice it is **25.6% vs 19.7% (34/133 vs 31/157), Fisher p = 0.26** —
+roughly half the separation, no longer significant. Of +11.2 pp pooled, +5.8 pp survives
+conditioning and +5.4 pp is slice identity.
+Reproduce: `python scripts/arb_r3_slice_check.py`.
+
+Not a refutation. The residual runs in the predicted direction and the test is underpowered
+at n=133 vs 157, so this is a rule left unproven, not one shown not to work. Settling it
+needs a corpus where the evidence gap occurs outside a single benchmark.
+
+R3 remains an escalation signal rather than a corrector, and its value remains a function of
+human review cost. Both were true before and are unaffected.
+
+**Why this was missed.** The preregistration states the hazard in one line — *any rule that
+escalates hard cases passes this test* — and `research_synthesis.md` records
+"visualwebarena-only firings" in a scope column. The risk and the fact that triggers it were
+both written down, in different documents, and the conditioning was never run. The rule's
+defence at the time was that its condition is structural and frozen in advance: true, and
+irrelevant. Freezing a rule does not control for a covariate the test omits.
 
 ---
 
@@ -181,7 +207,7 @@ a verdict.
 | C4 | Reference-conditioned recovery ≠ deployable | 0.543 vs 0.366/0.465 | **[EXP]** | One pair, one corpus | Exploratory | "P(alt correct \| primary wrong) = 0.543; operational overturn precision 0.366 / 0.465." |
 | C5 | Error directions must be separated | 32 vs 130; pooled φ 6.7×→1.6× | **[EXP]** | One corpus | Exploratory | "False alarms outnumbered missed failures 130 to 32; pooled metrics were dominated by the false-alarm stratum." |
 | C6 | Deterministic pre-checks: mixed results | R1–R4 on 1,260 held-out (1,259 scored) | **[HO]** | 4 rules, one corpus | n=4; R2 (negative self-report on an imperative modification goal) had 13 eligible cases and 6 verdict changes — its 39.3% harm bound is rule-of-three at n=6, not a firing count | "Two of four failed held-out evaluation; one passed but is underpowered (rule-of-three harm bound 39.3% at n=6); one passed as an escalation signal." |
-| C7 | Evidence-gap escalation has held-out support | R3: 25.6% vs 14.4% | **[HO]** | One rule | 99/133 already correct; corrects nothing | "R3 identified a 133-case subset with 25.6% evaluator error vs 14.4% elsewhere; 99 of 133 were already correct." |
+| C7 | ~~Evidence-gap escalation has held-out support~~ **Withdrawn 2026-10-02 — confounded with slice** | R3: 25.6% vs 14.4% pooled; 25.6% vs 19.7% within visualwebarena (p = 0.26) | **[HO]** | One rule, and all 133 firings in one benchmark | 99/133 already correct; corrects nothing; pooled test does not control for slice difficulty | "R3 identified a 133-case subset with 25.6% evaluator error against 14.4% elsewhere, but it fires only on visualwebarena; within that slice the contrast is 25.6% vs 19.7% (p = 0.26) and the preregistered test cannot separate the rule from the benchmark." |
 | C8 | RC1 failed fresh-corpus validation | 25.3% vol, 1.165× lift, 28/30 extractor | **[PRE/FRESH]** | One rule, two domains | 1.4% reference noise floor | "RC1 failed both binding gates on τ-bench while its extractor passed at 28/30 — rule failure, not parsing failure." |
 | C9 | The construct was not empty | Oracle 2.339× vs RC1 1.101× | **[ORA + PRE]** | τ-bench | Oracle is undeployable; oracle itself fails volume gate | "Reconstructed with benchmark-authoritative actions, the construct carried 2.339× lift; the production detector recovered it at 33.1% precision / 49.3% recall." |
 | C10 | RC1 fell below a no-model baseline | 1.101× vs 1.171× null | **[EXP]** | τ-bench | Null rule preregistered as disqualified; volume 24.1%; partly constitutive of outcome | "A check requiring no obligation model ('did the agent write anything?') reached 1.171× where RC1 reached 1.101×." |
