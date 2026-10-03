@@ -456,7 +456,8 @@ escalator nothing it does not already know from that task's historical failure r
   adjustment.
 - The counterfactual veto net −31 means a veto authority would, on balance, overturn correct
   verdicts more often than it would flag incorrect ones.
-- **The failure is a representation failure, not an abstraction failure.** Measured against
+- **The construct carries signal; a production-valid representation of it is not
+  established (H2a).** Measured against
   an oracle reconstruction of the construct RC1 was written to detect — "a write-tool class
   the reference solution required was never called" — the construct carries 2.079× pooled
   lift and **2.339× within-task**, at 16.3% harm and +227 veto net. RC1 recovers that

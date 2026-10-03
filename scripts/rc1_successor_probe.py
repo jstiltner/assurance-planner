@@ -15,6 +15,8 @@ This script answers three mechanism questions on already-burned tau-bench data:
 Reads info.task.actions (ORACLE) only to partition cases for inspection.
 """
 import json
+import math
+import random
 import sys
 from collections import Counter, defaultdict
 
@@ -221,6 +223,117 @@ jmap = {(x["task_id"], x["trial"], x["domain"], x["agent"]): x for x in joined}
 ref_fail = {k: float(jmap[k]["reward"]) < 1.0 for k in allk}
 rc1_fires = {k: bool(jmap[k]["fires"]) for k in allk}
 
+
+# ---- uncertainty, added 2026-10-02 ---------------------------------------
+# `within_task` returns a bare point estimate, and the three rules are evaluated on three
+# DIFFERENT task sets (94 / 80 / 109) because `use` keeps only tasks where that rule both
+# fires and does not. Comparing two such point estimates supported the published claim that
+# RC1 "fell below a no-model baseline". Neither the sampling error nor the differing strata
+# were quantified. Both are quantified here.
+
+PAIRS = [("NULL", "RC1"), ("ORACLE", "NULL")]
+
+
+def _strata(fire, outcome, keys):
+    """Per-task 2x2 cells: (fired_outcome, fired_n, unfired_outcome, unfired_n)."""
+    grp = defaultdict(lambda: [0, 0, 0, 0])
+    for k in keys:
+        b = grp[(k[2], k[0])]
+        if fire(k):
+            b[0] += outcome(k); b[1] += 1
+        else:
+            b[2] += outcome(k); b[3] += 1
+    return [b for b in grp.values() if b[1] and b[3]]
+
+
+def _lift(cells):
+    fm, fn = sum(b[0] for b in cells), sum(b[1] for b in cells)
+    um, un = sum(b[2] for b in cells), sum(b[3] for b in cells)
+    if not fn or not un or not um:
+        return None
+    return (fm / fn) / (um / un)
+
+
+def mantel_haenszel(cells):
+    """MH-pooled risk ratio with the Greenland-Robins variance for its log.
+
+    The pooled lift weights every task equally regardless of size; MH weights each stratum
+    by its information and is the standard estimator for exactly this design. It also keeps
+    each rule inside its own strata rather than pooling across a set that differs per rule.
+    """
+    num = den = var_num = 0.0
+    for a, n1, b, n0 in cells:
+        n = n1 + n0
+        num += a * n0 / n
+        den += b * n1 / n
+        var_num += (n1 * n0 * (a + b) - a * b * n) / (n * n)
+    if num <= 0 or den <= 0:
+        return None, None, None
+    rr = num / den
+    se = math.sqrt(var_num / (num * den))
+    return rr, rr * math.exp(-1.96 * se), rr * math.exp(1.96 * se)
+
+
+def bootstrap_lifts(rules, outcome, n_boot=2000, seed=20261002):
+    """Resample TASKS with replacement; recompute each rule's lift on each resample.
+
+    Tasks are the resampling unit because they are the stratum and because trials within a
+    task are not independent. All rules share each resample, so differences are paired.
+    """
+    rng = random.Random(seed)
+    by_task = defaultdict(list)
+    for k in allk:
+        by_task[(k[2], k[0])].append(k)
+    tasks = sorted(by_task)
+    draws = {name: [] for name, _ in rules}
+    # Every ordering this study has published between two of these rules is a paired
+    # difference and must be reported as one. ORACLE-NULL is here for the same reason
+    # NULL-RC1 is: §4 of the synthesis asserted it from two point estimates.
+    for pair in PAIRS:
+        draws[pair] = []
+    for _ in range(n_boot):
+        picked = [tasks[rng.randrange(len(tasks))] for _ in tasks]
+        keys = [k for t in picked for k in by_task[t]]
+        vals = {}
+        for name, fire in rules:
+            lift = _lift(_strata(fire, outcome, keys))
+            vals[name] = lift
+            if lift is not None:
+                draws[name].append(lift)
+        for pair in PAIRS:
+            a, b = pair
+            if vals.get(a) is not None and vals.get(b) is not None:
+                draws[pair].append(vals[a] - vals[b])
+    return draws
+
+
+def bootstrap_mh(rules, outcome, n_boot=2000, seed=20261002):
+    """Same task-level cluster resampling, applied to the MH estimator.
+
+    This is the interval to quote for MH. The Greenland-Robins closed form assumes the
+    observations inside a stratum are independent; here they are repeated trials of one task,
+    so GR understates the width by enough to change whether the interval covers 1.
+    """
+    rng = random.Random(seed)
+    by_task = defaultdict(list)
+    for k in allk:
+        by_task[(k[2], k[0])].append(k)
+    tasks = sorted(by_task)
+    draws = {name: [] for name, _ in rules}
+    for _ in range(n_boot):
+        picked = [tasks[rng.randrange(len(tasks))] for _ in tasks]
+        keys = [k for t in picked for k in by_task[t]]
+        for name, fire in rules:
+            rr, _, _ = mantel_haenszel(_strata(fire, outcome, keys))
+            if rr is not None:
+                draws[name].append(rr)
+    return draws
+
+
+def pct(xs, p):
+    xs = sorted(xs)
+    return xs[max(0, min(len(xs) - 1, int(round(p / 100 * (len(xs) - 1)))))]
+
 print("\n  -- predicting the DEPLOYABLE outcome (reference FAIL) --")
 l_oracle = within_task(oracle_miss, lambda k: ref_fail[k],
                        "ORACLE construct (a required write missing)")
@@ -232,6 +345,113 @@ print("\n  -- predicting the ORACLE outcome (a required write missing) --")
 within_task(no_write, oracle_miss, "NULL rule -> oracle miss")
 print("     ^ NOT comparable to the 2.339x above: different outcome variable,")
 print("       and 'no write' partly CONSTITUTES 'a required write is missing'.")
+
+# ---- how much of that ordering is real? ----------------------------------
+print("\n" + "=" * 76)
+print("UNCERTAINTY ON THE THREE LIFTS  (added 2026-10-02)")
+print("=" * 76)
+
+RULES = [
+    ("ORACLE", oracle_miss),
+    ("NULL", no_write),
+    ("RC1", lambda k: rc1_fires[k]),
+]
+
+print("\n  Task sets are NOT the same across rules -- `use` keeps only tasks where the")
+print("  rule both fires and does not, so each lift is computed on its own stratum set:")
+for name, fire in RULES:
+    print(f"    {name:<8} tasks = {len(_strata(fire, lambda k: ref_fail[k], allk)):3d}")
+
+print("\n  Task-level bootstrap, 2,000 resamples, 95% percentile interval:")
+boot = bootstrap_lifts(RULES, lambda k: ref_fail[k])
+for name, _ in RULES:
+    d = boot[name]
+    print(f"    {name:<8} {_lift(_strata(dict(RULES)[name], lambda k: ref_fail[k], allk)):.3f}"
+          f"  [{pct(d, 2.5):.3f}, {pct(d, 97.5):.3f}]")
+print("\n  Paired differences on the SAME task resamples (the only valid way to order two")
+print("  of these rules, since their own strata sets differ: 94 / 80 / 109):")
+# Two different quantities get printed on each line and they are labelled now. The first
+# column is the MEAN of the 2,000 paired resample differences; the full-sample difference of
+# the two point estimates above it is not the same number (NULL - RC1 is +0.070 there, +0.078
+# here) and the published figure has always been the bootstrap mean. An external reproduction
+# asked which one +0.078 was on 2026-10-02 and the output did not say.
+print("    rule pair      boot mean (point diff)  95% percentile interval")
+for pair in PAIRS:
+    d = boot[pair]
+    lo, hi = pct(d, 2.5), pct(d, 97.5)
+    verdict = "straddles 0; not distinguishable" if lo <= 0 <= hi else "excludes 0"
+    point = (_lift(_strata(dict(RULES)[pair[0]], lambda k: ref_fail[k], allk))
+             - _lift(_strata(dict(RULES)[pair[1]], lambda k: ref_fail[k], allk)))
+    print(f"    {pair[0] + ' - ' + pair[1]:<14} {sum(d)/len(d):+.3f} ({point:+.3f})"
+          f"         [{lo:+.3f}, {hi:+.3f}]   <- {verdict}")
+
+print("\n  Mantel-Haenszel risk ratio, stratified by task.")
+print("  Primary interval is a task-level cluster bootstrap. Greenland-Robins is shown")
+print("  beside it but is NOT the interval to quote: GR assumes independent observations")
+print("  within a stratum, and the observations within a task are repeated trials of that")
+print("  same task. GR is materially too narrow here, and narrow enough to flip the")
+print("  conclusion -- it excludes 1 for both NULL and RC1 where the cluster interval")
+print("  does not.")
+mh_boot = bootstrap_mh(RULES, lambda k: ref_fail[k])
+for name, fire in RULES:
+    rr, glo, ghi = mantel_haenszel(_strata(fire, lambda k: ref_fail[k], allk))
+    d = mh_boot[name]
+    print(f"    {name:<8} {rr:.3f}  cluster [{pct(d, 2.5):.3f}, {pct(d, 97.5):.3f}]"
+          f"   (GR [{glo:.3f}, {ghi:.3f}])")
+
+print("\n  Mantel-Haenszel, stratified by task AND agent:")
+mh_agent = {}
+for name, fire in RULES:
+    grp = defaultdict(lambda: [0, 0, 0, 0])
+    for k in allk:
+        b = grp[(k[2], k[0], k[3])]
+        if fire(k):
+            b[0] += ref_fail[k]; b[1] += 1
+        else:
+            b[2] += ref_fail[k]; b[3] += 1
+    rr, lo, hi = mantel_haenszel([b for b in grp.values() if b[1] and b[3]])
+    mh_agent[name] = rr
+    print(f"    {name:<8} {rr:.3f}  (GR [{lo:.3f}, {hi:.3f}])")
+
+# Serialised so figure 3 can draw the intervals from this code path instead of carrying
+# its own copies of them. Figure 3 drew three bare bars until 2026-10-02, which made the
+# one comparison the data does not support (null height vs RC1 height) the only one a
+# reader could make.
+UNCERTAINTY = {
+    name: {
+        "tasks": len(_strata(fire, lambda k: ref_fail[k], allk)),
+        "lift": _lift(_strata(fire, lambda k: ref_fail[k], allk)),
+        "lift_ci": [pct(boot[name], 2.5), pct(boot[name], 97.5)],
+        "mh": mantel_haenszel(_strata(fire, lambda k: ref_fail[k], allk))[0],
+        "mh_cluster_ci": [pct(mh_boot[name], 2.5), pct(mh_boot[name], 97.5)],
+        "mh_gr_ci": list(mantel_haenszel(_strata(fire, lambda k: ref_fail[k], allk))[1:]),
+        "mh_by_task_and_agent": mh_agent[name],
+    }
+    for name, fire in RULES
+}
+UNCERTAINTY["paired_differences"] = {
+    f"{a}_minus_{b}": {
+        # `mean` is the published figure and `point` is the difference of the two full-sample
+        # lifts. They differ in the third decimal and are not interchangeable; the key names say
+        # which is which so a citation cannot pick up one while meaning the other.
+        "mean": sum(boot[(a, b)]) / len(boot[(a, b)]),
+        "point": (_lift(_strata(dict(RULES)[a], lambda k: ref_fail[k], allk))
+                  - _lift(_strata(dict(RULES)[b], lambda k: ref_fail[k], allk))),
+        "ci": [pct(boot[(a, b)], 2.5), pct(boot[(a, b)], 97.5)],
+    }
+    for a, b in PAIRS
+}
+UNCERTAINTY["method"] = (
+    "Task-level cluster bootstrap, 2000 resamples, seed 20261002. Quote mh_cluster_ci, "
+    "never mh_gr_ci: Greenland-Robins assumes independence within strata that are repeated "
+    "trials of one task and excludes 1 for NULL and RC1 where the cluster interval does not."
+)
+
+print("\n  Reading: the ORACLE construct separates under every estimator. NULL and RC1 do")
+print("  not separate from each other, and neither is distinguishable from 1 under the")
+print("  cluster interval. The published claim that RC1 'fell below a no-model baseline'")
+print("  rested on the ordering of two point estimates whose difference straddles zero,")
+print("  computed on two different task sets (80 vs 109).")
 
 with open("data/rc1_successor_probe.json", "w", encoding="utf-8") as fh:
     json.dump({
@@ -246,5 +466,6 @@ with open("data/rc1_successor_probe.json", "w", encoding="utf-8") as fh:
             "oracle_within_task_lift_ref_fail": l_oracle,
             "rc1_within_task_lift_ref_fail": l_rc1,
         },
+        "uncertainty": UNCERTAINTY,
     }, fh, indent=2)
 print("\nSaved: data/rc1_successor_probe.json")

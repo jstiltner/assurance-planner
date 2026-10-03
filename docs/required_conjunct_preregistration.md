@@ -230,6 +230,22 @@ Declared now so that no threshold can be chosen after seeing a number.
   1.06x, and R3 was accepted at 1.78x. The bar is set strictly between this project's
   own rejected and accepted precedents.
 
+  > **Correction 2026-10-02 (external reproduction) -- the lower anchor did not exist.**
+  > "R4 was rejected at 1.20x" is the sentence the 1.50x bar was calibrated against, and it
+  > is wrong. Section 7 of `repair_validation_preregistration.md` set no accept/reject
+  > threshold for R4 at all -- only a direction, firing enrichment above base rate, which
+  > R4's 1.20x **met**. R4's REJECTED label was decided after the fact on its evaluator-error
+  > contrast. So the interval *"strictly between this project's own rejected and accepted
+  > precedents"* had no rejected endpoint: the real bracket was R2's 1.06x (accepted but
+  > underpowered) and R3's 1.78x (accepted), both on the accepted side.
+  >
+  > The threshold is **not revised** -- A1 and A2-traj are the gates RC1 was judged on and
+  > they stay as frozen; moving a threshold after seeing the outcome is the error this
+  > document exists to prevent, and 1.165x fails 1.50x and 1.20x alike, so nothing turns on
+  > it numerically. What changes is the *justification*: the anchor was less principled than
+  > claimed. A threshold presented as bracketed by precedent was in fact bracketed by one
+  > precedent and one mislabel. See `research_synthesis.md` §3.3.3.
+
   > **Correction 2026-09-29 (forensic audit, commit following c43cdea):**
   > The A2-task (≥1.25×) component is **INVALID / NON-DECISION-BEARING** on this corpus.
   > 135 of 165 tasks (81.8%) contain at least one failing trial. The any-fail indicator

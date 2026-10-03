@@ -41,7 +41,12 @@ grounds. Scored against the other seven `HIGH`-independence pairs — same prima
 | **`aer` — Tier A, predeclared** | **1106** | **0.543** | **[0.466, 0.618]** | **0.067** | **+0.323** | **0.179** |
 
 Post-hoc selection would have produced recovery 0.759 with phi +0.064 — a pair whose
-errors look nearly unassociated. Predeclaring produced 0.543 with phi +0.323. The gap
+errors look nearly unassociated. *(Corrected 2026-10-02: 0.759 is a two-way tie. The table
+above shows both `gpt-4o-mini` (axtree) and `qwen-2.5-vl` (axtree) at 0.759, 123/162 each,
+and their phi differ: +0.064 and +0.091. "Post-hoc selection" therefore has one more free
+choice than this sentence admits, and the φ quoted here is the one that makes the point
+best. The point survives at either value; the undisclosed choice is the problem.)*
+Predeclaring produced 0.543 with phi +0.323. The gap
 between those two numbers is the size of the bias that pair-shopping would have
 introduced into a report that would otherwise have looked identical, written in the same
 register, with the same intervals.
@@ -196,18 +201,24 @@ and it is not tested by it.
 > lands on *insufficient evidence* once the recovery rate is split by error direction. The
 > disposition below was correct on the evidence available to it and was computed on a
 > pooled statistic that `directional` §12.1 identifies as the wrong conditional: recovery
-> conditions on the reference label, and the rate a policy would actually run at is 20–30
-> points lower. Left as written.
+> conditions on the reference label, and the rate a policy would actually run at is about ten
+> points lower in each error direction (10.3 pp missed-failure, 9.7 pp false-alarm;
+> "20–30 points" corrected 2026-10-02, see `research_synthesis.md` §3.2.1). Left as written.
 
 Of the six the brief allowed, this is closest to **"complementarity is real but weaker
 than the marginals suggest, and the evidence is not decision-sufficient."** Precisely:
 
 - Complementarity is **not zero**. The alternate is right on 54.3% of the primary's errors
   and the joint error rate (0.067) is well below the primary's own (0.146).
-- It is **materially weaker than independence would give**. phi is +0.323, not ~0. A
-  two-source system that multiplied 0.146 by 0.166 would predict a joint error rate of
-  0.024 and observe 0.067 — nearly three times higher. That is the specific arithmetic the
-  planner would launder if it assumed independence, and here it is measured, not argued.
+- It is **materially weaker than independence would give**. On the stratum that matters for
+  assurance — reference failures, where both evaluators can only miss — φ is **+0.250**,
+  OR **9.4**, RR **4.93×** (n=811). On reference successes, φ **+0.310**, OR 4.2, RR 2.78×
+  (n=295). Pooled: φ +0.323, RR 3.92×; a two-source system that multiplied 0.146 by 0.166
+  would predict a joint error rate of 0.024 and observe 0.067 — nearly three times higher.
+  That is the specific arithmetic the planner would launder if it assumed independence, and
+  here it is measured, not argued. **Quote the stratum values, not the pooled one**
+  (added 2026-10-02): the pooled figure is close to a restatement of the false-alarm
+  stratum, because this primary puts 80% of its errors there.
   **Narrowed by `docs/agent_reward_bench_conditional.md`:** correct for this pair, and it
   must not be read comparatively. A pair with a *lower* pooled phi is not closer to
   independent — pooled phi is dominated by the reference-success stratum, which carries
@@ -280,9 +291,17 @@ like the above can be given for `nnetnav`, `llama-3.3-70b-noscreen` or
 ## 8. What this does and does not license
 
 It licenses: describing correlated evaluator errors on real agent trajectories with real
-expert labels, with a measured phi, at a stated revision. It licenses the claim that
-assuming evaluator independence overstates a two-source system's joint accuracy by
-roughly threefold *on this population, for this pair*.
+expert labels, with a measured phi **reported by error-direction stratum**, at a stated
+revision. It licenses the claim that assuming evaluator independence overstates a
+two-source system's joint accuracy *on this population, for this pair* — by **4.93× on the
+missed-failure stratum** and **2.78× on the false-alarm stratum** (pooled: ~threefold).
+
+It does **not** license quoting the pooled figure alone (amended 2026-10-02). Pooled φ
+orders the eight candidate alternates almost opposite to the failure stratum — 1/8
+positional agreement — and `aer`, first on pooled φ, is **4th of 8** on failure-stratum φ
+(+0.250, against a range of +0.171 to +0.273 and failure-stratum odds ratios of 5.08 to
+11.11 across all eight). A reader given only "+0.323" will take it as a property of this
+pair; it is largely a property of where this primary puts its errors.
 
 It does not license: any statement about stochastic judge repeatability; any cost-aware
 escalation conclusion (two of three economic inputs are UNMEASURED); any routing policy

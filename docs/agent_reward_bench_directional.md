@@ -177,15 +177,26 @@ adjudicator that clears cases cannot tell those apart:
 | `nnetnav` | 105 | 197 | **−92** |
 | `qwen-2.5-vl` | 111 | 127 | **−16** |
 
-Blanket adjudication on `primary FAIL` is, for every one of the eight, **at best a
-one-for-one exchange of false alarms for missed failures**, and for five of the eight a
-losing one even counted in raw cases. The "net" column is shown for arithmetic only and
-must not be read as a decision: the two columns are different errors and netting them
-assumes an exchange rate this project declines to assume. But the sign is enough for a
-weak conditional statement that requires no `r*`, only the sign of the asymmetry:
+Blanket adjudication on `primary FAIL` is, for five of the eight, **a losing exchange of
+false alarms for missed failures even counted in raw cases**, and for the other three a
+marginal raw-count gain (+4, +5, +1) well inside sampling noise. The "net" column is shown
+for arithmetic only and must not be read as a decision: the two columns are different errors
+and netting them assumes an exchange rate this project declines to assume. But the sign is
+enough for a weak conditional statement that requires no `r*`, only the exchange rate at
+which the best candidate turns over:
 
-> **If a missed failure costs at least as much as a false alarm, blanket adjudication on
-> the primary's FAIL verdict is non-positive against every candidate measured here.**
+> **If a missed failure costs at least 1.057× a false alarm, blanket adjudication on the
+> primary's FAIL verdict is non-positive against every candidate measured here.**
+
+*Corrected 2026-10-02 (external reproduction).* This said "at best a one-for-one exchange …
+for every one of the eight", with the conditional threshold at "at least as much" — i.e.
+1.0×. Both are off by the same small margin, in the same direction. `gpt-4o` fixes 93 false
+alarms against 88 new missed failures, which is better than one-for-one, so at a weight of
+exactly 1.0 it nets +5 and the conditional above is false as originally stated. The binding
+threshold is 93/88 = **1.0568**. The per-alternate table immediately above was always correct
+and is unchanged; what was wrong was the sentence summarising it, and the versions of that
+sentence in `README.md`, `docs/FINDINGS.md` and `docs/research_synthesis.md` had dropped the
+condition altogether and asserted "non-positive for all 8" flatly.
 
 The overturn-to-pass precisions in §2 say the same thing directly: 0.348 to 0.514. The
 alternate is right on roughly half the overturns it would perform. That is a coin flip,
@@ -547,11 +558,17 @@ decisively better on failure-labelled disagreements and decisively worse on
 success-labelled ones, and the two separations cancel.
 
 **Between E and F, and the honest answer is F for the confirmatory arm.** Errors are not
-too correlated to be worth studying — phi runs 0.048–0.323, none of it near a ceiling,
-and 84% of missed failures are reached by something. The binding problem is that the
-stratum the decision turns on has 32 cases and eight mutually indistinguishable readings
-of them. That is **F. Insufficient evidence**, exactly where the brief predicted it would
-land.
+too correlated to be worth studying — but say that with the right number. ~~"phi runs
+0.048–0.323, none of it near a ceiling"~~ is the **pooled** range, and this paragraph is
+about the missed-failure stratum, so quoting the pooled range here was reaching for a
+measurement from the wrong population (corrected 2026-10-02). On the missed-failure stratum
+itself, φ runs **+0.171 to +0.273** and the odds ratios run **5.08 to 11.11** — tighter and
+more associated than the pooled range suggests, but still not at a ceiling, and 84% of
+missed failures are reached by something. The binding problem is unchanged and in fact
+sharpened: the stratum the decision turns on has 32 cases and eight readings of them that
+are indistinguishable *on that stratum*, where the pooled figures had made them look
+fivefold apart. That is **F. Insufficient evidence**, exactly where the brief predicted it
+would land.
 
 With the uncertainty stated plainly: F is a statement about the missed-failure stratum at
 n=32 under this primary. It is not a statement that alternate evidence is worthless — §9
@@ -577,10 +594,20 @@ empirical:
    planner reasons about recovery rates and costs; it has no term for where the primary
    sits on its own ROC curve, and §9 shows that term dominates.
 2. **The recovery rate the planner consumes is the wrong conditional.** It conditions on
-   the reference label. The rate a policy runs at is the overturn precision, which is
-   0.35–0.52 where recovery is 0.54–0.76. Feeding recovery into an escalation decision
-   overstates the intervention by 20–30 points. This is a defect in the quantity, not in
-   the measurement of it, and it is the most directly actionable finding in this document.
+   the reference label. The rate a policy runs at is the overturn precision. Feeding recovery
+   into an escalation decision overstates the intervention by **10.3 pp** on the
+   missed-failure side (catch 0.469 → overturn-to-fail 0.366) and **9.7 pp** on the
+   false-alarm side (rescue 0.562 → overturn-to-pass 0.465) for the predeclared pair. This is
+   a defect in the quantity, not in the measurement of it, and it is the most directly
+   actionable finding in this document.
+
+   *Corrected 2026-10-02 (external reproduction).* This item said "0.35–0.52 where recovery is
+   0.54–0.76" and "overstates the intervention by 20–30 points". Both compared a **pooled**
+   recovery figure against **direction-specific** overturn precisions — the defect the item
+   itself is about. Matched by direction the overstatement is ~10 pp, and across all eight
+   alternates it is +9.7 to +46.0 pp on the false-alarm side but −14.7 to +23.1 pp on the
+   missed-failure side, where it is negative for `gpt-4o-noscreen` and `qwen-2.5-vl-noscreen`.
+   The direction in which the planner is reliably overstated is therefore false alarms only.
 3. **A large share of missed failures is unreachable by any available evidence.** 15.6%
    is missed by all nine sources and 56% by six or more. Repetition cannot touch that and
    neither can a ninth judge.
@@ -599,9 +626,12 @@ repository currently makes.
 1. **`P(alternate correct | primary wrong)` is not a decision quantity.** It conditions on
    the reference label. Every consumer of it in the planner's reasoning — the recovery
    rate, its interval, its comparison against `r*` — inherits that. The operational
-   analogue is the overturn precision and it is 20–30 points lower on this corpus. This is
-   the single most consequential thing found in this pass and it is a defect in the
-   framing, not in the data.
+   analogue is the overturn precision and it is about ten points lower in each error direction
+   on this corpus — 10.3 pp missed-failure, 9.7 pp false-alarm, for the predeclared pair. This
+   is the single most consequential thing found in this pass and it is a defect in the
+   framing, not in the data. *(Read "20–30 points lower" until 2026-10-02; that figure mixed
+   pooled recovery with direction-specific precision. See §11 item 2 and the blanket-adjudication
+   entry below.)*
 2. **Error association phi may be measuring threshold alignment, not mechanism
    diversity.** §8. If so, the repository's use of phi as evidence about evaluator
    independence is measuring the wrong thing, and the "assuming independence overstates

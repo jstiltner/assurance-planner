@@ -8,11 +8,38 @@ RC1 warranted, and is there a production-visible detection approach that has not
 been invalidated?**
 
 **Verdict: no successor is warranted.** A production-visible corrective signal does exist,
-but RC1's production detector is beaten on the deployable outcome by a rule containing no
-obligation model at all — while independently failing the volume gate. The oracle construct
-is *not* reducible to that null rule, so the forensic audit's H2a (representation failure,
-not abstraction failure) stands. What this probe adds is that the representation gap is
-wider than it looked: RC1 sits below a no-model baseline.
+but RC1's production detector **does not outperform** a rule containing no obligation model
+at all — while independently failing the volume gate. The oracle construct is *not* reducible
+to that null rule, so the forensic audit's H2a (representation failure, not abstraction
+failure) stands. What this probe adds is that RC1 buys nothing over a no-model check: on the
+deployable outcome, neither RC1 nor the null rule is distinguishable from no effect at all.
+
+> **Correction applied 2026-10-02 (external reproduction).** This document previously said
+> RC1 "is beaten by" and "sits below a no-model baseline", on the strength of 1.171× against
+> 1.101×. That ordering is not supported, for two independent reasons, and §4 and §7 are
+> rewritten accordingly:
+>
+> 1. **The two lifts are computed on different task sets.** The within-task filter keeps only
+>    tasks where the rule both fires and does not, so the null rule's 1.171× is measured over
+>    80 tasks and RC1's 1.101× over 109 — and the oracle's 2.339× over 94. They were presented
+>    as a ranking of three numbers on one scale. They are three numbers on three scales.
+> 2. **The gap is far inside sampling error.** Paired on the same task-level resamples
+>    (2,000 draws), NULL − RC1 = **+0.078 [−0.327, +0.575]**. That +0.078 is the *mean of the
+>    2,000 paired differences*, which is the figure quoted throughout this repo and on the
+>    site; differencing the two point estimates in item 1 gives **+0.070** instead. The two
+>    are not interchangeable and a reader recomputing from 1.171 and 1.101 lands on the
+>    second, so the script now prints both (`mean` and `point`) and the ledger carries both
+>    keys — added 2026-10-03, after an external reader asked which one +0.078 was. The
+>    interval straddles zero under either, so nothing downstream moves. Stratified by task, the
+>    Mantel–Haenszel risk ratios are null **1.237 [0.904, 1.650]** and RC1
+>    **1.150 [0.979, 1.352]**; stratified by task *and* agent they fall to 1.090 and 1.054.
+>    Neither is distinguishable from 1, let alone from each other.
+>
+> The verdict does not change and is not softened: a detector that does not beat "did the
+> agent write anything?" is not worth a successor, and that conclusion needs only the absence
+> of an advantage, not the presence of a deficit. What was wrong was claiming the deficit.
+> The oracle construct's separation survives every estimator (MH 2.054 [1.752, 2.530]), which
+> is the comparison H2a actually rests on.
 
 > **Correction applied 2026-09-29, same day, before publication.** The first version of this
 > document headlined "null rule 7.189× vs the construct's 2.339×". That comparison was
@@ -173,17 +200,22 @@ simultaneously, and to survive challenge before being specified.
    inheriting RC1's extractor as a sampler, and that extractor was shown in §4 to contribute
    0.2 precision points. The honest standalone volume is 24.1%. Not satisfied.
 3. **The detector must beat a no-model baseline** — not an explicit §16 condition, and it
-   should have been. RC1 does not: 1.101× against the null rule's 1.171× on the deployable
-   outcome (§4.1). A mechanism that loses to a one-line behavioural check has not earned the
-   extraction machinery it costs.
+   should have been. RC1 does not beat it. ~~"RC1 loses to it: 1.101× against the null rule's
+   1.171×"~~ — that ordering is **withdrawn** (see §1): the two estimates sit on different
+   task sets and differ by +0.078 [−0.327, +0.575] on paired task resamples. The condition
+   fails because RC1 **does not clear** the baseline, not because it falls under it: on the
+   deployable outcome RC1's own interval covers 1 (MH 1.150 [0.979, 1.352]), so a mechanism
+   carrying an extraction pipeline has not shown it buys anything over a one-line behavioural
+   check. Not satisfied.
 
 **"No further experiment warranted" was the right answer.** The forensic audit narrowed H2 to
 H2a — the oracle shows the construct *exists*, not that it is deployable — and that narrowing
-**survives this probe**: the construct (2.339×) is worth about twice the null rule (1.171×),
-so the abstraction is real. What fails is the recovery of it. RC1 recovers the construct at
-33.1% precision / 49.3% recall and lands below a rule that models nothing. The gap between
-2.339× and 1.101× is the whole finding, and nothing in this probe suggests a production-visible
-route across it.
+**survives this probe**: the construct is worth about twice the null rule, and that ordering
+holds when tested properly (ORACLE − NULL = **+1.177 [+0.721, +1.687]** on paired task
+resamples), so the abstraction is real. What fails is the recovery of it. RC1 recovers the
+construct at 33.1% precision / 49.3% recall, and ~~lands below~~ **does not separate from** a
+rule that models nothing — nor from no effect at all. The gap between the oracle and RC1 is
+the whole finding, and nothing in this probe suggests a production-visible route across it.
 
 ## 7. Claims this probe would withdraw if made
 

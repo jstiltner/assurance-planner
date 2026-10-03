@@ -133,8 +133,76 @@ Note also that 34 of 133 escalated cases are ones AER got right by saying SUCCES
 Escalation is not free: it converts 133 automated verdicts into 133 human decisions,
 and 99 of those were already correct.
 
-**Disposition: ACCEPTED.** The strongest result in the set, and the only one whose
-eligible population is large enough to mean much.
+**Disposition: ACCEPTED.** ~~The strongest result in the set, and the only one whose
+eligible population is large enough to mean much.~~
+
+### Correction 2026-10-02 (external reproduction): the caveat above fires
+
+The caveat one section up -- *"any rule that escalates the cases a judge finds hard will
+pass a test of the form 'is the judge worse on the escalated subset'"* -- turns out to
+describe this result and not just the risk of it. An external reproduction asked which
+benchmarks R3 fires in. **All 133 firings are visualwebarena**, which also carries the
+highest judge-error point estimate of the four — 2.6 points above webarena, which at
+n = 290 against n = 373 does not separate them (~~"the slice where this judge is
+weakest"~~: corrected 2026-10-03, that is a rank and not a demonstrated ordering):
+
+| benchmark | R3 fires | cases | judge error, R3 ignored |
+|---|---|---|---|
+| visualwebarena | **133** | 290 | 22.4% |
+| webarena | 0 | 373 | 19.8% |
+| workarena | 0 | 468 | 11.1% |
+| assistantbench | 0 | 128 | 3.9% |
+
+So the preregistered comparison contrasted one slice against the other three, not escalated
+cases against unescalated ones — and its largest component, webarena, is barely below
+visualwebarena at all. Conditioned on slice:
+
+| | escalated | not escalated | diff | Fisher p |
+|---|---|---|---|---|
+| pooled, as published | 25.6% (34/133) | 14.4% (162/1126) | +11.2 pp | 0.0015 |
+| **within visualwebarena** | **25.6%** (34/133) | **19.7%** (31/157) | **+5.8 pp** | **0.26** |
+
++5.8 pp of the +11.2 pp survives; +5.4 pp is slice identity. Split by error direction --
+on reference-fail cases the only available error is a missed failure, on
+reference-success cases a false alarm -- the residual is one-sided:
+
+| side | escalated | not escalated | diff | Fisher p |
+|---|---|---|---|---|
+| missed-failure (ref=fail) | **25.3%** (22/87) | **15.8%** (18/114) | **+9.5 pp** | 0.1099 |
+| false-alarm (ref=success) | 26.1% (12/46) | 30.2% (13/43) | **-4.1 pp** | 0.8139 |
+
+Neither stratum is significant, and the split was chosen after the pooled residual failed,
+so it is exploratory. Reproduce all of it with `scripts/arb_r3_slice_check.py`, which reads
+the committed `data/REAL_arb_repair_validation_cases.csv` rather than the Hugging Face
+snapshot; the stratification also prints inside the preregistered test's own output in
+`scripts/arb_repair_validation.py`.
+
+**Two populations, same reading.** The external reproduction reported this split as 25.9% vs
+14.8% (p = 0.065) and 25.0% vs 32.4%, computed on the 266 visualwebarena validation cases that
+also appear in the paired functional×aer file; the table above is the full 290-case
+visualwebarena validation arm. Both are correct on their own population and the full arm is
+canonical here. They agree on what matters: the residual sits on the missed-failure side, the
+false-alarm side reverses, and neither is resolved at this n.
+
+**The disposition does not move: R3 stays ACCEPTED.** It met its preregistered criterion
+and the test ran as specified. Downgrading it on an analysis the preregistration never
+named would be the post-hoc move this document exists to prevent -- a `CONFOUNDED` label
+was briefly introduced on 2026-10-02 and reverted the same day. What is withdrawn is the
+sentence struck above. R3 is **unproven, not refuted**: the within-slice residual runs in
+the predicted direction and n=133 vs 157 is underpowered, so the evidence fails to show
+the rule works rather than showing it fails. Never quote the pooled pair without the
+within-slice pair beside it. Settling it requires a corpus where the evidence gap occurs
+outside a single benchmark.
+
+**The quarantine could not have caught this.** The split held back 42 cases so no rule was
+tested on the cases that suggested it -- a control on case-level outcome leakage. This
+confound is a property of the corpus, and that property was already tabulated: **1,064 of
+the 1,260 validation cases (84.4%)** are inside the 1,106-trajectory population whose AER
+correctness the pairing study had already scored case by case, as are all 42 quarantined
+cases. A held-out split controls for having seen the outcome of these cases, not for
+having seen the structure of this corpus. A confound in a covariate -- benchmark, domain,
+agent -- survives any split that does not stratify on it. Section 7 of
+`scripts/arb_r3_slice_check.py` prints the overlap.
 
 ---
 
@@ -155,11 +223,33 @@ elsewhere -- a 0.6-point difference. Ending on a search page is weakly associate
 with the task having failed, and essentially unassociated with the evaluator getting
 it wrong. R4 tells you about the agent, not about the evaluation.
 
-**Disposition: REJECTED as a useful assurance signal.** It stays frozen in its
+**Disposition: ~~REJECTED as a useful assurance signal.~~** It stays frozen in its
 failing form. For the record, and not as a recommendation: as a veto it would have
 helped 14 and harmed 10, net +4 over 118 firings -- which is a worse trade than R2
 achieves on a tenth of the volume, and is not worth the application-specific route
 table it requires.
+
+**Correction 2026-10-02 (external reproduction) -- the REJECTED label above is post
+hoc.** R4 had no accept/reject threshold. Section 7 of the preregistration reads:
+*"**R1 and R4 (evidence, not vetoes).** No accept/reject on accuracy, since they
+change no verdict. Reported as firing precision against base rate. A rule whose
+firings are no more enriched for reference-fail than the corpus base rate carries no
+information and will be recorded as such."* That is a direction, not a bar, and R4
+**met it**: 1.20x, above base rate. The 16.1%-vs-15.5% evaluator-error contrast on
+which REJECTED was decided is a metric the preregistration never named, and
+application-specificity was declared in advance (section 9, *"R4 is explicitly
+application-specific"*) rather than discovered. Section 8 committed that *"thresholds
+in section 7 will not be revised after the fact"*; adding one where section 7 declined
+to set one is the same violation. Overturning a rule on a criterion chosen after
+seeing the data is the move this project reverted on R3 the same day, pointing the
+other way.
+
+What survives, stated as the preregistration allows: R4's firings are enriched 1.20x
+for reference-fail, and that enrichment does not transfer to evaluator error (0.6 pt,
+p = 0.89). R4 is therefore **weak evidence about the agent's outcome and no evidence
+about the evaluator** -- which is a finding about what R4 measures, not a failed gate.
+The preregistered disposition is **MET (directional)**; the earlier REJECTED wording is
+superseded and kept above for the record.
 
 ---
 
@@ -184,15 +274,19 @@ answer, which is not an improvement in judgment.
 
 ## Summary
 
-| rule | preregistered disposition | held-out verdict |
+| rule | gate type (corrected 2026-10-02) | held-out verdict |
 |---|---|---|
-| R1 contradictory infeasibility | escalate + evidence-against | **evidence half REJECTED** (0.51x lift, inverted); escalation half survives |
-| R2 negative self-report on modification | veto SUCCESS | **ACCEPTED but underpowered** (6 helped, 0 harmed, n=13) |
-| R3 unverifiable image premise | UNVERIFIABLE + escalate | **ACCEPTED** (both preregistered tests pass, both arms) |
-| R4 terminal search route | supplemental evidence | **REJECTED** (1.20x lift, no evaluator-level signal) |
+| R1 contradictory infeasibility | **directional only** (§7, no threshold) | **FAILS ITS DIRECTION** -- 0.51x, inverted: firings less enriched than base rate, the §7 no-information case. Escalation half (33.3% vs 15.2%) survives but is post hoc |
+| R2 negative self-report on modification | numeric gate: veto SUCCESS | **ACCEPTED but underpowered** (6 helped, 0 harmed, n=13) |
+| R3 unverifiable image premise | numeric gate: volume <15% + error contrast | **ACCEPTED** (both preregistered tests pass, both arms). Pooled reading narrowed 2026-10-02: all 133 firings are visualwebarena; within-slice 25.6% vs 19.7%, p = 0.26 |
+| R4 terminal search route | **directional only** (§7, no threshold) | **MEETS ITS DIRECTION** -- 1.20x, above base rate. ~~REJECTED~~ was post hoc; no evaluator-level signal (0.6 pt, p = 0.89), which §7 never made a criterion |
 
-Two of four rejected, one accepted, one accepted-but-underpowered. The rejected
-pair are the two that came from the cleanest-looking discovery cases.
+Of the four, **two carried numeric accept/reject gates** (R2, R3): one accepted, one
+accepted-but-underpowered. The other two carried a direction and no threshold: R1
+failed its direction, R4 met it. ~~"Two of four rejected"~~ is superseded -- it counted
+R4 against a bar that was never set, and the earlier line that *"the rejected pair are
+the two that came from the cleanest-looking discovery cases"* was a pattern read off
+that miscount.
 
 ## What these results do not establish
 
