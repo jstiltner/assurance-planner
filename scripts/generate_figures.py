@@ -226,14 +226,44 @@ def fig2_policy_error(fail_k, succ_k, out_path):
                 bar.get_height() + 0.2,
                 f"{v*100:.1f}%", ha="center", va="bottom", fontsize=7.5)
 
-    # Cost annotation
-    cost_labels = ["$46.18 (~5 calls)", "$27.86 (~3 calls)",
-                   "$46.18 (5 calls)", "$27.86\n(−39.8% calls)"]
-    for i, (xi, cost) in enumerate(zip(x, cost_labels)):
-        ax.text(xi, -3.5, cost, ha="center", fontsize=7, color="#555555")
+    # Cost annotation, derived rather than typed. Corrected 2026-10-02: these were four hardcoded
+    # strings, and two of them were wrong in the same way -- "Single call" carried "$46.18 (~5
+    # calls)", which is the majority-of-5 cost, so the figure showed one call and five calls at the
+    # same price and invited the reader to conclude voting was free. The fourth also overprinted
+    # the two-line tick label beneath it.
+    # Both strata -- fail_k and succ_k are the two halves of the 1,106-case population.
+    n_cases = len(fail_k) + len(succ_k)
+    _assert(n_cases, CANONICAL["rep_n_cases"], "fig2_n_cases", tol=0.5)
+    per_call = CANONICAL["rep_cost_usd"] / CANONICAL["rep_n_calls"]
+    policy_calls = [
+        n_cases,                              # one call per case
+        n_cases * 3,                          # majority-of-3 always draws 3
+        CANONICAL["rep_n_calls"],             # majority-of-5 is the full 5,530
+        CANONICAL["rep_stopping_calls"],      # first-to-3 stops at 3, 4 or 5
+    ]
+    _assert(policy_calls[2] / n_cases, 5.0, "maj5_calls_per_case", tol=0.01)
+    saving = 1 - CANONICAL["rep_stopping_calls"] / CANONICAL["rep_n_calls"]
+    _assert(saving, CANONICAL["rep_stopping_call_reduction"], "stopping_saving", tol=0.0005)
+    cost_labels = [
+        f"${c * per_call:,.2f}\n({c:,} calls)" for c in policy_calls
+    ]
+    # The saving names its own numerator and denominator here. Until 2026-10-03 this appended a
+    # bare "−39.7%" to a label reading "(3,336 calls)", which is the same count-beside-percentage
+    # pairing with no denominator that the prose was corrected for -- 3,336 is the count USED and
+    # 3,336/5,530 is 60.3%. A correction that stops at the prose leaves the figure asserting the
+    # thing the prose retracted.
+    cost_labels[-1] = (f"${policy_calls[-1] * per_call:,.2f}\n"
+                       f"({policy_calls[-1]:,} calls used)\n"
+                       f"−{saving * 100:.1f}% = {CANONICAL['rep_stopping_calls_saved']:,} "
+                       f"saved of {CANONICAL['rep_stopping_calls_full']:,}")
 
     ax.set_xticks(x)
     ax.set_xticklabels(policies, fontsize=9)
+    # Offset in points below the tick labels, so a two-line policy name cannot be overprinted.
+    for xi, cost in zip(x, cost_labels):
+        ax.annotate(cost, xy=(xi, 0), xycoords=("data", "axes fraction"),
+                    xytext=(0, -34), textcoords="offset points",
+                    ha="center", va="top", fontsize=7, color="#555555", linespacing=1.3)
     ax.set_ylabel("Error rate (%)", fontsize=9)
     ax.set_ylim(0, 35)
     ax.set_title(
@@ -243,11 +273,19 @@ def fig2_policy_error(fail_k, succ_k, out_path):
     )
     ax.legend(fontsize=9)
     ax.tick_params(labelsize=8)
+    # y is -0.13, not -0.06: the cost annotation under the last tick runs to three lines now and
+    # the caption overprinted its third line at the old offset.
     fig.text(
-        0.5, -0.06,
-        "More voting did not improve error in either direction. "
-        "First-to-3 sequential stopping reproduced majority-of-5 verdicts exactly "
-        "using 39.8% fewer calls.\n"
+        0.5, -0.13,
+        "More voting did not improve error in either direction. First-to-3 stopping used "
+        f"{saving * 100:.1f}% fewer calls at verdicts\n"
+        "identical to majority-of-5 BY CONSTRUCTION — the two cannot disagree once three of "
+        "five agree, so the call\n"
+        "saving is the only empirical part. This read \"reproduced majority-of-5 verdicts "
+        "exactly\" until 2026-10-03.\n"
+        f"Costs are the {CANONICAL['rep_n_calls']:,} analysed calls priced per call; "
+        f"${CANONICAL['rep_billed_cost_usd']:.2f} was billed, including "
+        f"{CANONICAL['rep_duplicate_valid_calls']} valid calls that never entered the analysis.\n"
         "Scope: one judge, one configuration, judge stage only.",
         ha="center", fontsize=7.5, style="italic", color="#444444"
     )
@@ -270,52 +308,102 @@ def fig3_lift_comparison(out_path):
     _assert(null_lift, CANONICAL["null_within_task_lift"], "null_lift", tol=0.005)
     _assert(rc1_lift, CANONICAL["rc1_within_task_lift_probe"], "rc1_lift", tol=0.005)
 
+    # Until 2026-10-02 this figure was three bare bars. The only comparison it afforded a
+    # reader was null-height vs RC1-height, which is the one comparison the data does not
+    # support: the bars sit on different task sets (94 / 80 / 109) and their difference
+    # straddles zero. Intervals and task counts are therefore not decoration here.
+    unc = probe["uncertainty"]
+    _assert(unc["NULL"]["tasks"], CANONICAL["null_within_task_tasks"], "null_tasks", tol=0.5)
+    _assert(unc["RC1"]["tasks"], CANONICAL["rc1_within_task_tasks"], "rc1_tasks", tol=0.5)
+    _assert(unc["ORACLE"]["tasks"], CANONICAL["oracle_within_task_tasks"], "oracle_tasks", tol=0.5)
+    diff = unc["paired_differences"]["NULL_minus_RC1"]
+    _assert(diff["mean"], CANONICAL["null_minus_rc1_lift"], "null_minus_rc1", tol=0.005)
+    for key, canon in [("ORACLE", "mh_oracle_lift"), ("NULL", "mh_null_lift"),
+                       ("RC1", "mh_rc1_lift")]:
+        _assert(unc[key]["mh"], CANONICAL[canon], canon, tol=0.005)
+        _assert(unc[key]["mh_cluster_ci"][0], CANONICAL[canon + "_ci"][0], canon + "_lo", tol=0.005)
+        _assert(unc[key]["mh_cluster_ci"][1], CANONICAL[canon + "_ci"][1], canon + "_hi", tol=0.005)
+
+    order = ["ORACLE", "NULL", "RC1"]
     labels = [
-        "Oracle construct\n(required write missing;\nbenchmark-authoritative)",
-        "Null rule\n(no successful write;\nno model)",
-        "RC1\n(production detector;\nfresh corpus)",
+        f"Oracle construct\n(required write missing;\nbenchmark-authoritative)\n{unc['ORACLE']['tasks']} tasks",
+        f"Null rule\n(no successful write;\nno model)\n{unc['NULL']['tasks']} tasks",
+        f"RC1\n(production detector;\nfresh corpus)\n{unc['RC1']['tasks']} tasks",
     ]
     lifts = [oracle_lift, null_lift, rc1_lift]
+    lift_err = [[lifts[i] - unc[k]["lift_ci"][0] for i, k in enumerate(order)],
+                [unc[k]["lift_ci"][1] - lifts[i] for i, k in enumerate(order)]]
+    mh = [unc[k]["mh"] for k in order]
+    mh_err = [[mh[i] - unc[k]["mh_cluster_ci"][0] for i, k in enumerate(order)],
+              [unc[k]["mh_cluster_ci"][1] - mh[i] for i, k in enumerate(order)]]
     colors = [ORACLE_COLOR, NULL_COLOR, RC1_COLOR]
     hatches = ["//", "", ""]
     evidence = ["ORACLE / undeployable", "EXPLORATORY / not accepted", "PREREGISTERED / FRESH-CORPUS"]
 
-    fig, ax = plt.subplots(figsize=(8, 5))
-    bars = ax.bar(range(3), lifts, color=colors, edgecolor="#333333",
-                  linewidth=0.8, hatch_linewidth=1.0)
+    x = list(range(3))
+    fig, ax = plt.subplots(figsize=(9, 5.6))
+    bars = ax.bar([i - 0.19 for i in x], lifts, width=0.38, color=colors,
+                  edgecolor="#333333", linewidth=0.8, hatch_linewidth=1.0,
+                  yerr=lift_err, capsize=4,
+                  error_kw={"ecolor": "#222222", "elinewidth": 1.2})
     for bar, h in zip(bars, hatches):
         bar.set_hatch(h)
+    # MH is the estimator that keeps each rule inside its own strata and weights them by
+    # information; it is shown beside the pooled lift so no single bar height is the story.
+    ax.bar([i + 0.19 for i in x], mh, width=0.38, color="white",
+           edgecolor=colors, linewidth=1.4, yerr=mh_err, capsize=4,
+           error_kw={"ecolor": "#222222", "elinewidth": 1.2},
+           label="Mantel–Haenszel, stratified by task")
 
-    # Baseline = 1.0
     ax.axhline(1.0, color="#333333", linewidth=1.0, linestyle="--", label="No lift (1.0×)")
+    ax.axhspan(0.8, 1.0, color="#cccccc", alpha=0.35, zorder=0)
 
-    # Volume gate annotation. Sits in the empty upper-right quadrant: at y=1.03 it
-    # collided with RC1's multi-line value label.
-    ax.text(2.45, 2.15, "A1 volume gate: <15%\n(all three fail at 17–25%)",
+    ax.text(2.48, 2.28, "A1 volume gate: <15%\n(all three fail at 17–25%)",
             fontsize=7.5, color="#888888", ha="right")
 
     for i, (lift, evd) in enumerate(zip(lifts, evidence)):
-        ax.text(i, lift + 0.02, f"{lift:.3f}×\n[{evd}]",
-                ha="center", va="bottom", fontsize=7.5, linespacing=1.3)
+        ax.text(i - 0.19, unc[order[i]]["lift_ci"][1] + 0.03, f"{lift:.3f}×\n[{evd}]",
+                ha="center", va="bottom", fontsize=7, linespacing=1.3)
+    for i, v in enumerate(mh):
+        ax.text(i + 0.19, unc[order[i]]["mh_cluster_ci"][1] + 0.03, f"MH {v:.3f}×",
+                ha="center", va="bottom", fontsize=7, color="#444444")
 
-    ax.set_xticks(range(3))
-    ax.set_xticklabels(labels, fontsize=9)
+    # The withdrawn comparison, drawn as withdrawn. A reader who reaches for the
+    # null-vs-RC1 height difference should meet the interval that forbids it.
+    ax.annotate("", xy=(1.0, 1.75), xytext=(2.0, 1.75),
+                arrowprops={"arrowstyle": "<->", "color": "#b00020", "linewidth": 1.1})
+    ax.text(1.5, 1.79,
+            # Says which quantity it is. A reader differencing the two bars gets +0.070, not
+            # +0.078, and until 2026-10-03 nothing on this figure said the quoted number was the
+            # mean of the 2,000 paired resample differences.
+            f"NULL − RC1 = {diff['mean']:+.3f}  "
+            f"[{diff['ci'][0]:+.3f}, {diff['ci'][1]:+.3f}]\n"
+            f"mean of 2,000 paired task resamples (differencing the bars: {diff['point']:+.3f})\n"
+            "straddles 0 — NO ordering supported",
+            ha="center", va="bottom", fontsize=7.5, color="#b00020")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=8.5)
     ax.set_ylabel("Within-task lift on reference FAIL outcome", fontsize=9)
-    ax.set_ylim(0.8, 2.8)
+    ax.set_ylim(0.8, 3.45)
     ax.set_title(
         "Figure 3 — Oracle / null baseline / RC1 lift comparison  [PREREGISTERED + ORACLE + EXPLORATORY]\n"
-        "τ-bench, 1,980 records, 165 tasks  ·  Single code path; reproduces published values",
+        "τ-bench, 1,980 records, 165 tasks  ·  95% task-level cluster bootstrap, 2,000 resamples",
         fontsize=10
     )
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=8, loc="upper right")
     ax.tick_params(labelsize=8)
-    # The x tick labels are three lines tall; -0.04 put this on top of them.
+    # The x tick labels are four lines tall; -0.04 put this on top of them.
     fig.text(
-        0.5, -0.20,
+        0.5, -0.22,
         "The oracle construct is not deployable (benchmark-authoritative actions, class D). "
         "The null rule fails the volume gate and was preregistered as disqualified.\n"
-        "RC1 is the production-visible detector: it fell below the null rule on the deployable outcome.\n"
-        "The gap 2.339× → 1.101× shows the latent construct carries signal RC1 did not recover. "
+        "The three bars are NOT computed on the same tasks: the within-task filter keeps only tasks where a given rule both fires and does not.\n"
+        "RC1 is the production-visible detector: it did not outperform the null rule on the deployable outcome, and did not fall below it either —\n"
+        "neither RC1 nor the null rule is distinguishable from 1.0×. Only the oracle separates. "
+        "Corrected 2026-10-02; the previous version of this figure drew three bare bars\n"
+        "and its caption read \u0022it fell below the null rule\u0022, an ordering the intervals do not support.\n"
+        "The oracle/RC1 gap shows the latent construct carries signal RC1 did not recover. "
         "It does not show a production-valid representation exists.\n"
         "Does not support 'build a more semantic RC1.'",
         ha="center", fontsize=7.5, style="italic", color="#444444"
@@ -353,44 +441,76 @@ def fig4_ref_vs_operational(out_path):
     op_fail_prec = op_fail_num / op_fail_den
     op_pass_prec = op_pass_num / op_pass_den
 
+    # Direction-matched reference-conditioned rates. Added 2026-10-02: until then this figure
+    # showed pooled recovery beside the two direction-specific precisions and nothing else, so
+    # the only subtraction it invited was the across-direction one that produced the withdrawn
+    # "20-30 points". Each operational bar now stands next to its own matched comparator.
+    catch = mf_num / mf_den
+    rescue = fa_num / fa_den
+
     _assert(pooled_recovery, CANONICAL["arb_predeclared_recovery"], "arb_pooled_recovery")
     _assert(op_fail_prec, CANONICAL["arb_operational_overturn_fail"], "op_fail_prec")
     _assert(op_pass_prec, CANONICAL["arb_operational_overturn_pass"], "op_pass_prec")
+    _assert(catch, CANONICAL["arb_catch_missed_failure"], "arb_catch_missed_failure")
+    _assert(rescue, CANONICAL["arb_rescue_false_alarm"], "arb_rescue_false_alarm")
+    _assert((catch - op_fail_prec) * 100, CANONICAL["arb_gap_missed_failure_pp"],
+            "arb_gap_missed_failure_pp", tol=0.05)
+    _assert((rescue - op_pass_prec) * 100, CANONICAL["arb_gap_false_alarm_pp"],
+            "arb_gap_false_alarm_pp", tol=0.05)
     _assert(mf_den, CANONICAL["arb_missed_failures"], "missed_failures")
     _assert(fa_den, CANONICAL["arb_false_alarms"], "false_alarms")
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    # Bar widths proportional to denominator (stratum size)
+    # Grouped in matched pairs: each operational rate beside the reference-conditioned rate
+    # for the SAME error direction. The pooled 0.543 is kept on the left, labelled as the
+    # quantity that is not comparable to either, because removing it would hide what the
+    # published claim was computed from.
     categories = [
-        ("Reference-conditioned\nrecovery\nP(alt correct | primary wrong)\n[NOT executable at runtime]",
-         pooled_recovery, total_errors, "#aec7e8", "//"),
-        (f"Operational: overturn-to-fail\n(precision of FAIL→PASS flips)\n[n = {op_fail_den} overturns]",
-         op_fail_prec, op_fail_den * 10, REF_FAIL_COLOR, ""),
-        (f"Operational: overturn-to-pass\n(precision of PASS→FAIL flips)\n[n = {op_pass_den} overturns]",
-         op_pass_prec, op_pass_den * 10, REF_SUCC_COLOR, ""),
+        ("Reference-conditioned\nPOOLED recovery\nP(alt correct | primary wrong)\n"
+         f"[NOT executable; not comparable\nto either pair — n = {total_errors}]",
+         pooled_recovery, "#aec7e8", "//"),
+        (f"Ref-conditioned:\nmissed-failure catch\n[{mf_num}/{mf_den}]",
+         catch, "#aec7e8", "//"),
+        (f"Operational:\noverturn-to-fail\n[{op_fail_num}/{op_fail_den}]",
+         op_fail_prec, REF_FAIL_COLOR, ""),
+        (f"Ref-conditioned:\nfalse-alarm rescue\n[{fa_num}/{fa_den}]",
+         rescue, "#aec7e8", "//"),
+        (f"Operational:\noverturn-to-pass\n[{op_pass_num}/{op_pass_den}]",
+         op_pass_prec, REF_SUCC_COLOR, ""),
     ]
 
-    x_positions = [0, 2.5, 4.2]
+    x_positions = [0, 1.8, 2.7, 4.3, 5.2]
     bar_width_base = 0.8
 
-    for xi, (label, val, denom, color, hatch) in zip(x_positions, categories):
-        width = bar_width_base
-        bar = ax.bar(xi, val, width=width, color=color, edgecolor="#333333",
-                     linewidth=0.8, hatch=hatch)
+    for xi, (label, val, color, hatch) in zip(x_positions, categories):
+        ax.bar(xi, val, width=bar_width_base, color=color, edgecolor="#333333",
+               linewidth=0.8, hatch=hatch)
         ax.text(xi, val + 0.01, f"{val:.3f}", ha="center", va="bottom", fontsize=10,
                 fontweight="bold")
-        ax.text(xi, -0.04, label, ha="center", va="top", fontsize=7.5,
+        ax.text(xi, -0.04, label, ha="center", va="top", fontsize=7,
                 linespacing=1.3, transform=ax.get_xaxis_transform())
 
+    # Label each matched gap on the figure, so the only subtraction the figure suggests is
+    # the within-direction one.
+    for lo, hi, top, gap_pp, name in [
+        (1.8, 2.7, max(catch, op_fail_prec), (catch - op_fail_prec) * 100, "missed failures"),
+        (4.3, 5.2, max(rescue, op_pass_prec), (rescue - op_pass_prec) * 100, "false alarms"),
+    ]:
+        y = top + 0.07
+        ax.plot([lo, lo, hi, hi], [y - 0.02, y, y, y - 0.02], color="#333333", linewidth=0.8)
+        ax.text((lo + hi) / 2, y + 0.008, f"−{gap_pp:.1f} pp\n({name})", ha="center",
+                va="bottom", fontsize=7.5, fontweight="bold", color="#333333",
+                linespacing=1.2)
+
     # Error direction annotation
-    ax.text(0, 0.58, f"n_primary = {total_errors}\n({mf_den} missed failures\n"
+    ax.text(0, 0.62, f"n_primary = {total_errors}\n({mf_den} missed failures\n"
                      f"+ {fa_den} false alarms)",
             ha="center", fontsize=7.5, color="#333333",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#aaaaaa"))
 
     ax.set_xticks([])
-    ax.set_xlim(-0.8, 5.5)
+    ax.set_xlim(-0.8, 6.0)
     ax.set_ylim(0, 0.75)
     ax.set_ylabel("Rate", fontsize=9)
     ax.set_title(
@@ -406,10 +526,15 @@ def fig4_ref_vs_operational(out_path):
 
     fig.text(
         0.5, -0.08,
-        "The reference-conditioned quantity uses the ground-truth label no runtime system has — "
-        "it is not an executable policy.\n"
-        "The operational quantities (precision of actual overturns) ran 20–30 points lower.\n"
-        "Evidence class: EXPLORATORY. Single primary/alternate pair.",
+        "The reference-conditioned quantities use the ground-truth label no runtime system has — "
+        "they are not executable policies.\n"
+        "Matched by error direction, the operational quantities ran 10.3 and 9.7 points lower. "
+        "Across all eight alternates the false-alarm-side\ngap is always positive "
+        "(+9.7 to +46.0 pp); the missed-failure-side gap ranges −14.7 to +23.1 pp and is "
+        "negative for two.\n"
+        "Evidence class: EXPLORATORY. Single primary/alternate pair. "
+        "Caption corrected 2026-10-02: read \"20–30 points lower\", which\n"
+        "subtracted the pooled bar on the left from the direction-specific bars on the right.",
         ha="center", fontsize=7.5, style="italic", color="#444444"
     )
     fig.tight_layout(rect=[0, 0.08, 1, 1])

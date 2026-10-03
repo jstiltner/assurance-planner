@@ -72,9 +72,38 @@ SYNTHESIS_ONLY_EXEMPT = [
 ]
 
 
+# R3's reading was narrowed on 2026-10-02, not withdrawn: the within-slice residual stays
+# positive (+5.8 pp, p = 0.26) and in the predicted direction, so what shrank is the size of the
+# claim, not its sign. "Withdrawn" overstates the correction in the opposite direction from the
+# original overclaim, which is still a wrong claim about the evidence.
+#
+# It was also a lint hole, which is why this is enforced rather than left to prose discipline:
+# "withdrawn" sits in ALWAYS_EXEMPT, so any line that said R3 was withdrawn exempted itself from
+# every other check on that line. Four such lines shipped. The exemption no longer applies to
+# R3 lines, and the word is a violation on them.
+R3_LINE = re.compile(r"\bR3\b|evidence[- ]gap", re.I)
+WITHDRAW_WORD = re.compile(r"\bwithdraw(?:n|s|al|ing)?\b|\bwithdrew\b", re.I)
+# "narrowed, not withdrawn" and "narrowed rather than withdrawn" are the correct phrasings and
+# say the word in order to deny it. Only an un-negated use is the violation.
+NEGATED_WITHDRAW = re.compile(
+    r"\b(?:not|never|rather than|instead of|isn't|is not|wasn't|was not)\s+"
+    r"(?:\*{0,2})withdraw", re.I)
+
+
+def _r3_says_withdrawn(line: str) -> bool:
+    if not (R3_LINE.search(line) and WITHDRAW_WORD.search(line)):
+        return False
+    return not NEGATED_WITHDRAW.search(line)
+
+
 def _line_is_exempt(line: str, is_synthesis: bool = False) -> bool:
     low = line.lower()
     stripped = line.strip()
+    # A blockquote or a struck span may quote "R3 withdrawn" as history; that is the repo's
+    # correction convention and stays readable. Everything else may not.
+    quoted_history = stripped.startswith(">") or "~~" in line
+    if _r3_says_withdrawn(line) and not quoted_history:
+        return False
     if stripped.startswith(">"):
         return True  # blockquote: historical/correction citation
     for marker in ALWAYS_EXEMPT:
@@ -85,6 +114,32 @@ def _line_is_exempt(line: str, is_synthesis: bool = False) -> bool:
             if marker in low:
                 return True
     return False
+
+
+def _check_r3_narrowed(path: pathlib.Path, lines: list[str]) -> list[dict]:
+    """R3 lines must say 'narrowed', not 'withdrawn'. See the note above R3_LINE."""
+    out = []
+    for lineno, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped.startswith(">") or "~~" in line:
+            continue  # quoted history
+        if not _r3_says_withdrawn(line):
+            continue
+        out.append({
+            "file": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
+            "line": lineno,
+            "severity": "ERROR",
+            "phrase": "R3 + withdraw",
+            "message": (
+                "R3's reading was NARROWED 2026-10-02, not withdrawn. The within-slice residual "
+                "is +5.8 pp (p = 0.26) — positive, in the predicted direction, underpowered. The "
+                "claim shrinks to unproven; it is not refuted, and the ACCEPTED disposition never "
+                "moved. Use 'narrowed'. To quote the old wording as history, strike it (~~) or "
+                "put it in a blockquote."
+            ),
+            "excerpt": stripped[:100],
+        })
+    return out
 
 
 def _check_rule_identities(path: pathlib.Path, text: str) -> list[dict]:
@@ -136,6 +191,7 @@ def _check_file(path: pathlib.Path, is_synthesis: bool = False,
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
     violations = _check_rule_identities(path, text)
+    violations += _check_r3_narrowed(path, lines)
 
     for pattern, reason, severity in FORBIDDEN:
         if is_synthesis:

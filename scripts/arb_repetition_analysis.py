@@ -465,7 +465,17 @@ def main():
     output_toks = [r["output_tokens"] for r in valid_records]
     total_prompt = [r["input_tokens"] for r in valid_records]
 
-    print(f"  Total API spend:          ${sum(all_costs):.4f}")
+    # Two different quantities, and this line reported only the first under the name of the
+    # second until 2026-10-02. `all_costs` covers the 5,530 *deduplicated* calls the analysis
+    # uses; the 356 duplicate valid calls removed above were billed all the same. Every cost
+    # figure published for this study was the analysed total, labelled as spend.
+    billed_costs = [
+        r["billed_cost"] for r in all_records
+        if r.get("call_status") == "valid" and r.get("billed_cost") is not None
+    ]
+    print(f"  Analysed spend ({len(all_costs):,} unique calls):  ${sum(all_costs):.4f}")
+    print(f"  Billed spend   ({len(billed_costs):,} valid calls):   ${sum(billed_costs):.4f}"
+          f"  (+${sum(billed_costs) - sum(all_costs):.4f} on {duplicates_removed} duplicates)")
     print(f"  Mean cost per call:       ${statistics.mean(all_costs):.6f}")
     print(f"  Total prompt tokens:      {sum(total_prompt):,}")
     print(f"  Cached prompt tokens:     {sum(cached):,} ({sum(cached)/sum(total_prompt)*100:.1f}%)")
@@ -661,9 +671,30 @@ def main():
     total_succ_calls = int(ss_succ_mean_calls * len(succ_cases))
     total_ss_calls = total_fail_calls + total_succ_calls
     ss_cost_est = total_cost * total_ss_calls / len(valid_records)
-    print(f"  Total actual spend (R=5, 5,530 calls): ${total_cost:.4f}")
-    print(f"  Sequential stopping (first-to-3): ~{total_ss_calls} calls, "
-          f"est. cost ~${ss_cost_est:.2f} (39.8% saving on call count)")
+    # Computed, not typed. This line read "(39.8% saving on call count)" as a hardcoded
+    # string from 2026-09 until 2026-10-02, while the same function computed 39.67%. Verified
+    # against origin/main on 2026-10-03: 39.8% reached five prose documents (README.md,
+    # FINDINGS.md, canonical_copy.md, repetition_study_findings.md, research_synthesis.md),
+    # three scripts and two site components before an external reproduction recomputed it. It
+    # was never a rounding error -- it was a literal sitting beside the quantity it misreports,
+    # which is the cheapest possible version of this defect, so there is no literal here now.
+    #
+    # The second half of this comment overstated the defect until 2026-10-03. It said the line
+    # "also printed '39.7% saving ... 3,336/5,530'". It did not: it printed
+    # "~3336 calls, est. cost ~$X (39.8% saving on call count)", a count and a percentage
+    # adjacent with no denominator anywhere, and 3,336 appears in exactly one repo document.
+    # Nobody wrote the inverted fraction; the print left a reader to derive it, and 3,336/5,530
+    # is 60.3%. Calls used and calls saved are now printed as separate labelled quantities and
+    # the saving names its own numerator, which closes the derivation either way.
+    ss_calls_saved = len(valid_records) - total_ss_calls
+    ss_call_saving = ss_calls_saved / len(valid_records)
+    print(f"  Analysed spend (R=5, {len(valid_records):,} unique calls): ${total_cost:.4f}"
+          f"  |  billed: ${sum(billed_costs):.4f}")
+    print(f"  Sequential stopping (first-to-3): uses ~{total_ss_calls:,} calls, "
+          f"est. cost ~${ss_cost_est:.2f}")
+    print(f"    saving on call count: {ss_call_saving:.1%} "
+          f"({ss_calls_saved:,} calls saved of {len(valid_records):,}; "
+          f"{total_ss_calls:,} used)")
     print(f"  Prompt cache discount: ~{sum(cached)/sum(total_prompt)*100:.1f}% of tokens cached")
     print(f"  Gate that would have saved ~$35 required 2 amendments + 1 retraction.")
     print(f"  Engineering cost of the gate exceeded the $35 it was designed to save.")

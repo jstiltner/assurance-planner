@@ -414,10 +414,37 @@ These three were fixed in Commit A2 (still pre-outcome). Fixes:
 | INCORRECT | 1 | 19 |
 | MISS (false negative, safe direction) | 1 | 09 |
 
+These counts are no longer counted by hand. Each case in
+`data/rc1_extractor_audit_cases_final.json` now carries an `audit_verdict` field transcribed from
+the case-by-case judgments above, plus `a2_repaired` and `out_of_sample` flags, and
+`scripts/rc1_extractor_audit_verdicts.py` recomputes both 28/30 and 25/27 from the artifact and
+checks them against the ledger. Added 2026-10-02: the out-of-sample correction below was a hand
+count of a hand count, which is the kind of number that stays wrong.
+
 **Precision:** 28 correct / 29 cases with extracted obligations = **96.6%** at the obligation level.
 
 **Against the preregistration A3 threshold (≥27/30 at case level):** 28/30 cases correct (case 09
 is a miss with 0 extracted obligations; case 19 is incorrect). **A3 PASSES.**
+
+### Two limits on what 28/30 can be used to prove (added 2026-10-02, external reproduction)
+
+**1. Three of the 28 passes are not out-of-sample.** The Commit A2 fixes below were made on
+cases **02, 06 and 16** of this very sample, after pass 1 saw them fail — and all three are
+counted among the 28 CORRECT in pass 2. The protocol discloses the two passes (see "Iteration
+history") but the headline figure does not, and 28/30 has been cited elsewhere as if every
+case were fresh. **Held strictly out-of-sample the result is 25/27** (92.6%), still above the
+≥27/30 bar as a *rate* (90.0%) but below it as a *count*, and the preregistration states the
+bar as a count. This does not invalidate A3 — pass 1's purpose was to find fixable extractor
+defects pre-outcome, which is correct practice and was done label-blind — but any sentence of
+the form "the extractor passed, so the failure is the rule's" is leaning on a number that is
+in part a measurement of fixes made after seeing the cases.
+
+**2. A3 measures precision, not recall.** The judgment codes make this explicit: the
+denominator for the precision figure is "29 cases with extracted obligations". False negatives
+are logged (case 09) but do not constrain the gate, and **case 30 is scored CORRECT while
+containing two further missed obligations**. The extractor's recall is therefore unmeasured,
+and an under-extracting extractor would make RC1 under-fire in a way this audit cannot see.
+"The parsing is fine" is supported only in the false-positive direction.
 
 ### Errors found and corrected (Commit A2)
 

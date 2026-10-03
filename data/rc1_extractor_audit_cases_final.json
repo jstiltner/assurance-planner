@@ -23,7 +23,11 @@
         "confidence": "high"
       }
     ],
-    "tool_calls": []
+    "tool_calls": [],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 2,
@@ -83,7 +87,11 @@
         "confidence": "high"
       }
     ],
-    "tool_calls": []
+    "tool_calls": [],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": true,
+    "out_of_sample": false
   },
   {
     "case_num": 3,
@@ -156,7 +164,11 @@
         "name": "update_reservation_flights",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 4,
@@ -211,7 +223,11 @@
         "name": "book_reservation",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 5,
@@ -249,7 +265,11 @@
         "name": "get_reservation_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 6,
@@ -282,7 +302,11 @@
         "name": "transfer_to_human_agents",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": true,
+    "out_of_sample": false
   },
   {
     "case_num": 7,
@@ -316,7 +340,11 @@
         "name": "update_reservation_passengers",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 8,
@@ -358,7 +386,11 @@
         "name": "transfer_to_human_agents",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 9,
@@ -421,7 +453,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "MISS",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 10,
@@ -458,7 +494,11 @@
         "name": "transfer_to_human_agents",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 11,
@@ -504,7 +544,11 @@
         "name": "find_user_id_by_email",
         "succeeded": false
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 12,
@@ -553,7 +597,11 @@
         "name": "transfer_to_human_agents",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": true,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 13,
@@ -600,7 +648,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 14,
@@ -653,7 +705,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 15,
@@ -701,7 +757,11 @@
         "name": "get_order_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 16,
@@ -798,7 +858,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": true,
+    "out_of_sample": false
   },
   {
     "case_num": 17,
@@ -840,7 +904,11 @@
         "name": "cancel_pending_order",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 18,
@@ -889,7 +957,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 19,
@@ -944,7 +1016,11 @@
         "name": "return_delivered_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "INCORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 20,
@@ -973,7 +1049,11 @@
         "name": "get_order_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 21,
@@ -1013,7 +1093,11 @@
         "name": "get_order_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 22,
@@ -1052,7 +1136,11 @@
         "name": "get_order_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 23,
@@ -1103,7 +1191,11 @@
         "name": "exchange_delivered_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 24,
@@ -1141,7 +1233,11 @@
         "name": "exchange_delivered_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 25,
@@ -1231,7 +1327,11 @@
         "name": "cancel_pending_order",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 26,
@@ -1297,7 +1397,11 @@
         "name": "modify_pending_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 27,
@@ -1371,7 +1475,11 @@
         "name": "modify_user_address",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 28,
@@ -1420,7 +1528,11 @@
         "name": "return_delivered_order_items",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 29,
@@ -1494,7 +1606,11 @@
         "name": "get_order_details",
         "succeeded": true
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   },
   {
     "case_num": 30,
@@ -1572,6 +1688,10 @@
         "name": "exchange_delivered_order_items",
         "succeeded": false
       }
-    ]
+    ],
+    "audit_verdict": "CORRECT",
+    "audit_ambiguous": false,
+    "a2_repaired": false,
+    "out_of_sample": true
   }
 ]

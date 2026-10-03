@@ -33,6 +33,14 @@ SNAPSHOT = os.path.expanduser(
 SPLIT = os.path.join(REPO, "data", "REAL_arb_discovery_validation_split.json")
 ANNOTATIONS = os.path.join(SNAPSHOT, "data", "annotations.csv")
 
+# The per-case export. Everything above this line needs the Hugging Face snapshot; everything
+# downstream of this file does not, which is the point -- `arb_r3_slice_check.py` reproduces the
+# stratified figures from here, so a reader without the 4 GB snapshot can still check the
+# arithmetic that narrowed R3's reading. Committed, because a correction nobody can recompute is
+# an assertion.
+CASES_CSV = os.path.join(REPO, "data", "REAL_arb_repair_validation_cases.csv")
+CASES_FIELDS = ["case_id", "benchmark", "agent", "task_id", "reference", "baseline"]
+
 # Rules that change the emitted verdict. R1 and R4 are evidence only.
 VETO_RULES = ["R2_negative_selfreport_modification"]
 ABSTAIN_RULES = ["R3_unverifiable_image_premise"]
@@ -75,6 +83,77 @@ def evaluate(case_ids, reference):
         rows.append({"case_id": cid, "benchmark": benchmark,
                      "reference": ref, "baseline": base, "fires": fires})
     return rows
+
+
+def export_cases(rows, path=CASES_CSV):
+    """Write one row per scored case: identity, both verdicts, and every rule's firing.
+
+    These are exactly the fields `evaluate` produces, so a consumer of the CSV sees what the
+    validation run saw and nothing more. No obligation text, no judgment prose, no annotator
+    identity -- the snapshot's terms of use cover the trajectories, and this export deliberately
+    carries only the derived booleans needed to recompute the published contrasts.
+    """
+    rule_names = sorted(RULES)
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=CASES_FIELDS + rule_names)
+        writer.writeheader()
+        for r in rows:
+            benchmark, agent, task = r["case_id"].split("/")
+            writer.writerow({"case_id": r["case_id"], "benchmark": benchmark, "agent": agent,
+                             "task_id": task, "reference": r["reference"],
+                             "baseline": r["baseline"],
+                             **{n: int(r["fires"][n]) for n in rule_names}})
+    return path
+
+
+def load_cases(path=CASES_CSV):
+    """Read the export back into the shape `evaluate` returns. The inverse of export_cases."""
+    rule_names = sorted(RULES)
+    rows = []
+    with open(path, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            rows.append({"case_id": r["case_id"], "benchmark": r["benchmark"],
+                         "reference": int(r["reference"]), "baseline": int(r["baseline"]),
+                         "fires": {n: bool(int(r[n])) for n in rule_names}})
+    return rows
+
+
+def verify_export(rows, path=CASES_CSV):
+    """Prove the CSV is a faithful stand-in for the snapshot, then show what it contains.
+
+    A round-trip check is the whole point: if this prints OK, every downstream number computed
+    from the CSV is the number the snapshot would have given. It is checked rather than asserted
+    because the export exists so that a reader need not trust the export.
+    """
+    back = load_cases(path)
+    print(f"\n--- export verification: {os.path.relpath(path, REPO)}")
+    print(f"    rows written          {len(back):5d}   (scored cases in memory {len(rows):5d})")
+    if len(back) != len(rows):
+        print("    MISMATCH in row count")
+        return False
+    diffs = [a["case_id"] for a, b in zip(rows, back)
+             if (a["case_id"], a["benchmark"], a["reference"], a["baseline"], a["fires"])
+             != (b["case_id"], b["benchmark"], b["reference"], b["baseline"], b["fires"])]
+    print(f"    round-trips identical {'yes' if not diffs else 'NO: ' + ', '.join(diffs[:5])}")
+
+    nfail = sum(1 for r in back if r["reference"] == 0)
+    err = sum(1 for r in back if r["baseline"] != r["reference"])
+    print(f"    reference fail/success {nfail:4d} / {len(back) - nfail}")
+    print(f"    baseline AER errors   {err:5d}  = {err / len(back):.1%}")
+    print("    per benchmark:")
+    for b in sorted({r["benchmark"] for r in back}):
+        sub = [r for r in back if r["benchmark"] == b]
+        e = sum(1 for r in sub if r["baseline"] != r["reference"])
+        print(f"      {b:18s} {len(sub):4d} cases   judge error {e:3d} = {e / len(sub):5.1%}")
+    print("    firings per rule:")
+    for n in sorted(RULES):
+        f = [r for r in back if r["fires"][n]]
+        slices = sorted({r["benchmark"] for r in f})
+        print(f"      {n:36s} {len(f):4d}  ({len(f) / len(back):5.1%})  "
+              f"slices: {', '.join(slices) if slices else 'none'}")
+    print("    Reproduce the stratified R3 figures from this file alone:")
+    print("      python scripts/arb_r3_slice_check.py")
+    return not diffs
 
 
 def apply_rules(row, veto=(), abstain=()):
@@ -158,6 +237,11 @@ def report_evidence_rule(rows, name):
           f"   vs on non-firings {aer_wrong_rest:.1%}")
 
 
+def _err(rows):
+    """(errors, n) for the baseline AER verdict against the reference."""
+    return sum(1 for r in rows if r["baseline"] != r["reference"]), len(rows)
+
+
 def report_abstention(rows, name):
     fired = [r for r in rows if r["fires"][name]]
     rest = [r for r in rows if not r["fires"][name]]
@@ -171,11 +255,54 @@ def report_abstention(rows, name):
     print(f"    [preregistered R3 test] escalation volume {len(fired) / len(rows):.1%}"
           f"   -> {'PASS' if len(fired) / len(rows) < 0.15 else 'FAIL'} (threshold 15%)")
 
+    # The preregistered test above pools across benchmarks.  The hazard was written down -- but
+    # in docs/repair_validation_results.md, as a caveat added *after* these numbers existed, not
+    # in the preregistration: "Any rule that escalates the cases a judge finds hard will pass a
+    # test of the form 'is the judge worse on the escalated subset'.  That test is necessary, not
+    # sufficient, and the preregistration should have said so."  (This comment credited the
+    # preregistration until 2026-10-02.  It should not: the caveat's own closing clause says the
+    # preregistration was silent, and ACCEPTED was published two paragraphs below it.)  The check
+    # was never run; an external reproduction found on 2026-10-02 that all of R3's firings are
+    # visualwebarena, the slice with the highest judge error.  Printing the stratification here,
+    # inside the preregistered test's own output, is the cheapest way to stop the pooled
+    # pair from being read alone again.  The pooled PASS above is unchanged and remains the
+    # disposition; what follows qualifies the reading, not the verdict.
+    benches = sorted({r["benchmark"] for r in rows})
+    firing = [b for b in benches if any(r["benchmark"] == b for r in fired)]
+    print(f"\n    [NOT preregistered — added 2026-10-02] stratified by benchmark. "
+          f"R3 fires in {len(firing)} of {len(benches)} slices: {', '.join(firing)}")
+    for b in benches:
+        a, an = _err([r for r in fired if r["benchmark"] == b])
+        c, cn = _err([r for r in rest if r["benchmark"] == b])
+        if not an:
+            print(f"      {b:18s} no firings; judge error {c}/{cn} = {c / max(cn, 1):5.1%}")
+            continue
+        print(f"      {b:18s} {a:3d}/{an:<4d} = {a / an:5.1%}  vs  {c:3d}/{cn:<4d} = "
+              f"{c / max(cn, 1):5.1%}   diff {100 * (a / an - c / max(cn, 1)):+5.1f} pp")
+    if len(firing) == 1:
+        b = firing[0]
+        f_in = [r for r in fired if r["benchmark"] == b]
+        u_in = [r for r in rest if r["benchmark"] == b]
+        print(f"      -> pooled separation is partly slice identity, not escalation. "
+              f"Within-slice split by error direction:")
+        for label, ref in (("missed-failure (ref=fail)  ", 0),
+                           ("false-alarm   (ref=success)", 1)):
+            a, an = _err([r for r in f_in if r["reference"] == ref])
+            c, cn = _err([r for r in u_in if r["reference"] == ref])
+            if not an or not cn:
+                continue
+            print(f"      {label} {a:3d}/{an:<4d} = {a / an:5.1%}  vs  {c:3d}/{cn:<4d} = "
+                  f"{c / cn:5.1%}   diff {100 * (a / an - c / cn):+5.1f} pp")
+        print("      Fisher p-values and the full decomposition: scripts/arb_r3_slice_check.py")
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", default="validation",
                     choices=["validation", "validation_strict", "discovery"])
+    ap.add_argument("--export-cases", action="store_true",
+                    help=f"write the per-case table to {os.path.relpath(CASES_CSV, REPO)} "
+                         "and verify the round-trip")
     args = ap.parse_args()
 
     with open(SPLIT, encoding="utf-8") as fh:
@@ -198,6 +325,17 @@ def main():
     report_rule(rows, "R3 UNVERIFIABLE (alone)", abstain=ABSTAIN_RULES)
     report_abstention(rows, "R3_unverifiable_image_premise")
     report_rule(rows, "COMPOSITE R2+R3", veto=VETO_RULES, abstain=ABSTAIN_RULES)
+
+    if args.export_cases:
+        # Only the validation arm is committed. Exporting the discovery arm would put the
+        # quarantined 42 in the repo next to a file the slice check reads by default, which is
+        # how a held-out split stops being held out.
+        if args.arm != "validation":
+            print(f"\n--- export skipped: --export-cases is validation-only, got {args.arm}")
+            return
+        export_cases(rows)
+        if not verify_export(rows):
+            sys.exit(1)
 
 
 if __name__ == "__main__":
