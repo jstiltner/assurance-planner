@@ -56,7 +56,8 @@ retrospectively to the checkpoint after a concurrent-run incident during collect
 
 | item | value |
 | --- | --- |
-| Total API spend | $46.18 |
+| Analysed spend (5,530 unique valid calls) | $46.18 |
+| **Total API spend billed** (5,886 valid calls) | **$49.50** |
 | Mean cost per call | $0.008351 |
 | Total prompt tokens | 21,615,865 |
 | Cached prompt tokens | 9,665,024 (44.7%) |
@@ -167,9 +168,34 @@ the difference is not statistically distinguishable from zero.
 | ref=success | 27.46% | 3.027 | {3: 289, 4: 4, 5: 2} |
 
 Verdict identity with majority-of-5 verified programmatically: 0 mismatches in either
-stratum. 99.4% of cases terminate at exactly 3 calls. Sequential stopping reduces call count
-by ~39.8% relative to full R=5 collection, with the same error rate. Sequential stopping
-does not reduce errors — it is a cost estimand only.
+stratum. That identity holds **by construction** — once three of five draws agree, first-to-3
+and majority-of-5 cannot disagree — so the check confirms the implementation, not a property of
+the judge. Only the cost figure is empirical: 98.9% of cases terminate at exactly 3 calls —
+(805 + 289) / 1,106 — and sequential stopping reduces call count by 39.7% relative to full
+R=5 collection (2,194 calls saved of 5,530; 3,336 used), with the same error rate. Sequential
+stopping does not reduce errors — it is a cost estimand only.
+
+*Corrected 2026-10-02 (external reproduction).* This paragraph read "99.4%" and "~39.8%".
+Both were recomputable from the table directly above it: the termination rate is the sum of
+the two `{3: …}` cells over 1,106, and the call saving is what
+`arb_repetition_analysis.py` prints. Neither matched. The 39.8% traced to a hardcoded string
+in that script — not a rounding of 39.67%, a literal sitting beside the line that computed it
+— which has been replaced with the computed value; the 99.4% has no derivation I can
+reconstruct from the run — 805/811 is 99.3% and is the nearest candidate, which would
+mean a single stratum was reported as the whole corpus.
+
+*Also corrected 2026-10-02, and the description of it corrected again 2026-10-03.* The §12
+economics row read `| Sequential stopping (first-to-3, ~3,336 calls) | est. ~$27.86 (same
+error, 39.8% fewer calls) |` — a call count in one cell and an unlabelled percentage in the
+next, with no denominator anywhere. 3,336 is the number of calls first-to-3 *uses*; 3,336/5,530
+is 60.3%. The saving is the 2,194 calls not made, 2,194/5,530 = 39.67%. Nothing in the repo ever
+wrote the fraction "3,336 of 5,530" out — this note said it had, in two documents, until
+2026-10-03, and the check against `origin/main` found 3,336 in exactly one place: the row quoted
+above. What was wrong is subtler and worth stating accurately: `arb_repetition_analysis.py`
+printed `~3336 calls … (39.8% saving on call count)` on one line, so the only two numbers a
+reader had were a count and a percentage of an unnamed base, and the natural reading pairs
+them. The script now prints calls-used and calls-saved as separate labelled quantities and
+computes the percentage instead of carrying a literal.
 
 ---
 
@@ -383,10 +409,19 @@ cannot improve them.
 
 | item | value |
 | --- | --- |
-| Total API spend, R=5 (5,530 calls) | $46.18 |
-| Sequential stopping (first-to-3, ~3,336 calls) | est. ~$27.86 (same error, 39.8% fewer calls) |
+| Analysed spend, R=5 (5,530 unique valid calls) | $46.18 |
+| **Billed spend, R=5** (5,886 valid calls) | **$49.50** (+$3.32 on 356 duplicate valid calls) |
+| Sequential stopping (first-to-3, 3,336 calls used) | est. ~$27.86 (same error, 2,194 fewer calls = 39.7%) |
 | Prompt cache discount | 44.7% of tokens cached; reduces per-repeat cost significantly |
 | Collection wall-clock | ~8h 44m (parallelized, MAX_CONCURRENT=3 final pass) |
+
+*Corrected 2026-10-02 (external reproduction).* Every spend figure this study published was
+$46.18, the cost of the 5,530 **deduplicated** calls the analysis runs on. The provider billed
+$49.50: 356 duplicate valid calls were collected, dropped at load time by
+`load_unique_valid()`, and paid for. The dedup count was printed in the collection-integrity
+section the whole time; nothing joined it to the cost line, which was labelled "Total API
+spend". Both figures are now computed and printed side by side. The 904 transport failures
+carry no billed cost and are not part of the gap.
 
 The data-dependent continuation gate (Amendment 2 §A2.5) was designed to avoid ~$35 of
 additional inference. It required two amendments and a retraction to produce and still

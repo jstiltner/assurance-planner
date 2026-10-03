@@ -3019,5 +3019,80 @@
     "within_task_lift_ref_fail": 1.1711079943899017,
     "oracle_within_task_lift_ref_fail": 2.3388870830755684,
     "rc1_within_task_lift_ref_fail": 1.100858547970326
+  },
+  "uncertainty": {
+    "ORACLE": {
+      "tasks": 94,
+      "lift": 2.3388870830755684,
+      "lift_ci": [
+        1.9273108569595012,
+        2.9269328802039083
+      ],
+      "mh": 2.0535506402793953,
+      "mh_cluster_ci": [
+        1.7521459227467815,
+        2.5300171526586612
+      ],
+      "mh_gr_ci": [
+        1.8418527750044487,
+        2.2895805188238945
+      ],
+      "mh_by_task_and_agent": 1.9120171673819744
+    },
+    "NULL": {
+      "tasks": 80,
+      "lift": 1.1711079943899017,
+      "lift_ci": [
+        0.8017492711370263,
+        1.6524119055764626
+      ],
+      "mh": 1.2365591397849476,
+      "mh_cluster_ci": [
+        0.9040139616055844,
+        1.6495956873315372
+      ],
+      "mh_gr_ci": [
+        1.0812064158010066,
+        1.414233659585602
+      ],
+      "mh_by_task_and_agent": 1.0903954802259888
+    },
+    "RC1": {
+      "tasks": 109,
+      "lift": 1.100858547970326,
+      "lift_ci": [
+        0.9030158482491141,
+        1.3600953895071541
+      ],
+      "mh": 1.1500000000000006,
+      "mh_cluster_ci": [
+        0.9785661492978569,
+        1.3524514338575393
+      ],
+      "mh_gr_ci": [
+        1.045157662548693,
+        1.265359330356904
+      ],
+      "mh_by_task_and_agent": 1.0544412607449856
+    },
+    "paired_differences": {
+      "NULL_minus_RC1": {
+        "mean": 0.07767673899057977,
+        "point": 0.07024944641957576,
+        "ci": [
+          -0.3265060240963854,
+          0.5746788191582755
+        ]
+      },
+      "ORACLE_minus_NULL": {
+        "mean": 1.1772104430098564,
+        "point": 1.1677790886856667,
+        "ci": [
+          0.7212062653227056,
+          1.6865602518946996
+        ]
+      }
+    },
+    "method": "Task-level cluster bootstrap, 2000 resamples, seed 20261002. Quote mh_cluster_ci, never mh_gr_ci: Greenland-Robins assumes independence within strata that are repeated trials of one task and excludes 1 for NULL and RC1 where the cluster interval does not."
   }
 }

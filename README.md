@@ -22,8 +22,24 @@ The five-minute skeptical read is [`docs/FINDINGS.md`](docs/FINDINGS.md).
 **Deterministic pre-checks (R1–R4)** — four frozen rules designed to detect specific structural
 failure conditions before the primary judge runs. Evaluated on a quarantined held-out split.
 
+| rule | fires when | criterion it was given |
+|---|---|---|
+| R1 | the agent calls `report_infeasible` while asserting the task was completed | **direction only** — firings more enriched for reference-fail than base rate |
+| R2 | the agent reports it did not accomplish a goal phrased as an imperative modification | **numeric gate** — veto SUCCESS; `harmed ≤ helped / 3` |
+| R3 | the goal names an image and the evaluator's input contains no image — structural and answer-independent | **numeric gate** — escalation volume <15%; evaluator error higher on escalated than on remainder |
+| R4 | the trajectory ends on a search-results page | **direction only** — same as R1 |
+
+Only R2 and R3 carry numeric accept/reject gates. R1 and R4 change no verdict, so §7 of
+`docs/repair_validation_preregistration.md` gave them a direction and no threshold.
+*Corrected 2026-10-02 — R4's published `REJECTED` label was post hoc: it met the only
+criterion it was given (1.20×), and the evaluator-error contrast it was rejected on was never
+a criterion.*
+
 **Fresh-corpus static matching (RC1)** — a rule that extracts user-stated obligations and checks
-whether executed tool calls satisfy them. Tested on τ-bench, a corpus never previously touched.
+whether executed tool calls satisfy them. Tested on τ-bench, a corpus not used for any earlier
+result in this project. (*Corrected 2026-10-02:* earlier drafts said ~~"never touched"~~. The
+τ-bench files were read during rule scoping with `reward` and `info` withheld by code — the
+labels were blind, the corpus was not untouched.)
 
 ---
 
@@ -33,17 +49,32 @@ whether executed tool calls satisfy them. Tested on τ-bench, a corpus never pre
 `gpt-4o-2024-11-20` judge (temperature 0.0, seed 0) on 1,106 AgentRewardBench trajectories
 produced intermediate correctness (k between 1 and 4) in only 20 cases. Majority-of-3 and
 majority-of-5 were marginally *worse* than a single call in both error directions. Sequential
-first-to-3 stopping reproduced majority-of-5 verdicts exactly with 39.8% fewer calls.
-Cost: 5,530 calls, $46.18.
+first-to-3 stopping used 39.7% fewer calls (2,194 calls saved of 5,530; 3,336 were used) at
+verdicts identical to majority-of-5 **by construction** — the two rules cannot disagree once
+three of five draws agree, so the call saving is the only empirical part. This read "reproduced
+majority-of-5 verdicts exactly" until 2026-10-03, which states an identity as a result.
+Cost: 5,530 analysed calls, $46.18 — $49.50 billed, because 356 duplicate valid calls were
+dropped before analysis and paid for regardless.
 
 *Scope: one judge, one configuration, judge stage only.*
 
 **The recovery statistic was not the operational quantity.** The predeclared
 alternate-evaluator pair recovered 54.3% of the primary's errors — conditional on knowing
 which cases were errors, a label no runtime system has. The precision of the overturns a
-deployed policy would actually perform was 36.6% / 46.5%: 20–30 points lower on the same
-cases. Blanket adjudication on the primary's FAIL verdict was non-positive against all eight
-candidate pairs.
+deployed policy would actually perform was 36.6% / 46.5%. Compared direction by direction,
+that is about 10 points lower: catch 46.9% against overturn-to-fail 36.6% (10.3 pp), rescue
+56.2% against overturn-to-pass 46.5% (9.7 pp). The gap is real and robust on the false-alarm
+side — positive for all eight alternates, 9.7 to 46.0 pp — and is **not** general on the
+missed-failure side, where it ranges −14.7 to +23.1 pp and reverses sign for two alternates.
+Blanket adjudication on the primary's FAIL verdict is a raw-count loss for five of the eight
+candidate pairs, and non-positive for all eight only if a missed failure is weighted at least
+1.057× a false alarm.
+
+*Corrected 2026-10-02 (external reproduction).* This paragraph said ~~"20–30 points lower"~~ and
+~~"non-positive against all eight"~~. The first subtracted the two direction-specific overturn
+precisions from 0.543, a figure pooled across both error directions; the direction-matched
+gap is ~10 points. The second was true only under an unstated error-cost weighting. See
+`docs/agent_reward_bench_directional.md` §12.
 
 **Predeclaration changed the answer.** The predeclared pair ranked last of eight on pooled
 recovery (0.543 vs 0.759 post-hoc best), in a report that would have read identically either
@@ -53,14 +84,56 @@ data.
 **Static tool-class matching failed fresh-corpus validation; the target construct was real.**
 RC1 failed two binding preregistered gates on τ-bench (1,980 records, 165 tasks): volume
 25.3% against a <15% ceiling; trajectory lift 1.165× against a ≥1.50× bar. The extractor
-passed its label-blind audit at 28/30. On the deployable outcome, within-task: oracle
-construct 2.339×, null rule requiring no model 1.171×, RC1 1.101×. The detector fell
-below a no-model baseline — a representation failure, not an empty abstraction.
+passed its label-blind **precision** audit at 28/30 — 25/27 held strictly out-of-sample, since
+three of the 28 passes are cases the same audit's first pass found defective and fixed before
+its second pass scored them; recall was not measured (disclosed 2026-10-02). On the deployable
+outcome, within-task: oracle
+construct 2.339× (94 tasks), null rule requiring no model 1.171× (80 tasks), RC1 1.101×
+(109 tasks). The detector **did not outperform** a rule containing no obligation model —
+but it did not fall below one either: paired on the same task resamples, NULL − RC1 =
++0.078 [−0.327, +0.575], and under Mantel–Haenszel stratification neither the null rule
+(1.237 [0.904, 1.650]) nor RC1 (1.150 [0.979, 1.352]) is distinguishable from 1. Only the
+oracle separates (2.054 [1.752, 2.530]). The oracle establishes that the latent construct
+carries signal; it does not establish that a production-valid representation of it exists.
+(Ordering claim corrected 2026-10-02 — see `docs/rc1_successor_probe.md` §1.)
 
-**What survived (R3):** An explicit "required evidence is absent" state had held-out support
-as an escalation signal (25.6% vs 14.4% evaluator error on a 133-case subset). It corrects
-nothing itself; 99 of 133 escalated cases were already correct. Its value depends entirely
-on review cost.
+**What was narrowed on reproduction (R3):** An explicit "required evidence is absent" state
+passed its preregistered test as an escalation signal — 25.6% vs 14.4% evaluator error on a
+133-case subset, Fisher p = 0.0015 — and this README called it the project's one clearly
+positive result until 2026-10-02. (The heading said ~~"What did not survive reproduction"~~
+until 2026-10-03. The disposition did survive: the test ran as specified and met its
+criterion. What shrank is the reading.)
+
+Most of the pooled separation is benchmark identity. All 133 firings are visualwebarena, which
+carries the highest judge-error point estimate of the four slices (22.4%, against 19.8% on
+webarena, 11.1% on workarena and 3.9% on assistantbench), so the pooled test compares one
+slice against three others rather than escalated cases against unescalated ones. Within
+visualwebarena the contrast is **25.6% vs 19.7%, Fisher p = 0.26** — about half the
+separation, and not significant. The residual stays positive and in the predicted direction,
+so the rule is unproven at this power, not refuted. Reproduce with
+`scripts/arb_r3_slice_check.py`.
+
+The paragraph this replaces argued R3 escaped circularity because its condition is
+structural, answer-independent, and frozen before its error rate was known. All three are
+still true and none of them help: "the goal names an image the evaluator cannot see" is
+near-perfectly correlated with the benchmark built out of image-grounded tasks.
+Preregistering a rule does not control for a covariate the test never measured.
+The risk had already been written down — *"Any rule that escalates the cases a judge finds hard
+will pass a test of the form 'is the judge worse on the escalated subset'. That test is
+necessary, not sufficient, and the preregistration should have said so."* That is from
+`docs/repair_validation_results.md`, a **post-results** caveat, not from the preregistration
+(this README said "preregistration" until 2026-10-02, which gave the project credit for
+foresight it did not have). It was written after R3's numbers were in, and *Disposition:
+ACCEPTED* follows it two paragraphs later. `docs/research_synthesis.md` separately recorded
+"visualwebarena-only firings" in a scope column. Both facts were on paper; nobody joined them.
+
+R3 is not refuted, and its preregistered disposition does not move — it met its criterion and
+the test ran as specified, so relabelling it now on an analysis the preregistration never
+named would be the same post-hoc move criticised two sections above. What is withdrawn is the
+reading. A +5.8 pp within-slice residual in the predicted direction at n=133 vs 157 is
+underpowered, not absent, and settling it needs a corpus where the evidence gap occurs outside
+one benchmark. It corrects nothing itself; 99 of 133 escalated cases were already correct. It
+should not be cited as a positive result in the meantime.
 
 ---
 
@@ -68,9 +141,21 @@ on review cost.
 
 Each mechanism was plausible enough to deploy. What stopped them was preregistration,
 held-out quarantine, negative controls, and cheap-baseline benchmarking. The same discipline
-caught 13 process errors in the research — including a join-key collision affecting 33% of
-records, found by tracing a single anomalous row. The instruments that would have deployed
+caught 13 process errors in the research — including a join-key collision affecting 33%
+of records, found by tracing a single anomalous row. The instruments that would have deployed
 these errors are the same ones that prevented them.
+
+**That is not the whole count, as of 2026-10-02.** An independent external reproduction found
+**eleven more** — ten wrong or over-strong summary figures and protocol descriptions, and a
+confound in R3's escalation reading (see above). The record is therefore **13 process errors
+found during the study (6 before the relevant outcomes were visible, 7 afterwards) and 11 more
+found by external reproduction**, 24 rows in total. The two are counted separately rather than
+summed into one triple: the 13 is what this project's safeguards caught about themselves and it
+did not change, and the 11 is the part no safeguard here caught. None of the eleven needed new
+data; all were recomputable from artefacts already in this repository. The honest version of
+this section is therefore that the safeguards caught what they were designed to catch and did
+not substitute for an outside reader re-deriving the summary figures. Full table:
+`docs/research_synthesis.md` §10.
 
 The practitioner lesson: *before buying more inference, ask whether the evidence required
 to make the decision exists and whether a cheaper observable already carries the signal —
@@ -84,7 +169,14 @@ the evidence.*
 | corpus | records | tasks | evidence class |
 |---|---|---|---|
 | [AgentRewardBench](https://github.com/McGill-NLP/agent-reward-bench) (rev `b6d17e6`, arXiv:2504.08942) | 1,106 annotated trajectories | — | Preregistered / held-out |
-| [τ-bench](https://github.com/sierra-research/tau-bench) (`historical_trajectories/`, MIT) | 1,980 trajectories | 165 | Fresh-corpus (never touched before RC1 test) |
+| [τ-bench](https://github.com/sierra-research/tau-bench) (Sierra Research; `historical_trajectories/`, MIT) | 1,980 trajectories | 165 | Fresh-corpus, read **label-blind** until the RC1 freeze |
+
+*Corrected 2026-10-02.* The τ-bench row read ~~"never touched before RC1 test"~~. The files
+were in fact read during scoping to establish that the rule's inputs exist — record counts,
+task and trial ids, message roles, tool-call names — with the `reward` and `info` fields
+programmatically withheld at inspection time (`docs/required_conjunct_scoping.md` §8.4). The
+blinding that actually protected the test was label-blindness enforced in code, not an
+untouched corpus. Stating it as "untouched" claims a stronger protocol than was run.
 
 ---
 
@@ -238,9 +330,20 @@ keys at any depth, and a test tampers with a real scenario to prove it.
   `synthetic: false`. No scenario consumes them and none should yet — they cover one
   failure mode, carry no latency, and are single-shot, so they cannot qualify a source
   for a plan. What they do establish is that assuming evaluator independence overstates a
-  two-source system's joint accuracy about threefold on that population (measured phi
-  +0.323). See `docs/agent_reward_bench_gate1.md` for the predeclaration and
-  `docs/agent_reward_bench_findings.md` for the result.
+  two-source system's joint accuracy on that population: on the stratum that matters for
+  assurance — reference failures, where both evaluators can only *miss* — the two err
+  together at odds ratio **9.4** (φ **+0.250**, risk ratio **4.93×**, n=811). On the
+  false-alarm stratum the dependence is weaker (OR 4.2, RR 2.78×, n=295).
+  ~~"about threefold … measured phi +0.323"~~ was the **pooled** figure (RR 3.92×) and is
+  superseded 2026-10-02: pooled φ is close to a restatement of the false-alarm stratum,
+  because this primary puts almost all its errors there (FPR 0.441 vs FNR 0.040), and it
+  orders the eight candidate alternates almost opposite to the failure stratum (1/8
+  positional agreement — `aer` leads on pooled φ and is **4th of 8** on failure-stratum φ).
+  Note also that failure-stratum dependence is **high for every alternate tested**, OR
+  **5.08 to 11.11**, so this is a property of the corpus, not a discriminating measurement
+  of any one pair. See `docs/agent_reward_bench_gate1.md` for the predeclaration,
+  `docs/agent_reward_bench_findings.md` for the result, and
+  `docs/agent_reward_bench_conditional.md` for the stratified analysis.
 - **Not a measurement system.** It consumes sensitivity and false-positive rate. It
   does not produce them, and `characterize-evaluator` exists to argue that consuming
   only those two numbers is the planner's largest remaining assumption.

@@ -6,3 +6,13 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 *.pyc
+
+# Pre-merge review scratch: diffs of this branch and of the site branch that writes it up,
+# dropped here so they can be read side by side before anything reaches main. Never committed --
+# a diff of the working tree is a copy of the working tree, and it goes stale the moment either
+# branch moves.
+review/
+
+# Local analysis dumps, not inputs to anything committed.
+repair_validation_output.txt
+rule_features_dump.json

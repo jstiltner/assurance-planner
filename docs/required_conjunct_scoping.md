@@ -220,8 +220,12 @@ list of things it may.
 3. **The execution record** -- the ordered list of tool calls the agent actually made,
    with names and arguments, and the tool responses.
 
-Point 2 needs defending, because it looks application-specific and R4 was rejected for
-being application-specific. The distinction: R4's route table encoded *which URLs mean
+Point 2 needs defending, because it looks application-specific and R4 was ~~rejected~~
+criticised for being application-specific. (*Corrected 2026-10-02:* R4 had no numeric gate
+to be rejected against, and its application-specificity was declared in §9 of its own
+preregistration rather than found in the results — so it is a scoping limit, not a verdict.
+The argument below is unaffected; only the word "rejected" was wrong. See
+`research_synthesis.md` §3.3.3.) The distinction: R4's route table encoded *which URLs mean
 the task failed*, which is knowledge about outcomes. A tool catalogue encodes *which of
 my own tools write*, which is knowledge every production system has about itself before
 any task is run. It is deployment configuration, not oracle metadata. A system that
@@ -591,10 +595,10 @@ exists.
 
 | claim | status |
 |---|---|
-| Evidence-absence detection has held-out support as an escalation signal (R3) | **survives unchanged** |
+| Evidence-absence detection has held-out support as an escalation signal (R3) | ~~**survives unchanged**~~ **narrowed 2026-10-02** -- the preregistered disposition is still ACCEPTED and the test ran as specified, but all 133 firings sit in visualwebarena, and conditioned on slice the separation is +5.8 pp (p = 0.26) against +11.2 pp (p = 0.0015) pooled. Held-out support for the *escalation reading* is what shrank; see `research_synthesis.md` §3.3.1 |
 | R2 is promising but underpowered | **weakened** -- still ACCEPTED as preregistered, but firing precision is 1.06x and the harm bound at n=6 is 39.3% |
 | A broad deterministic veto architecture is validated | **still false**, and this pass adds a fourth reason |
-| Two of four candidate deterministic rules failed held-out evaluation | **survives unchanged** |
+| ~~Two of four candidate deterministic rules failed held-out evaluation~~ | **superseded 2026-10-02** -- only two of the four (R2, R3) had numeric accept/reject gates; R1 and R4 had a direction and no threshold, and R4 met its direction at 1.20x. See `research_synthesis.md` §3.3.3 |
 | Human review cost remains material | **survives, and grows** -- the new rule's pre-filter population is 22.1% of trajectories |
 | The 15 discovery cases may teach but not prove | **extended** -- the 1259 validation cases now fall under the same rule |
 | AgentRewardBench can host the next rule | **dead** -- zero untouched cases, and the required inputs are not in the archive |
